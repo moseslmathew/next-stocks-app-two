@@ -9,9 +9,24 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.46",
+    "@ai-sdk/openai": "^2.0.86",
+    "@clerk/nextjs": "^6.36.2",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@neondatabase/serverless": "^1.0.2",
+    "@prisma/adapter-neon": "^7.1.0",
+    "@prisma/client": "^6.19.1",
+    "ai": "^5.0.113",
+    "lucide-react": "^0.561.0",
     "next": "16.0.10",
+    "prisma": "^6.19.1",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "recharts": "^3.6.0",
+    "rss-parser": "^3.13.0",
+    "yahoo-finance2": "^3.10.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

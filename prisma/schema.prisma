@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Watchlist {
+  id        String          @id @default(cuid())
+  userId    String
+  name      String
+  region    String          @default("IN") // IN, GLOBAL, ALL
+  createdAt DateTime        @default(now())
+  items     WatchlistItem[]
+
+  @@unique([userId, name, region])
+}
+
+model WatchlistItem {
+  id          String    @id @default(cuid())
+  watchlistId String
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  symbol      String
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@unique([watchlistId, symbol])
+}
