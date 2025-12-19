@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee } from 'lucide-react';
+import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign } from 'lucide-react';
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
 import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists } from '@/actions/watchlist';
@@ -222,7 +222,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   
   const [sortColumn, setSortColumn] = useState<SortColumn>('custom');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [trendRange, setTrendRange] = useState<'1d' | '7d' | '52w'>('7d');
+  const [trendRange, setTrendRange] = useState<'1d' | '7d' | '52w'>('1d');
   const [highLowRange, setHighLowRange] = useState<'1d' | '52w'>('1d');
   const [selectedStock, setSelectedStock] = useState<MarketData | null>(null);
   const [mobileActiveColumn, setMobileActiveColumn] = useState<'price' | 'trend' | 'range' | 'actions'>('price');
@@ -765,7 +765,9 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                             </>
                                         ) : (
                                             <>
-                                                <span className="text-2xl">🌍</span>
+                                                <div className="mt-1">
+                                                    <DollarSign size={24} />
+                                                </div>
                                                 {title}
                                                  <span className={`text-xs ml-2 px-2 py-0.5 rounded-full border ${
                                                     (() => {
