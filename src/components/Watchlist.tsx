@@ -802,18 +802,17 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     </h2>
                                 )}
                                     <div className="relative group">
-                                        {/* Mobile Navigation Arrows */}
                                         <button 
                                             onClick={() => scrollTable(title, 'left')}
-                                            className="sm:hidden absolute left-[45vw] top-0 bottom-0 z-40 px-1 bg-gradient-to-r from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
+                                            className="sm:hidden absolute left-[45vw] top-0 h-[53px] z-40 px-1 bg-gradient-to-r from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
                                         >
-                                            <ChevronLeft size={20} strokeWidth={3} />
+                                            <ChevronLeft size={18} strokeWidth={3} />
                                         </button>
                                         <button 
                                             onClick={() => scrollTable(title, 'right')}
-                                            className="sm:hidden absolute right-0 top-0 bottom-0 z-40 px-1 bg-gradient-to-l from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
+                                            className="sm:hidden absolute right-0 top-0 h-[53px] z-40 px-1 bg-gradient-to-l from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
                                         >
-                                            <ChevronRight size={20} strokeWidth={3} />
+                                            <ChevronRight size={18} strokeWidth={3} />
                                         </button>
 
                                         <div 
