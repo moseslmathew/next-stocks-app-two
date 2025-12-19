@@ -618,18 +618,18 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
   return (
     <div className="space-y-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+        <div className="flex flex-col gap-6 mb-8">
             
-            {/* List Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto p-2 w-full md:w-auto">
+            {/* Row 1: List Tabs */}
+            <div className="flex items-center gap-3 overflow-x-auto w-full no-scrollbar">
                 {watchlists.map(list => (
-                    <div key={list.id} className="relative group">
+                    <div key={list.id} className="relative group shrink-0">
                          <button
                             onClick={() => setActiveWatchlistId(list.id)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                            className={`px-5 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                                 activeWatchlistId === list.id 
-                                ? 'bg-blue-600 text-white shadow-md' 
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' 
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                             }`}
                         >
                             {list.name}
@@ -638,7 +638,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                         {watchlists.length > 1 && (
                             <button 
                                 onClick={(e) => { e.stopPropagation(); handleDeleteList(list.id); }}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
                                 title="Delete List"
                             >
                                 <Trash2 size={10} />
@@ -651,38 +651,40 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                 {isCreatingList ? (
                     <form 
                         onSubmit={(e) => { e.preventDefault(); handleCreateList(); }}
-                        className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-1 rounded-lg"
+                        className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-1.5 rounded-lg shrink-0 border border-gray-200 dark:border-gray-700"
                     >
                         <input 
                             type="text" 
                             autoFocus
                             placeholder="List Name"
-                            className="bg-transparent border-none text-sm px-2 py-1 outline-none w-32"
+                            className="bg-transparent border-none text-sm px-2 py-1 outline-none w-32 text-gray-900 dark:text-white"
                             value={newListName}
                             onChange={(e) => setNewListName(e.target.value)}
                         />
-                         <button type="submit" disabled={!newListName.trim()} className="text-green-600 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/30 p-1 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+                         <button type="submit" disabled={!newListName.trim()} className="text-green-600 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/30 p-1.5 rounded disabled:opacity-50 disabled:cursor-not-allowed">
                             <Plus size={16}/>
                          </button>
-                         <button type="button" onClick={() => setIsCreatingList(false)} className="text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 p-1 rounded">×</button>
+                         <button type="button" onClick={() => setIsCreatingList(false)} className="text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 p-1.5 rounded">×</button>
                     </form>
                 ) : (
                     <button 
                         onClick={() => setIsCreatingList(true)}
-                        className="px-3 py-2 rounded-lg text-sm border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors flex items-center gap-1"
+                        className="h-[42px] px-4 rounded-lg text-sm font-medium border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-500 hover:border-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors flex items-center gap-2 shrink-0 bg-transparent"
                     >
-                        <Plus size={16} /> New List
+                        <Plus size={16} /> 
+                        <span className="hidden sm:inline">New List</span>
+                        <span className="sm:hidden">New</span>
                     </button>
                 )}
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2">
+            {/* Row 2: Actions */}
+            <div className="flex items-center">
                  <button 
                     onClick={() => setIsSearchOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm font-medium text-sm"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 font-medium text-sm transform hover:-translate-y-0.5 active:translate-y-0"
                  >
-                    <Plus size={16} />
+                    <Plus size={18} strokeWidth={2.5} />
                     <span>Add Symbol</span>
                  </button>
             </div>
