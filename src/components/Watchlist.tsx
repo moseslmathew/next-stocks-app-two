@@ -117,7 +117,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[35vw] sm:w-auto min-w-[110px] sm:min-w-0">
+            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[40vw] min-w-[140px] sm:w-auto sm:min-w-0">
                 <div className="flex items-center gap-2">
                     <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
                         <GripVertical size={16} />
@@ -129,7 +129,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle min-w-[65vw] sm:min-w-0 snap-start">
+            <td className="px-2 sm:px-6 py-4 align-middle w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0 snap-start">
                 <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
@@ -137,12 +137,12 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle min-w-[65vw] sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
+            <td className="px-2 sm:px-6 py-4 align-middle w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity">
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 w-1/3 min-w-[65vw] sm:min-w-[200px] snap-start align-middle">
+            <td className="px-2 sm:px-6 py-4 w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-[200px] snap-start align-middle">
                 <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
                     <span>{formatCurrency(low, data.currency)}</span>
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
@@ -154,7 +154,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 text-right align-middle min-w-[65vw] sm:min-w-0 snap-start">
+            <td className="px-2 sm:px-6 py-4 text-right align-middle w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0 snap-start">
                 <div className="flex items-center justify-end gap-2">
                     <button 
                         onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -773,22 +773,22 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     </h2>
                                 )}
                                     <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black snap-x snap-mandatory">
-                                    <table className="w-full text-left text-sm table-fixed sm:table-auto">
+                                    <table className="w-full text-left text-sm">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50">
                                             <tr>
-                                                <th className="px-2 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[35vw] sm:w-auto min-w-[110px] sm:min-w-0" onClick={() => handleSort('symbol')}>
+                                                <th className="px-4 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[40vw] min-w-[140px] sm:w-auto sm:min-w-0" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white min-w-[65vw] sm:min-w-0 snap-start" onClick={() => handleSort('price')}>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0 snap-start" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 min-w-[65vw] sm:min-w-0 snap-start">
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0 snap-start">
                                                     <div className="flex items-center gap-2">
                                                         <span>Trend</span>
                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
@@ -813,7 +813,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 min-w-[65vw] sm:min-w-0 snap-start">
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0 snap-start">
                                                     <div className="flex items-center gap-2">
                                                         <span>Range</span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
@@ -832,7 +832,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right min-w-[65vw] sm:min-w-0 snap-start">Actions</th>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
