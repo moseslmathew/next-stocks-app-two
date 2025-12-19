@@ -123,7 +123,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                         <GripVertical size={16} />
                     </button>
                     <div className="min-w-0">
-                        <div className="font-semibold text-sm text-gray-900 dark:text-white truncate leading-tight w-[100px] sm:w-auto" title={data.shortName}>
+                        <div className="font-medium text-sm text-gray-900 dark:text-white truncate leading-tight w-[100px] sm:w-auto" title={data.shortName}>
                             {toTitleCase(data.shortName || data.symbol)}
                         </div>
                     </div>
@@ -133,7 +133,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
-                <div className={`text-xs font-semibold mt-0.5 ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-xs font-medium mt-0.5 ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
