@@ -128,33 +128,33 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[45vw] min-w-[45vw] sm:w-auto sm:min-w-0">
+            <td className="px-2 sm:px-6 py-3 sm:py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[45vw] min-w-[45vw] sm:w-auto sm:min-w-0">
                 <div className="flex items-center gap-2">
                     <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
                         <GripVertical size={16} />
                     </button>
                     <div className="min-w-0 w-full">
-                        <div className="font-medium text-sm text-gray-900 dark:text-white break-words" title={data.shortName}>
+                        <div className="font-medium text-xs sm:text-sm text-gray-900 dark:text-white break-words" title={data.shortName}>
                             {toTitleCase(data.shortName || data.symbol)}
                         </div>
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
-                <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
+            <td className="px-2 sm:px-6 py-3 sm:py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                <div className="font-mono text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
-                <div className={`text-xs font-medium mt-0.5 ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-[10px] sm:text-xs font-medium mt-0.5 ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => onSelect(data)}>
+            <td className="px-2 sm:px-6 py-3 sm:py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start">
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
-                <div className="flex items-center justify-center sm:justify-start gap-3 text-xs text-gray-500 font-mono">
+            <td className="px-2 sm:px-6 py-3 sm:py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
+                <div className="flex items-center justify-center sm:justify-start gap-3 text-[10px] sm:text-xs text-gray-500 font-mono">
                     <span>{formatCurrency(low, data.currency)}</span>
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative min-w-[60px]">
                         <div 
@@ -165,7 +165,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
+            <td className="px-2 sm:px-6 py-3 sm:py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                     <button 
                          onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -819,8 +819,8 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                             ref={(el) => { tableRefs.current[title] = el; }}
                                             className="overflow-x-auto snap-x snap-mandatory scroll-pl-[45vw] no-scrollbar rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black"
                                         >
-                                    <table className="w-full text-left text-sm">
-                                        <thead className="bg-gray-50 dark:bg-gray-900/50">
+                                    <table className="w-full text-left text-[11px] sm:text-sm">
+                                        <thead className="bg-gray-50 dark:bg-gray-900/50 text-[10px] sm:text-xs">
                                             <tr>
                                                 <th className="px-4 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[45vw] min-w-[45vw] sm:w-auto sm:min-w-0" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1">
