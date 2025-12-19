@@ -58,7 +58,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   React.useEffect(() => {
     setActiveRange(range);
     setInternalData(null);
-  }, [range, symbol]);
+  }, [range, symbol, isOpen]);
 
   // Use either internal fetched data or initial props
   const currentPriceData = internalData?.price || priceData;
@@ -153,19 +153,58 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
       >
         {/* Mobile Handle */}
         <div className="sm:hidden flex justify-center py-4">
-            <div className="w-12 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full" />
+            <div className="w-12 h-1 bg-gray-200 dark:bg-gray-800 rounded-full" />
         </div>
 
-        <div className="px-6 sm:px-10 pb-8 sm:py-10">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3 truncate">
-              {symbol}
-              <div className="flex bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg border border-gray-200 dark:border-white/10 scale-90 sm:scale-100">
+        <div className="px-6 sm:px-10 pb-8 sm:py-8">
+            {/* Header / Controls Row */}
+            <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
+                        {symbol}
+                    </h2>
+                    <div className="hidden sm:flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10">
+                        {(['1d', '7d', '52w'] as const).map((r) => (
+                            <button 
+                                key={r}
+                                onClick={() => setActiveRange(r)}
+                                className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                                    activeRange === r 
+                                    ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm' 
+                                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                }`}
+                            >
+                                {r.toUpperCase()}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 px-3 py-1.5 bg-gray-100 dark:bg-white/5 rounded-full border border-gray-200 dark:border-white/10">
+                        <button 
+                            onClick={() => setShowVolume(!showVolume)}
+                            className="relative inline-flex h-4 w-8 shrink-0 cursor-pointer items-center rounded-full transition-colors bg-gray-300 dark:bg-gray-700"
+                        >
+                            <span 
+                                className={`pointer-events-none block h-3 w-3 rounded-full shadow-lg ring-0 transition-all ${showVolume ? 'translate-x-[18px] bg-blue-500' : 'translate-x-[2px] bg-gray-500'}`}
+                            />
+                        </button>
+                        <BarChart2 size={16} className={showVolume ? 'text-blue-500' : 'text-gray-500'} />
+                    </div>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                        <X size={24} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Mobile Range Selector */}
+            <div className="sm:hidden flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10 mb-6 w-fit mx-auto">
                 {(['1d', '7d', '52w'] as const).map((r) => (
                     <button 
                         key={r}
                         onClick={() => setActiveRange(r)}
-                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
+                        className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
                             activeRange === r 
                             ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm' 
                             : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -174,154 +213,130 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                         {r.toUpperCase()}
                     </button>
                 ))}
-              </div>
-            </h2>
-            
-            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 items-start gap-x-4 gap-y-3">
-                 <div>
-                    <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Price</span>
-                    <div className="text-xl sm:text-2xl font-mono font-bold text-gray-900 dark:text-white">
-                        {currentPrice.toFixed(2)}
+            </div>
+
+            {/* Price & Primary Info Block */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 mb-8 items-end">
+                <div className="md:col-span-5">
+                    <div className="flex items-baseline gap-3 mb-1">
+                        <span className="text-4xl sm:text-5xl font-mono font-black text-gray-900 dark:text-white tracking-tighter">
+                            {currentPrice.toFixed(2)}
+                        </span>
+                        <div className={`flex items-center text-sm sm:text-lg font-bold ${isCurrentlyPositive ? 'text-green-500' : 'text-red-500'}`}>
+                            {isCurrentlyPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
+                        </div>
                     </div>
-                    <div className={`text-[10px] font-bold ${isCurrentlyPositive ? 'text-green-500' : 'text-red-500'}`}>
-                        {isCurrentlyPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
-                    </div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        Last Traded • {formatDate(displayData.timestamp)}
+                    </p>
                 </div>
 
-                <div className="col-span-2 sm:col-span-1 order-last sm:order-none">
-                    <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-1.5">Range ({activeRange})</span>
-                    <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-gray-400">
-                        <span className="flex-shrink-0">{low.toFixed(2)}</span>
-                        <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-800 rounded-full relative">
+                <div className="md:col-span-7 w-full">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            Range ({activeRange})
+                        </span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            Vol: {displayData.volume?.toLocaleString()}
+                        </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-[11px] font-mono font-bold">
+                        <span className="text-gray-400">{low.toFixed(2)}</span>
+                        <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/5 rounded-full relative">
                             <div 
-                                className="absolute top-0 bottom-0 w-2 h-2 -mt-0.5 bg-[#2070b4] rounded-full shadow-sm ring-2 ring-white dark:ring-[#0a0a0a]"
-                                style={{ left: `${clampedRangePosition}%` }}
+                                className="absolute top-0 bottom-0 w-3 h-3 -mt-0.75 bg-blue-500 rounded-full shadow-lg ring-2 ring-white dark:ring-[#0a0a0a] transition-all duration-300"
+                                style={{ left: `${clampedRangePosition}%`, transform: 'translateX(-50%)' }}
                             />
                         </div>
-                        <span className="flex-shrink-0">{high.toFixed(2)}</span>
+                        <span className="text-gray-400">{high.toFixed(2)}</span>
                     </div>
                 </div>
+            </div>
 
-                {showVolume && (
-                    <div className="sm:ml-auto">
-                        <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Volume</span>
-                        <div className="text-base sm:text-lg font-mono font-bold text-gray-700 dark:text-gray-300">
-                            {displayData.volume?.toLocaleString()}
-                        </div>
+            <div className="h-[280px] sm:h-[400px] w-full px-2 sm:px-6 relative">
+                {isLoading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-[1px] animate-in fade-in duration-200">
+                        <Loader2 size={32} className="text-blue-500 animate-spin" />
                     </div>
                 )}
-                 <div className="sm:ml-auto">
-                     <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Time Point</span>
-                     <div className="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {formatDate(displayData.timestamp)}
-                     </div>
-                </div>
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center ml-2">
-            <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase text-gray-400 tracking-tighter sm:hidden">Vol</span>
-                <button 
-                    onClick={() => setShowVolume(!showVolume)}
-                    className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-200 dark:bg-gray-800"
-                >
-                    <span 
-                        className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${showVolume ? 'translate-x-[18px] bg-blue-500' : 'translate-x-[2px] bg-gray-400'}`}
-                    />
-                </button>
-                <BarChart2 size={16} className={showVolume ? 'text-blue-500' : 'text-gray-400'} />
-            </div>
-            
-            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors -mr-1">
-                <X size={20} className="text-gray-500" />
-            </button>
-          </div>
-        </div>
-
-        <div className="h-[280px] sm:h-[400px] w-full px-2 sm:px-6 relative">
-            {isLoading && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-[1px] animate-in fade-in duration-200">
-                    <Loader2 size={32} className="text-blue-500 animate-spin" />
-                </div>
-            )}
-            <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={chartData} margin={{ top: 20, right: 10, bottom: 20, left: 10 }}>
-                    <defs>
-                        <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={chartColor} stopOpacity={0.3}/>
-                            <stop offset="50%" stopColor={chartColor} stopOpacity={0.1}/>
-                            <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid 
-                        vertical={false} 
-                        strokeDasharray="3 3" 
-                        stroke="currentColor" 
-                        opacity={0.1}
-                    />
-                    <XAxis 
-                        dataKey="timestamp" 
-                        tickFormatter={(val) => {
-                            if (!val || typeof val !== 'number') return '';
-                            const date = new Date(val);
-                            return activeRange === '1d' 
-                                ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-                                : date.toLocaleDateString([], { month: '2-digit', day: '2-digit' });
-                        }}
-                        tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 500 }}
-                        axisLine={false}
-                        tickLine={false}
-                        interval="preserveStartEnd"
-                        minTickGap={40}
-                        dy={10}
-                    />
-                    <YAxis 
-                        yAxisId="price" 
-                        domain={['auto', 'auto']} 
-                        orientation="right" 
-                        tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }}
-                        tickFormatter={(val) => val.toFixed(2)}
-                        axisLine={false}
-                        tickLine={false}
-                        width={60}
-                    />
-                    {showVolume && (
-                        <YAxis 
-                            yAxisId="volume" 
-                            orientation="left" 
-                            hide 
+                <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={chartData} margin={{ top: 20, right: 10, bottom: 20, left: 10 }}>
+                        <defs>
+                            <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor={chartColor} stopOpacity={0.3}/>
+                                <stop offset="50%" stopColor={chartColor} stopOpacity={0.1}/>
+                                <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid 
+                            vertical={false} 
+                            strokeDasharray="3 3" 
+                            stroke="currentColor" 
+                            opacity={0.1}
                         />
-                    )}
-                    <Tooltip 
-                        content={<ChartCursorHandler onUpdate={setActiveData} latestData={latestData} />}
-                        cursor={{ stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '5 5' }}
-                    />
-                    {showVolume && (
-                        <Bar 
-                            yAxisId="volume" 
-                            dataKey="volume" 
-                            barSize={3} 
-                            radius={[2, 2, 0, 0]}
-                            opacity={0.6}
-                        >
-                            {chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.volumeColor} />
-                            ))}
-                        </Bar>
-                    )}
-                    <Area 
-                        yAxisId="price"
-                        type="monotone" 
-                        dataKey="price" 
-                        stroke={chartColor} 
-                        fillOpacity={1} 
-                        fill="url(#colorPrice)" 
-                        strokeWidth={2.5}
-                        animationDuration={1000}
-                    />
-                </ComposedChart>
-            </ResponsiveContainer>
+                        <XAxis 
+                            dataKey="timestamp" 
+                            tickFormatter={(val) => {
+                                if (!val || typeof val !== 'number') return '';
+                                const date = new Date(val);
+                                return activeRange === '1d' 
+                                    ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                                    : date.toLocaleDateString([], { month: '2-digit', day: '2-digit' });
+                            }}
+                            tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 500 }}
+                            axisLine={false}
+                            tickLine={false}
+                            interval="preserveStartEnd"
+                            minTickGap={40}
+                            dy={10}
+                        />
+                        <YAxis 
+                            yAxisId="price" 
+                            domain={['auto', 'auto']} 
+                            orientation="right" 
+                            tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }}
+                            tickFormatter={(val) => val.toFixed(2)}
+                            axisLine={false}
+                            tickLine={false}
+                            width={60}
+                        />
+                        {showVolume && (
+                            <YAxis 
+                                yAxisId="volume" 
+                                orientation="left" 
+                                hide 
+                            />
+                        )}
+                        <Tooltip 
+                            content={<ChartCursorHandler onUpdate={setActiveData} latestData={latestData} />}
+                            cursor={{ stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '5 5' }}
+                        />
+                        {showVolume && (
+                            <Bar 
+                                yAxisId="volume" 
+                                dataKey="volume" 
+                                barSize={3} 
+                                radius={[2, 2, 0, 0]}
+                                opacity={0.6}
+                            >
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.volumeColor} />
+                                ))}
+                            </Bar>
+                        )}
+                        <Area 
+                            yAxisId="price"
+                            type="monotone" 
+                            dataKey="price" 
+                            stroke={chartColor} 
+                            fillOpacity={1} 
+                            fill="url(#colorPrice)" 
+                            strokeWidth={2.5}
+                            animationDuration={1000}
+                        />
+                    </ComposedChart>
+                </ResponsiveContainer>
+            </div>
         </div>
       </div>
     </div>
