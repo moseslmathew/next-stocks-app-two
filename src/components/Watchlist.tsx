@@ -154,7 +154,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 text-right hidden sm:table-cell align-middle">
+            <td className="px-2 sm:px-6 py-4 text-right align-middle">
                 <div className="flex items-center justify-end gap-2">
                     <button 
                         onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -832,7 +832,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right hidden sm:table-cell">Actions</th>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
