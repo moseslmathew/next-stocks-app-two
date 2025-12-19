@@ -67,7 +67,17 @@ interface MarketData {
 type SortColumn = 'custom' | 'symbol' | 'price' | 'change';
 type SortDirection = 'asc' | 'desc';
 
+// Helper to format company name to Title Case
+function toTitleCase(str: string) {
+  if (!str) return '';
+  return str.replace(
+    /\w\S*/g,
+    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  );
+}
+
 function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange }: { data: MarketData, onRemove: (s: string) => void, onSelect: (d: MarketData) => void, onOpenNews: (s: string, fallback?: string) => void, highLowRange: '1d' | '52w', trendRange: '1d' | '7d' | '52w' }) {
+    // ... (hooks remain same)
     const {
         attributes,
         listeners,
@@ -114,7 +124,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </button>
                     <div className="min-w-0">
                         <div className="font-semibold text-sm text-gray-900 dark:text-white truncate leading-tight w-[100px] sm:w-auto" title={data.shortName}>
-                            {data.shortName || data.symbol}
+                            {toTitleCase(data.shortName || data.symbol)}
                         </div>
                     </div>
                 </div>
