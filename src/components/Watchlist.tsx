@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X } from 'lucide-react';
+import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee } from 'lucide-react';
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
 import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists } from '@/actions/watchlist';
@@ -129,7 +129,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle">
+            <td className="px-2 sm:px-6 py-4 align-middle min-w-[65vw] sm:min-w-0 snap-start">
                 <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
@@ -137,12 +137,12 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle" onClick={() => onSelect(data)}>
+            <td className="px-2 sm:px-6 py-4 align-middle min-w-[65vw] sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity">
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 w-1/3 min-w-[140px] sm:min-w-[200px] hidden sm:table-cell align-middle">
+            <td className="px-2 sm:px-6 py-4 w-1/3 min-w-[65vw] sm:min-w-[200px] snap-start align-middle">
                 <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
                     <span>{formatCurrency(low, data.currency)}</span>
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
@@ -154,7 +154,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 text-right align-middle">
+            <td className="px-2 sm:px-6 py-4 text-right align-middle min-w-[65vw] sm:min-w-0 snap-start">
                 <div className="flex items-center justify-end gap-2">
                     <button 
                         onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -621,7 +621,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
         <div className="flex flex-col gap-6 mb-8">
             
             {/* Row 1: List Tabs */}
-            <div className="flex items-center gap-3 overflow-x-auto w-full no-scrollbar">
+            <div className="flex items-center gap-3 overflow-x-auto w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                 {watchlists.map(list => (
                     <div key={list.id} className="relative group shrink-0">
                          <button
@@ -721,7 +721,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                         {title === 'Indian Markets' ? (
                                             <>
-                                                <span className="text-2xl">🇮🇳</span>
+                                                <IndianRupee size={24} />
                                                 {title}
                                                 <span className={`text-xs ml-2 px-2 py-0.5 rounded-full border ${
                                                     (() => {
@@ -772,7 +772,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                         )}
                                     </h2>
                                 )}
-                                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black snap-x snap-mandatory">
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50">
                                             <tr>
@@ -782,13 +782,13 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white" onClick={() => handleSort('price')}>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white min-w-[65vw] sm:min-w-0 snap-start" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400">
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 min-w-[65vw] sm:min-w-0 snap-start">
                                                     <div className="flex items-center gap-2">
                                                         <span>Trend</span>
                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
@@ -813,7 +813,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 hidden sm:table-cell">
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 min-w-[65vw] sm:min-w-0 snap-start">
                                                     <div className="flex items-center gap-2">
                                                         <span>Range</span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
@@ -832,7 +832,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right">Actions</th>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right min-w-[65vw] sm:min-w-0 snap-start">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
