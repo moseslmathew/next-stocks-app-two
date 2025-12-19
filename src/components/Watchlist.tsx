@@ -117,7 +117,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-100 dark:border-gray-800 align-middle">
+            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle">
                 <div className="flex items-center gap-2">
                     <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
                         <GripVertical size={16} />
@@ -774,7 +774,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50">
                                             <tr>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-gray-800" onClick={() => handleSort('symbol')}>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
@@ -833,7 +833,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                 <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right hidden sm:table-cell">Actions</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-black">
+                                        <tbody className="bg-white dark:bg-black">
                                             <SortableContext 
                                                 items={stocks.map(d => d.symbol)}
                                                 strategy={verticalListSortingStrategy}
