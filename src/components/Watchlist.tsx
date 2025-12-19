@@ -140,7 +140,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+            <td className="px-10 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
                 <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
@@ -148,12 +148,12 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => onSelect(data)}>
+            <td className="px-10 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start">
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
+            <td className="px-10 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
                 <div className="flex items-center justify-center sm:justify-start gap-3 text-xs text-gray-500 font-mono">
                     <span>{formatCurrency(low, data.currency)}</span>
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative min-w-[60px]">
@@ -165,7 +165,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
+            <td className="px-10 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                     <button 
                          onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -806,13 +806,13 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                             onClick={() => scrollTable(title, 'left')}
                                             className="sm:hidden absolute left-[45vw] top-0 h-[53px] z-40 px-1 bg-gradient-to-r from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
                                         >
-                                            <ChevronLeft size={18} strokeWidth={3} />
+                                            <ChevronLeft size={16} strokeWidth={3} />
                                         </button>
                                         <button 
                                             onClick={() => scrollTable(title, 'right')}
                                             className="sm:hidden absolute right-0 top-0 h-[53px] z-40 px-1 bg-gradient-to-l from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
                                         >
-                                            <ChevronRight size={18} strokeWidth={3} />
+                                            <ChevronRight size={16} strokeWidth={3} />
                                         </button>
 
                                         <div 
@@ -828,41 +828,41 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
+                                                <th className="px-10 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center justify-center sm:justify-start gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
-                                                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                                                <th className="px-10 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                                                    <div className="flex items-center justify-between sm:justify-start gap-2">
                                                         <span>Trend</span>
-                                                        <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
+                                                        <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
                                                             <button
                                                                 onClick={() => setTrendRange('1d')}
-                                                                className={`px-2 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                                className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                                             >
                                                                 1D
                                                             </button>
                                                             <button
                                                                 onClick={() => setTrendRange('7d')}
-                                                                className={`px-2 py-0.5 rounded-md transition-all ${trendRange === '7d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                                className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '7d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                                             >
                                                                 7D
                                                             </button>
                                                             <button
                                                                 onClick={() => setTrendRange('52w')}
-                                                                className={`px-2 py-0.5 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                                className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                                             >
                                                                 52W
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
-                                                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                                                <th className="px-10 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                                                    <div className="flex items-center justify-between sm:justify-start gap-2">
                                                         <span>Range</span>
-                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
+                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
                                                             <button
                                                                 onClick={() => setHighLowRange('1d')}
                                                                 className={`px-2 py-0.5 rounded-md transition-all ${highLowRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
@@ -878,7 +878,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
+                                                <th className="px-10 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
