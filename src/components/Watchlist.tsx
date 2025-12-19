@@ -155,7 +155,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
+            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start hidden sm:table-cell">
                 <div className="flex items-center justify-center sm:justify-start gap-2 text-xs sm:text-sm text-gray-500 font-mono">
                     <span className="flex-shrink-0">{formatCurrency(low, data.currency)}</span>
                     <div className="w-16 sm:flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
@@ -861,7 +861,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left hidden sm:table-cell">
                                                     <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
                                                         <span className="text-xs sm:text-sm uppercase tracking-wider">Range</span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
