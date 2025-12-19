@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  AreaChart,
   Area,
   XAxis,
   YAxis,
@@ -11,7 +10,8 @@ import {
   Cell,
   CartesianGrid
 } from 'recharts';
-import { X, BarChart2 } from 'lucide-react';
+import { X, BarChart2, Loader2 } from 'lucide-react';
+import { getWatchlistData } from '@/actions/market';
 
 interface ChartModalProps {
   isOpen: boolean;
@@ -47,20 +47,65 @@ const ChartCursorHandler = ({ active, payload, onUpdate, latestData }: any) => {
   return null;
 };
 
-export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, color = '#22c55e', range = '1d' }: ChartModalProps) {
-  const latestData = React.useMemo(() => {
-     if (priceData.length === 0) return null;
-     return {
-        price: priceData[priceData.length - 1],
-        volume: volumeData[volumeData.length - 1] || 0,
-        timestamp: timestamps[timestamps.length - 1]
-     };
-  }, [priceData, volumeData, timestamps]);
-
+export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, range = '1d' }: ChartModalProps) {
+  const [activeRange, setActiveRange] = React.useState<'1d' | '7d' | '52w'>(range);
+  const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[] } | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [activeData, setActiveData] = React.useState<{ price: number, volume: number, timestamp: number } | null>(null);
   const [showVolume, setShowVolume] = React.useState(true);
 
-  // Initialize
+  // Sync activeRange with prop when modal opens/prop changes
+  React.useEffect(() => {
+    setActiveRange(range);
+    setInternalData(null);
+  }, [range, symbol]);
+
+  // Use either internal fetched data or initial props
+  const currentPriceData = internalData?.price || priceData;
+  const currentVolumeData = internalData?.volume || volumeData;
+  const currentTimestamps = internalData?.timestamps || timestamps;
+
+  // Handle range switching
+  React.useEffect(() => {
+    if (!isOpen) return;
+    if (activeRange === range && !internalData) {
+        return;
+    }
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const result = await getWatchlistData([symbol], activeRange);
+            if (result && result.length > 0) {
+                const stock = result[0];
+                setInternalData({
+                    price: stock.sparkline,
+                    volume: stock.volumeSparkline,
+                    timestamps: stock.timestamps
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch modal data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (activeRange !== range || (activeRange === range && internalData)) {
+        fetchData();
+    }
+  }, [activeRange, symbol, range, isOpen]);
+
+  const latestData = React.useMemo(() => {
+     if (currentPriceData.length === 0) return null;
+     return {
+        price: currentPriceData[currentPriceData.length - 1],
+        volume: currentVolumeData[currentVolumeData.length - 1] || 0,
+        timestamp: currentTimestamps[currentTimestamps.length - 1]
+     };
+  }, [currentPriceData, currentVolumeData, currentTimestamps]);
+
+  // Initialize active data
   React.useEffect(() => {
     if (latestData) setActiveData(latestData);
   }, [latestData]);
@@ -68,14 +113,14 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   if (!isOpen) return null;
 
   // Prepare data for Recharts
-  const chartData = priceData.map((price, i) => ({
-    timestamp: timestamps[i] || i, // Fallback to index if no timestamp
+  const chartData = currentPriceData.map((price, i) => ({
+    timestamp: currentTimestamps[i] || i,
     price,
-    volume: volumeData[i] || 0,
-    volumeColor: (i > 0 && price >= priceData[i - 1]) ? '#22c55e' : '#ef4444'
+    volume: currentVolumeData[i] || 0,
+    volumeColor: (i > 0 && price >= currentPriceData[i - 1]) ? '#22c55e' : '#ef4444'
   }));
 
-  const isPositive = priceData.length > 0 && priceData[priceData.length - 1] >= priceData[0];
+  const isPositive = currentPriceData.length > 0 && currentPriceData[currentPriceData.length - 1] >= currentPriceData[0];
   const chartColor = isPositive ? '#22c55e' : '#ef4444';
   
   const displayData = activeData || latestData || { price: 0, volume: 0, timestamp: 0 };
@@ -83,20 +128,20 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   const formatDate = (val: number) => {
       if (!val) return '';
       const date = new Date(val);
-      if (range === '1d') {
+      if (activeRange === '1d') {
           return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       }
       return date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   const currentPrice = displayData.price || 0;
-  const startPrice = priceData[0] || 0;
+  const startPrice = currentPriceData[0] || 0;
   const change = currentPrice - startPrice;
   const changePercent = startPrice !== 0 ? (change / startPrice) * 100 : 0;
   const isCurrentlyPositive = change >= 0;
 
-  const low = priceData.length > 0 ? Math.min(...priceData) : 0;
-  const high = priceData.length > 0 ? Math.max(...priceData) : 0;
+  const low = currentPriceData.length > 0 ? Math.min(...currentPriceData) : 0;
+  const high = currentPriceData.length > 0 ? Math.max(...currentPriceData) : 0;
   const range_position = high !== low ? ((currentPrice - low) / (high - low)) * 100 : 50;
   const clampedRangePosition = Math.max(0, Math.min(100, range_position));
 
@@ -113,11 +158,23 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
 
         <div className="px-6 sm:px-10 pb-8 sm:py-10">
           <div className="flex-1 min-w-0">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2 truncate">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3 truncate">
               {symbol}
-              <span className={`text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${isPositive ? 'bg-green-100 text-green-700 dark:bg-green-900/30' : 'bg-red-100 text-red-700 dark:bg-red-900/30'}`}>
-                {range}
-              </span>
+              <div className="flex bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg border border-gray-200 dark:border-white/10 scale-90 sm:scale-100">
+                {(['1d', '7d', '52w'] as const).map((r) => (
+                    <button 
+                        key={r}
+                        onClick={() => setActiveRange(r)}
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
+                            activeRange === r 
+                            ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-sm' 
+                            : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                        }`}
+                    >
+                        {r.toUpperCase()}
+                    </button>
+                ))}
+              </div>
             </h2>
             
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 items-start gap-x-4 gap-y-3">
@@ -132,7 +189,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                 </div>
 
                 <div className="col-span-2 sm:col-span-1 order-last sm:order-none">
-                    <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-1.5">Range ({range})</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-1.5">Range ({activeRange})</span>
                     <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-gray-400">
                         <span className="flex-shrink-0">{low.toFixed(2)}</span>
                         <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-800 rounded-full relative">
@@ -182,7 +239,12 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
           </div>
         </div>
 
-        <div className="h-[280px] sm:h-[400px] w-full px-2 sm:px-6">
+        <div className="h-[280px] sm:h-[400px] w-full px-2 sm:px-6 relative">
+            {isLoading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-[1px] animate-in fade-in duration-200">
+                    <Loader2 size={32} className="text-blue-500 animate-spin" />
+                </div>
+            )}
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={chartData} margin={{ top: 20, right: 10, bottom: 20, left: 10 }}>
                     <defs>
@@ -203,7 +265,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                         tickFormatter={(val) => {
                             if (!val || typeof val !== 'number') return '';
                             const date = new Date(val);
-                            return range === '1d' 
+                            return activeRange === '1d' 
                                 ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
                                 : date.toLocaleDateString([], { month: '2-digit', day: '2-digit' });
                         }}
@@ -228,7 +290,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                         <YAxis 
                             yAxisId="volume" 
                             orientation="left" 
-                            hide // Hide volume axis scale to keep it clean, bars just show relative magnitude
+                            hide 
                         />
                     )}
                     <Tooltip 
