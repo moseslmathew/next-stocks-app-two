@@ -21,6 +21,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent
@@ -106,9 +107,9 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-6 py-4">
+            <td className="px-3 sm:px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600">
+                    <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
                         <GripVertical size={20} />
                     </button>
                     <div>
@@ -117,7 +118,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-6 py-4">
+            <td className="px-3 sm:px-6 py-4">
                 <div className="font-mono text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
@@ -125,12 +126,12 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
-            <td className="px-6 py-4" onClick={() => onSelect(data)}>
+            <td className="px-3 sm:px-6 py-4" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity">
                     <Sparkline data={data.sparkline} width={100} height={40} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-6 py-4 w-1/3 min-w-[200px]">
+            <td className="px-3 sm:px-6 py-4 w-1/3 min-w-[140px] sm:min-w-[200px]">
                 <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
                     <span>{formatCurrency(low, data.currency)}</span>
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
@@ -142,7 +143,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-6 py-4 text-right">
+            <td className="px-3 sm:px-6 py-4 text-right">
                 <div className="flex items-center justify-end gap-2">
                     <button 
                         onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -212,7 +213,17 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+        activationConstraint: {
+            distance: 8, // Requires 8px movement before drag starts (good for mouse)
+        }
+    }),
+    useSensor(TouchSensor, {
+        activationConstraint: {
+            delay: 250, // Press and hold for 250ms to drag on touch
+            tolerance: 5, // Allow 5px movement during delay
+        }
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
