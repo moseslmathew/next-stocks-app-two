@@ -16,9 +16,6 @@ export default function IndianWatchlistPage() {
             <span className="whitespace-nowrap">Indian Markets</span>
             <MarketStatusBadge market="IN" />
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Track your favorite Indian stocks and investments.
-        </p>
       </div>
       
       <Watchlist filterRegion="IN" hideSectionTitles={true} />
