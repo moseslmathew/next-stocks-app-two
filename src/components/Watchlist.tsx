@@ -156,7 +156,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 </div>
             </td>
             <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
-                <div className="flex items-center justify-center sm:justify-start gap-2 text-[10px] sm:text-xs text-gray-500 font-mono">
+                <div className="flex items-center justify-center sm:justify-start gap-2 text-xs sm:text-sm text-gray-500 font-mono">
                     <span className="flex-shrink-0">{formatCurrency(low, data.currency)}</span>
                     <div className="w-16 sm:flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
                         <div 
@@ -837,34 +837,34 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                     </div>
                                                 </th>
                                                 <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
-                                                    <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
-                                                        <span className="text-[10px] sm:text-sm uppercase tracking-wider">Trend</span>
-                                                        <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
-                                                            <button
-                                                                onClick={() => setTrendRange('1d')}
-                                                                className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                                                            >
-                                                                1D
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setTrendRange('7d')}
-                                                                className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '7d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                                                            >
-                                                                7D
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setTrendRange('52w')}
-                                                                className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                                                            >
-                                                                52W
-                                                            </button>
+                                                     <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
+                                                         <span className="text-xs sm:text-sm uppercase tracking-wider">Trend</span>
+                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
+                                                             <button
+                                                                 onClick={() => setTrendRange('1d')}
+                                                                 className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                             >
+                                                                 1D
+                                                             </button>
+                                                             <button
+                                                                 onClick={() => setTrendRange('7d')}
+                                                                 className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '7d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                             >
+                                                                 7D
+                                                             </button>
+                                                             <button
+                                                                 onClick={() => setTrendRange('52w')}
+                                                                 className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                             >
+                                                                 52W
+                                                             </button>
                                                         </div>
                                                     </div>
                                                 </th>
                                                 <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
                                                     <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
-                                                        <span className="text-[10px] sm:text-sm uppercase tracking-wider">Range</span>
-                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
+                                                        <span className="text-xs sm:text-sm uppercase tracking-wider">Range</span>
+                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
                                                             <button
                                                                 onClick={() => setHighLowRange('1d')}
                                                                 className={`px-2 py-0.5 rounded-md transition-all ${highLowRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
