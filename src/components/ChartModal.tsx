@@ -83,8 +83,22 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   const formatDate = (val: number) => {
       if (!val) return '';
       const date = new Date(val);
-      return date.toLocaleString();
+      if (range === '1d') {
+          return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      }
+      return date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
+
+  const currentPrice = displayData.price || 0;
+  const startPrice = priceData[0] || 0;
+  const change = currentPrice - startPrice;
+  const changePercent = startPrice !== 0 ? (change / startPrice) * 100 : 0;
+  const isCurrentlyPositive = change >= 0;
+
+  const low = priceData.length > 0 ? Math.min(...priceData) : 0;
+  const high = priceData.length > 0 ? Math.max(...priceData) : 0;
+  const range_position = high !== low ? ((currentPrice - low) / (high - low)) * 100 : 50;
+  const clampedRangePosition = Math.max(0, Math.min(100, range_position));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -106,24 +120,42 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
               </span>
             </h2>
             
-            <div className="mt-3 grid grid-cols-2 sm:flex items-start gap-x-4 gap-y-3">
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 items-start gap-x-4 gap-y-3">
                  <div>
                     <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Price</span>
-                    <div className="text-xl sm:text-2xl font-mono font-bold text-gray-900 dark:text-gray-100">
-                        {displayData.price?.toFixed(2)}
+                    <div className="text-xl sm:text-2xl font-mono font-bold text-gray-900 dark:text-white">
+                        {currentPrice.toFixed(2)}
+                    </div>
+                    <div className={`text-[10px] font-bold ${isCurrentlyPositive ? 'text-green-500' : 'text-red-500'}`}>
+                        {isCurrentlyPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
                     </div>
                 </div>
+
+                <div className="col-span-2 sm:col-span-1 order-last sm:order-none">
+                    <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-1.5">Range ({range})</span>
+                    <div className="flex items-center gap-2 text-[10px] font-mono font-bold text-gray-400">
+                        <span className="flex-shrink-0">{low.toFixed(2)}</span>
+                        <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-800 rounded-full relative">
+                            <div 
+                                className="absolute top-0 bottom-0 w-2 h-2 -mt-0.5 bg-[#2070b4] rounded-full shadow-sm ring-2 ring-white dark:ring-[#0a0a0a]"
+                                style={{ left: `${clampedRangePosition}%` }}
+                            />
+                        </div>
+                        <span className="flex-shrink-0">{high.toFixed(2)}</span>
+                    </div>
+                </div>
+
                 {showVolume && (
-                    <div>
+                    <div className="sm:ml-auto">
                         <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Volume</span>
-                        <div className="text-base sm:text-lg font-mono text-gray-700 dark:text-gray-300">
+                        <div className="text-base sm:text-lg font-mono font-bold text-gray-700 dark:text-gray-300">
                             {displayData.volume?.toLocaleString()}
                         </div>
                     </div>
                 )}
-                 <div className="col-span-2 sm:col-auto border-t sm:border-0 pt-2 sm:pt-0">
-                     <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Date & Time</span>
-                     <div className="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400">
+                 <div className="sm:ml-auto">
+                     <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Time Point</span>
+                     <div className="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">
                         {formatDate(displayData.timestamp)}
                      </div>
                 </div>
