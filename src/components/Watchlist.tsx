@@ -853,7 +853,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
