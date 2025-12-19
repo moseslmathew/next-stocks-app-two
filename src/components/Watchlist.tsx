@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign } from 'lucide-react';
+import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight } from 'lucide-react';
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
 import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists } from '@/actions/watchlist';
@@ -793,6 +793,10 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                         )}
                                     </h2>
                                 )}
+                                    <div className="sm:hidden flex items-center justify-end px-2 mb-2 text-xs text-gray-400 animate-pulse">
+                                        <span>Swipe for details</span>
+                                        <ChevronRight size={14} className="ml-1" />
+                                    </div>
                                     <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black snap-x snap-mandatory scroll-pl-[45vw]">
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50">
