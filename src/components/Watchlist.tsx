@@ -107,31 +107,32 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-100 dark:border-gray-800">
-                <div className="flex items-center gap-3">
-                    <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none">
-                        <GripVertical size={20} />
+            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-100 dark:border-gray-800 align-middle">
+                <div className="flex items-center gap-2">
+                    <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
+                        <GripVertical size={16} />
                     </button>
-                    <div>
-                        <div className="font-bold text-gray-900 dark:text-white">{data.symbol}</div>
-                        <div className="text-gray-500 dark:text-gray-400 text-xs truncate max-w-[150px]">{data.shortName}</div>
+                    <div className="min-w-0">
+                        <div className="font-semibold text-sm text-gray-900 dark:text-white truncate leading-tight w-[100px] sm:w-auto" title={data.shortName}>
+                            {data.shortName || data.symbol}
+                        </div>
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4">
-                <div className="font-mono text-gray-900 dark:text-gray-100">
+            <td className="px-2 sm:px-6 py-4 align-middle">
+                <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
-                <div className={`text-xs ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-xs font-semibold mt-0.5 ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4" onClick={() => onSelect(data)}>
+            <td className="px-2 sm:px-6 py-4 align-middle" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity">
-                    <Sparkline data={data.sparkline} width={100} height={40} color={sparklineColor} />
+                    <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 w-1/3 min-w-[140px] sm:min-w-[200px]">
+            <td className="px-2 sm:px-6 py-4 w-1/3 min-w-[140px] sm:min-w-[200px] hidden sm:table-cell align-middle">
                 <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
                     <span>{formatCurrency(low, data.currency)}</span>
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
@@ -143,7 +144,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 text-right">
+            <td className="px-2 sm:px-6 py-4 text-right hidden sm:table-cell align-middle">
                 <div className="flex items-center justify-end gap-2">
                     <button 
                         onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -765,13 +766,13 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                             <tr>
                                                 <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] border-r border-gray-200 dark:border-gray-800" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1">
-                                                        Name
+                                                        Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
                                                 <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center gap-1">
-                                                        Current Price
+                                                        Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
@@ -800,7 +801,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400">
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 hidden sm:table-cell">
                                                     <div className="flex items-center gap-2">
                                                         <span>Range</span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
@@ -819,7 +820,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right">Actions</th>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right hidden sm:table-cell">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-black">
