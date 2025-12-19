@@ -132,7 +132,7 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
       <div className="relative">
         <input
           type="text"
-          className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-full text-sm focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-400"
           placeholder={watchlistId ? "Search to add to list..." : "Search stocks..."}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
