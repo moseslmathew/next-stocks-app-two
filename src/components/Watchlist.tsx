@@ -147,7 +147,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(low, data.currency)}</span>
                     <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
                         <div 
-                            className="absolute top-0 bottom-0 w-2 h-2 -mt-0.5 bg-[#3c6eec] rounded-full shadow-sm ring-2 ring-white dark:ring-black"
+                            className="absolute top-0 bottom-0 w-2 h-2 -mt-0.5 bg-[#2070b4] rounded-full shadow-sm ring-2 ring-white dark:ring-black"
                             style={{ left: `${clampedPosition}%` }}
                         />
                     </div>
@@ -158,7 +158,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 <div className="flex items-center justify-end gap-2">
                     <button 
                         onClick={() => onOpenNews(data.shortName, data.symbol)}
-                        className="p-2 text-[#3c6eec] hover:bg-[#3c6eec]/10 rounded-lg transition-colors"
+                        className="p-2 text-[#2070b4] hover:bg-[#2070b4]/10 rounded-lg transition-colors"
                         title="View News"
                     >
                         <Newspaper size={18} />
@@ -628,7 +628,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                             onClick={() => setActiveWatchlistId(list.id)}
                             className={`px-5 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                                 activeWatchlistId === list.id 
-                                ? 'bg-[#3c6eec] text-white shadow-md shadow-[#3c6eec]/20' 
+                                ? 'bg-[#2070b4] text-white shadow-md shadow-[#2070b4]/20' 
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                             }`}
                         >
@@ -682,7 +682,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             <div className="flex items-center">
                  <button 
                     onClick={() => setIsSearchOpen(true)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#3c6eec] text-white rounded-lg hover:bg-[#3461d4] transition-all shadow-lg shadow-[#3c6eec]/20 font-medium text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-[#2070b4] text-white rounded-lg hover:bg-[#3461d4] transition-all shadow-lg shadow-[#2070b4]/20 font-medium text-sm transform hover:-translate-y-0.5 active:translate-y-0"
                  >
                     <Plus size={18} strokeWidth={2.5} />
                     <span>Add Symbol</span>
