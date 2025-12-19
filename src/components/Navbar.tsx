@@ -101,9 +101,9 @@ const Navbar = () => {
              </div>
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsOpen(prev => !prev);
+              onClick={() => {
+                console.log('Toggle menu'); 
+                setIsOpen(!isOpen);
               }}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none z-50 cursor-pointer"
             >
@@ -114,7 +114,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="absolute top-16 left-0 w-full md:hidden border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-black shadow-lg z-[60]">
+        <div className="fixed top-16 left-0 w-full h-[calc(100vh-4rem)] md:hidden bg-white dark:bg-black shadow-lg z-[100] overflow-y-auto">
           <div className="px-4 pt-4 pb-2">
              <Search />
           </div>
