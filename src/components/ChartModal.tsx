@@ -86,63 +86,65 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div 
-        className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-4xl p-6 shadow-2xl border border-gray-200 dark:border-gray-800" 
+        className="bg-white dark:bg-gray-900 rounded-t-3xl sm:rounded-2xl w-full max-w-4xl p-4 sm:p-8 shadow-2xl border-t sm:border border-gray-200 dark:border-gray-800 animate-in fade-in slide-in-from-bottom-10 duration-300" 
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        <div className="flex justify-between items-start mb-4 sm:mb-8">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2 truncate">
               {symbol}
-              <span className={`text-sm font-medium px-2 py-0.5 rounded ${isPositive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {range.toUpperCase()}
+              <span className={`text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider ${isPositive ? 'bg-green-100 text-green-700 dark:bg-green-900/30' : 'bg-red-100 text-red-700 dark:bg-red-900/30'}`}>
+                {range}
               </span>
             </h2>
-            <div className="mt-1 flex items-baseline gap-4">
+            
+            <div className="mt-3 grid grid-cols-2 sm:flex items-start gap-x-4 gap-y-3">
                  <div>
-                    <span className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Price</span>
-                    <div className="text-2xl font-mono font-semibold text-gray-900 dark:text-gray-100">
+                    <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Price</span>
+                    <div className="text-xl sm:text-2xl font-mono font-bold text-gray-900 dark:text-gray-100">
                         {displayData.price?.toFixed(2)}
                     </div>
                 </div>
                 {showVolume && (
                     <div>
-                        <span className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Volume</span>
-                        <div className="text-lg font-mono text-gray-700 dark:text-gray-300">
+                        <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Volume</span>
+                        <div className="text-base sm:text-lg font-mono text-gray-700 dark:text-gray-300">
                             {displayData.volume?.toLocaleString()}
                         </div>
                     </div>
                 )}
-                 <div>
-                     <span className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wide">Date</span>
-                     <div className="text-sm font-mono text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                 <div className="col-span-2 sm:col-auto border-t sm:border-0 pt-2 sm:pt-0">
+                     <span className="text-gray-500 dark:text-gray-400 text-[10px] uppercase tracking-widest block mb-0.5">Date & Time</span>
+                     <div className="text-xs sm:text-sm font-mono text-gray-500 dark:text-gray-400">
                         {formatDate(displayData.timestamp)}
                      </div>
                 </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button 
-                onClick={() => setShowVolume(!showVolume)}
-                className={`flex items-center gap-2 px-2 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    showVolume 
-                    ? 'text-blue-600 dark:text-blue-400' 
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-            >
-                <div className={`w-8 h-4 rounded-full relative transition-colors ${showVolume ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
-                    <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-all ${showVolume ? 'left-4.5' : 'left-0.5'}`} style={{ left: showVolume ? 'calc(100% - 14px)' : '2px' }} />
-                </div>
-                Volume
-            </button>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-                <X size={24} className="text-gray-500" />
+          
+          <div className="flex flex-col items-end gap-3 sm:flex-row sm:items-center ml-2">
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase text-gray-400 tracking-tighter sm:hidden">Vol</span>
+                <button 
+                    onClick={() => setShowVolume(!showVolume)}
+                    className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-gray-200 dark:bg-gray-800"
+                >
+                    <span 
+                        className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${showVolume ? 'translate-x-[18px] bg-blue-500' : 'translate-x-[2px] bg-gray-400'}`}
+                    />
+                </button>
+                <BarChart2 size={16} className={showVolume ? 'text-blue-500' : 'text-gray-400'} />
+            </div>
+            
+            <button onClick={onClose} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors -mr-1">
+                <X size={20} className="text-gray-500" />
             </button>
           </div>
         </div>
 
-        <div className="h-[400px] w-full">
+        <div className="h-[300px] sm:h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={chartData}>
                     <defs>
