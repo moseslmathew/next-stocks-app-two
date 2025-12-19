@@ -128,19 +128,19 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[140px] min-w-[140px] max-w-[140px] sm:w-auto sm:min-w-0 sm:max-w-none">
+            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0">
                 <div className="flex items-center gap-2">
                     <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
                         <GripVertical size={16} />
                     </button>
-                    <div className="min-w-0">
-                        <div className="font-medium text-sm text-gray-900 dark:text-white truncate leading-tight w-full" title={data.shortName}>
+                    <div className="min-w-0 w-full">
+                        <div className="font-medium text-sm text-gray-900 dark:text-white truncate leading-tight" title={data.shortName}>
                             {toTitleCase(data.shortName || data.symbol)}
                         </div>
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-0 snap-start">
+            <td className="px-2 sm:px-6 py-4 align-middle w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
                 <div className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
                     {formatCurrency(data.regularMarketPrice, data.currency)}
                 </div>
@@ -148,15 +148,15 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 align-middle w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
-                <div className="cursor-pointer hover:opacity-80 transition-opacity">
+            <td className="px-2 sm:px-6 py-4 align-middle w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => onSelect(data)}>
+                <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start">
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-[200px] snap-start align-middle">
-                <div className="flex items-center gap-3 text-xs text-gray-500 font-mono">
+            <td className="px-2 sm:px-6 py-4 align-middle w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-[200px] snap-start">
+                <div className="flex items-center justify-center sm:justify-start gap-3 text-xs text-gray-500 font-mono">
                     <span>{formatCurrency(low, data.currency)}</span>
-                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
+                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative min-w-[60px]">
                         <div 
                             className="absolute top-0 bottom-0 w-2 h-2 -mt-0.5 bg-[#2070b4] rounded-full shadow-sm ring-2 ring-white dark:ring-black"
                             style={{ left: `${clampedPosition}%` }}
@@ -165,19 +165,19 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <span>{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 text-right align-middle w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-0 snap-start">
-                <div className="flex items-center justify-end gap-2">
+            <td className="px-2 sm:px-6 py-4 text-center sm:text-right align-middle w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-0 snap-start">
+                <div className="flex items-center justify-center sm:justify-end gap-2">
                     <button 
-                        onClick={() => onOpenNews(data.shortName, data.symbol)}
-                        className="p-2 text-[#2070b4] hover:bg-[#2070b4]/10 rounded-lg transition-colors"
-                        title="View News"
-                    >
-                        <Newspaper size={18} />
-                    </button>
+                         onClick={() => onOpenNews(data.shortName, data.symbol)}
+                         className="p-2 text-[#2070b4] hover:bg-[#2070b4]/10 rounded-lg transition-colors"
+                         title="View News"
+                     >
+                         <Newspaper size={18} />
+                     </button>
                     <button 
                         onClick={() => onRemove(data.symbol)}
-                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        title="Remove"
+                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="Remove from Watchlist"
                     >
                         <Trash2 size={18} />
                     </button>
@@ -791,33 +791,25 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                         )}
                                     </h2>
                                 )}
-                                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black snap-x snap-mandatory scroll-pl-[60vw]">
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50">
                                             <tr>
-                                                <th className="px-4 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[140px] min-w-[140px] max-w-[140px] sm:w-auto sm:min-w-0 sm:max-w-none" onClick={() => handleSort('symbol')}>
+                                                <th className="px-4 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[60vw] min-w-[60vw] sm:w-auto sm:min-w-0" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th 
-                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white ${mobileActiveColumn === 'price' ? 'table-cell' : 'hidden'} sm:table-cell`} 
-                                                    onClick={() => handleSort('price')}
-                                                    onDoubleClick={cycleMobileColumn}
-                                                >
-                                                     <div className="flex items-center gap-1">
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
+                                                     <div className="flex items-center justify-center sm:justify-start gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
-                                                        <span className="sm:hidden ml-2 text-xs text-[#2070b4] font-normal">(1/4)</span>
                                                     </div>
                                                 </th>
-                                                <th 
-                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 ${mobileActiveColumn === 'trend' ? 'table-cell' : 'hidden'} sm:table-cell`}
-                                                    onDoubleClick={cycleMobileColumn}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <span>Trend <span className="sm:hidden ml-1 text-xs text-[#2070b4] font-normal">(2/4)</span></span>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                                                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                                                        <span>Trend</span>
                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
                                                             <button
                                                                 onClick={() => setTrendRange('1d')}
@@ -840,12 +832,9 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th 
-                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 ${mobileActiveColumn === 'range' ? 'table-cell' : 'hidden'} sm:table-cell`}
-                                                    onDoubleClick={cycleMobileColumn}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <span>Range <span className="sm:hidden ml-1 text-xs text-[#2070b4] font-normal">(3/4)</span></span>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                                                    <div className="flex items-center justify-center sm:justify-start gap-2">
+                                                        <span>Range</span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
                                                             <button
                                                                 onClick={() => setHighLowRange('1d')}
@@ -862,12 +851,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th 
-                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right ${mobileActiveColumn === 'actions' ? 'table-cell' : 'hidden'} sm:table-cell`}
-                                                    onDoubleClick={cycleMobileColumn}
-                                                >
-                                                    Actions <span className="sm:hidden ml-1 text-xs text-[#2070b4] font-normal">(4/4)</span>
-                                                </th>
+                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right w-[40vw] min-w-[40vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
