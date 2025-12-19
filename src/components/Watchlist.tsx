@@ -156,15 +156,15 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 </div>
             </td>
             <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
-                <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 text-xs text-gray-500 font-mono">
-                    <span className="sm:inline-block order-2 sm:order-1">{formatCurrency(low, data.currency)}</span>
-                    <div className="w-full sm:flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative min-w-[60px] order-1 sm:order-2 my-2 sm:my-0">
+                <div className="flex items-center justify-center sm:justify-start gap-2 text-[10px] sm:text-xs text-gray-500 font-mono">
+                    <span className="flex-shrink-0">{formatCurrency(low, data.currency)}</span>
+                    <div className="w-16 sm:flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative">
                         <div 
                             className="absolute top-0 bottom-0 w-2 h-2 -mt-0.5 bg-[#2070b4] rounded-full shadow-sm ring-2 ring-white dark:ring-black"
                             style={{ left: `${clampedPosition}%` }}
                         />
                     </div>
-                    <span className="sm:inline-block order-3 text-right w-full sm:w-auto">{formatCurrency(high, data.currency)}</span>
+                    <span className="flex-shrink-0">{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
             <td className="px-6 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
