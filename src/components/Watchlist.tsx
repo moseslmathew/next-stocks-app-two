@@ -140,32 +140,34 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-12 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
-                <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
-                    {formatCurrency(data.regularMarketPrice, data.currency)}
-                </div>
-                <div className={`text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
+            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
+                <div className="flex flex-col items-center sm:items-start">
+                    <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
+                        {formatCurrency(data.regularMarketPrice, data.currency)}
+                    </div>
+                    <div className={`text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
+                    </div>
                 </div>
             </td>
-            <td className="px-12 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
+            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start">
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
-            <td className="px-12 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
-                <div className="flex items-center justify-center sm:justify-start gap-3 text-xs text-gray-500 font-mono">
-                    <span>{formatCurrency(low, data.currency)}</span>
-                    <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative min-w-[60px]">
+            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-[200px] snap-start">
+                <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1 sm:gap-3 text-xs text-gray-500 font-mono">
+                    <span className="sm:inline-block order-2 sm:order-1">{formatCurrency(low, data.currency)}</span>
+                    <div className="w-full sm:flex-1 h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full relative min-w-[60px] order-1 sm:order-2 my-2 sm:my-0">
                         <div 
                             className="absolute top-0 bottom-0 w-2 h-2 -mt-0.5 bg-[#2070b4] rounded-full shadow-sm ring-2 ring-white dark:ring-black"
                             style={{ left: `${clampedPosition}%` }}
                         />
                     </div>
-                    <span>{formatCurrency(high, data.currency)}</span>
+                    <span className="sm:inline-block order-3 text-right w-full sm:w-auto">{formatCurrency(high, data.currency)}</span>
                 </div>
             </td>
-            <td className="px-12 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
+            <td className="px-6 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                     <button 
                          onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -828,15 +830,15 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-12 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center justify-center sm:justify-start gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-12 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
                                                     <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
-                                                        <span className="text-[10px] sm:text-sm uppercase tracking-wider mb-1 sm:mb-0">Trend</span>
+                                                        <span className="text-[10px] sm:text-sm uppercase tracking-wider">Trend</span>
                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
                                                             <button
                                                                 onClick={() => setTrendRange('1d')}
@@ -859,9 +861,9 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-12 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left">
                                                     <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
-                                                        <span className="text-[10px] sm:text-sm uppercase tracking-wider mb-1 sm:mb-0">Range</span>
+                                                        <span className="text-[10px] sm:text-sm uppercase tracking-wider">Range</span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
                                                             <button
                                                                 onClick={() => setHighLowRange('1d')}
@@ -878,7 +880,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-12 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
