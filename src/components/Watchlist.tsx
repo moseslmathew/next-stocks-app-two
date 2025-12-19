@@ -76,7 +76,18 @@ function toTitleCase(str: string) {
   );
 }
 
-function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange }: { data: MarketData, onRemove: (s: string) => void, onSelect: (d: MarketData) => void, onOpenNews: (s: string, fallback?: string) => void, highLowRange: '1d' | '52w', trendRange: '1d' | '7d' | '52w' }) {
+interface SortableRowProps {
+    data: MarketData;
+    onRemove: (symbol: string) => void;
+    onSelect: (data: MarketData) => void;
+    onOpenNews: (shortName: string, symbol: string) => void;
+    trendRange: '1d' | '7d' | '52w';
+    highLowRange: '1d' | '52w';
+    mobileActiveColumn: 'price' | 'trend' | 'range' | 'actions';
+    onToggleColumn: () => void;
+}
+
+function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange, mobileActiveColumn, onToggleColumn }: SortableRowProps) {
     // ... (hooks remain same)
     const {
         attributes,
@@ -214,6 +225,14 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   const [trendRange, setTrendRange] = useState<'1d' | '7d' | '52w'>('7d');
   const [highLowRange, setHighLowRange] = useState<'1d' | '52w'>('1d');
   const [selectedStock, setSelectedStock] = useState<MarketData | null>(null);
+  const [mobileActiveColumn, setMobileActiveColumn] = useState<'price' | 'trend' | 'range' | 'actions'>('price');
+
+  const cycleMobileColumn = () => {
+    const columns: ('price' | 'trend' | 'range' | 'actions')[] = ['price', 'trend', 'range', 'actions'];
+    const currentIndex = columns.indexOf(mobileActiveColumn);
+    const nextIndex = (currentIndex + 1) % columns.length;
+    setMobileActiveColumn(columns[nextIndex]);
+  };
   const [newsActiveStock, setNewsActiveStock] = useState<string | null>(null);
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [newsLoading, setNewsLoading] = useState(false);
@@ -772,7 +791,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                         )}
                                     </h2>
                                 )}
-                                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black snap-x snap-mandatory scroll-pl-[140px]">
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
                                     <table className="w-full text-left text-sm">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50">
                                             <tr>
@@ -782,15 +801,23 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-0 snap-start" onClick={() => handleSort('price')}>
+                                                <th 
+                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white ${mobileActiveColumn === 'price' ? 'table-cell' : 'hidden'} sm:table-cell`} 
+                                                    onClick={() => handleSort('price')}
+                                                    onDoubleClick={cycleMobileColumn}
+                                                >
                                                      <div className="flex items-center gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
+                                                        <span className="sm:hidden ml-2 text-xs text-[#2070b4] font-normal">(1/4)</span>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-0 snap-start">
+                                                <th 
+                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 ${mobileActiveColumn === 'trend' ? 'table-cell' : 'hidden'} sm:table-cell`}
+                                                    onDoubleClick={cycleMobileColumn}
+                                                >
                                                     <div className="flex items-center gap-2">
-                                                        <span>Trend</span>
+                                                        <span>Trend <span className="sm:hidden ml-1 text-xs text-[#2070b4] font-normal">(2/4)</span></span>
                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
                                                             <button
                                                                 onClick={() => setTrendRange('1d')}
@@ -813,9 +840,12 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-0 snap-start">
+                                                <th 
+                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 ${mobileActiveColumn === 'range' ? 'table-cell' : 'hidden'} sm:table-cell`}
+                                                    onDoubleClick={cycleMobileColumn}
+                                                >
                                                     <div className="flex items-center gap-2">
-                                                        <span>Range</span>
+                                                        <span>Range <span className="sm:hidden ml-1 text-xs text-[#2070b4] font-normal">(3/4)</span></span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
                                                             <button
                                                                 onClick={() => setHighLowRange('1d')}
@@ -832,7 +862,12 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                     </div>
                                                 </th>
-                                                <th className="px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right w-[calc(100vw-140px)] min-w-[calc(100vw-140px)] sm:w-auto sm:min-w-0 snap-start">Actions</th>
+                                                <th 
+                                                    className={`px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-right ${mobileActiveColumn === 'actions' ? 'table-cell' : 'hidden'} sm:table-cell`}
+                                                    onDoubleClick={cycleMobileColumn}
+                                                >
+                                                    Actions <span className="sm:hidden ml-1 text-xs text-[#2070b4] font-normal">(4/4)</span>
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
@@ -849,6 +884,8 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         onOpenNews={handleOpenNews}
                                                         highLowRange={highLowRange}
                                                         trendRange={trendRange}
+                                                        mobileActiveColumn={mobileActiveColumn}
+                                                        onToggleColumn={cycleMobileColumn}
                                                     />
                                                 ))}
                                             </SortableContext>
