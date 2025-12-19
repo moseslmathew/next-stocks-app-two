@@ -8,7 +8,8 @@ import {
   ResponsiveContainer,
   Bar,
   ComposedChart,
-  Cell
+  Cell,
+  CartesianGrid
 } from 'recharts';
 import { X, BarChart2 } from 'lucide-react';
 
@@ -151,13 +152,20 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
 
         <div className="h-[280px] sm:h-[400px] w-full px-2 sm:px-6">
             <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: 10 }}>
+                <ComposedChart data={chartData} margin={{ top: 20, right: 10, bottom: 20, left: 10 }}>
                     <defs>
                         <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={chartColor} stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
+                            <stop offset="5%" stopColor={chartColor} stopOpacity={0.3}/>
+                            <stop offset="50%" stopColor={chartColor} stopOpacity={0.1}/>
+                            <stop offset="95%" stopColor={chartColor} stopOpacity={0}/>
                         </linearGradient>
                     </defs>
+                    <CartesianGrid 
+                        vertical={false} 
+                        strokeDasharray="3 3" 
+                        stroke="currentColor" 
+                        opacity={0.1}
+                    />
                     <XAxis 
                         dataKey="timestamp" 
                         tickFormatter={(val) => {
@@ -167,16 +175,21 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                                 ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
                                 : date.toLocaleDateString([], { month: '2-digit', day: '2-digit' });
                         }}
-                        tick={{ fontSize: 10, fill: '#6b7280' }}
+                        tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 500 }}
+                        axisLine={false}
+                        tickLine={false}
                         interval="preserveStartEnd"
-                        minTickGap={30}
+                        minTickGap={40}
+                        dy={10}
                     />
                     <YAxis 
                         yAxisId="price" 
                         domain={['auto', 'auto']} 
                         orientation="right" 
-                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }}
                         tickFormatter={(val) => val.toFixed(2)}
+                        axisLine={false}
+                        tickLine={false}
                         width={60}
                     />
                     {showVolume && (
@@ -188,15 +201,19 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     )}
                     <Tooltip 
                         content={<ChartCursorHandler onUpdate={setActiveData} latestData={latestData} />}
-                        cursor={{ stroke: '#9ca3af', strokeWidth: 1, strokeDasharray: '4 4' }}
+                        cursor={{ stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '5 5' }}
                     />
                     {showVolume && (
-                        <Bar yAxisId="volume" dataKey="volume" barSize={4} fill="#60a5fa">
-                            {
-                                chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.volumeColor} />
-                                ))
-                            }
+                        <Bar 
+                            yAxisId="volume" 
+                            dataKey="volume" 
+                            barSize={3} 
+                            radius={[2, 2, 0, 0]}
+                            opacity={0.6}
+                        >
+                            {chartData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.volumeColor} />
+                            ))}
                         </Bar>
                     )}
                     <Area 
@@ -206,7 +223,8 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                         stroke={chartColor} 
                         fillOpacity={1} 
                         fill="url(#colorPrice)" 
-                        strokeWidth={2}
+                        strokeWidth={2.5}
+                        animationDuration={1000}
                     />
                 </ComposedChart>
             </ResponsiveContainer>
