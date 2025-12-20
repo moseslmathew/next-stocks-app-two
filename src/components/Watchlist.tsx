@@ -525,26 +525,31 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
     setQuery('');
     setSearchResults([]);
     
-    // Pass undefined if null so server logic kicks in to find/create default
-    const result = await addToWatchlist(symbol, activeWatchlistId || undefined);
-    
-    if (result.success) {
-        // If a new list was auto-created, update state
-        if (result.createdWatchlist) {
-            const newList = result.createdWatchlist;
-            setWatchlists(prev => [...prev, newList]);
-        }
+    try {
+        // Pass undefined if null so server logic kicks in to find/create default
+        const result = await addToWatchlist(symbol, activeWatchlistId || undefined);
         
-        // If we didn't have an active list (or it changed), set it now
-        // This will trigger the useEffect to fetch data
-        if (result.watchlistId && activeWatchlistId !== result.watchlistId) {
-            setActiveWatchlistId(result.watchlistId);
+        if (result.success) {
+            // If a new list was auto-created, update state
+            if (result.createdWatchlist) {
+                const newList = result.createdWatchlist;
+                setWatchlists(prev => [...prev, newList]);
+            }
+            
+            // If we didn't have an active list (or it changed), set it now
+            // This will trigger the useEffect to fetch data
+            if (result.watchlistId && activeWatchlistId !== result.watchlistId) {
+                setActiveWatchlistId(result.watchlistId);
+            } else {
+                // Otherwise just refresh current list
+                fetchWatchlist();
+            }
         } else {
-            // Otherwise just refresh current list
-            fetchWatchlist();
+            alert('Failed to add to watchlist: ' + result.error);
         }
-    } else {
-        alert('Failed to add to watchlist: ' + result.error);
+    } catch (error) {
+        console.error('Network error adding to watchlist:', error);
+        alert('Failed to connect to the server. Please check your network connection or try again later.');
     }
   };
 
