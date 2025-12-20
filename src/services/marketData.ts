@@ -22,7 +22,7 @@ export interface MarketData {
   timestamps: number[];
 }
 
-export async function getMarketData(symbols: string[], range: '1d' | '7d' | '52w' = '1d', includeHistory = true) {
+export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max' | '7d' | '52w' = '1d', includeHistory = true) {
   try {
     const quotesPromise = yahooFinance.quote(symbols);
     
@@ -40,25 +40,32 @@ export async function getMarketData(symbols: string[], range: '1d' | '7d' | '52w
                 let filterLastSession = false;
 
                 if (range === '1d') {
-                    // Fetch 7 days back to ensure we find the last trading session (handling weekends/holidays)
-                    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    queryOptions = { 
-                        period1: startDate.toISOString().split('T')[0],
-                        interval: '5m'
-                    };
+                    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // Look back 7 days to find last session
+                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m' };
                     filterLastSession = true;
-                } else if (range === '7d') {
+                } else if (range === '1w') {
                     const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    queryOptions = { 
-                        period1: startDate.toISOString().split('T')[0],
-                        interval: '15m'
-                    };
-                } else if (range === '52w') {
+                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
+                } else if (range === '1m') {
+                    const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '60m' };
+                } else if (range === '3m') {
+                    const startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
+                } else if (range === '1y') {
+                    const startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
+                } else if (range === '2y') {
+                     const startDate = new Date(now.getTime() - 2 * 365 * 24 * 60 * 60 * 1000);
+                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
+                } else if (range === '5y') {
+                     const startDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);
+                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
+                } else if (range === 'max') {
+                     queryOptions = { period1: '1980-01-01', interval: '1mo' };
+                } else if (range === '52w') { // Keep for backward compatibility if needed, map to 1y
                      const startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-                     queryOptions = {
-                        period1: startDate.toISOString().split('T')[0],
-                        interval: '1d'
-                     };
+                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
                 }
 
                 const result = await yahooFinance.chart(symbol, queryOptions);

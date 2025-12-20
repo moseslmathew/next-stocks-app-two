@@ -67,14 +67,7 @@ interface MarketData {
 type SortColumn = 'custom' | 'symbol' | 'price' | 'change';
 type SortDirection = 'asc' | 'desc';
 
-// Helper to format company name to Title Case
-function toTitleCase(str: string) {
-  if (!str) return '';
-  return str.replace(
-    /\w\S*/g,
-    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-  );
-}
+
 
 interface SortableRowProps {
     data: MarketData;
@@ -134,8 +127,8 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                         <GripVertical size={16} />
                     </button>
                     <div className="min-w-0 w-full">
-                        <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-white break-words" title={data.shortName}>
-                            {toTitleCase(data.shortName || data.symbol)}
+                        <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-white break-words" title={data.symbol}>
+                            {data.symbol.replace(/\.NS$|\.BO$/, '')}
                         </div>
                     </div>
                 </div>
@@ -806,15 +799,15 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     <div className="relative group">
                                         <button 
                                             onClick={() => scrollTable(title, 'left')}
-                                            className="sm:hidden absolute left-[45vw] top-0 h-[53px] z-40 px-1 bg-gradient-to-r from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
+                                            className="sm:hidden absolute left-[45vw] top-0 h-[84px] z-40 px-1 bg-gradient-to-r from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500 justify-center"
                                         >
-                                            <ChevronLeft size={16} strokeWidth={3} />
+                                            <ChevronLeft size={20} strokeWidth={3} />
                                         </button>
                                         <button 
                                             onClick={() => scrollTable(title, 'right')}
-                                            className="sm:hidden absolute right-0 top-0 h-[53px] z-40 px-1 bg-gradient-to-l from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500"
+                                            className="sm:hidden absolute right-0 top-0 h-[84px] z-40 px-1 bg-gradient-to-l from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500 justify-center"
                                         >
-                                            <ChevronRight size={16} strokeWidth={3} />
+                                            <ChevronRight size={20} strokeWidth={3} />
                                         </button>
 
                                         <div 
@@ -859,7 +852,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                                  52W
                                                              </button>
                                                         </div>
-                                                    </div>
+                                                     </div>
                                                 </th>
                                                 <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-auto sm:min-w-0 snap-start text-center sm:text-left hidden sm:table-cell">
                                                     <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
@@ -990,7 +983,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             priceData={selectedStock?.sparkline || []}
             volumeData={selectedStock?.volumeSparkline || []}
             timestamps={selectedStock?.timestamps || []}
-            range={trendRange}
+            range={trendRange === '7d' ? '1w' : trendRange === '52w' ? '1y' : trendRange}
         />
 
         <NewsModal 
