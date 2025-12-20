@@ -24,6 +24,7 @@ export default async function QuotePage({ params }: any) {
   }
 
   const isPositive = quote.change >= 0;
+  const currencySymbol = quote.currency === 'INR' ? '₹' : '$';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -54,18 +55,27 @@ export default async function QuotePage({ params }: any) {
                <Activity size={20} />
                <span className="text-sm font-medium">Day Range</span>
             </div>
-            <div className="space-y-1">
-               <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Low</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">${quote.dayLow?.toFixed(2) ?? 'N/A'}</span>
+            <div className="space-y-4">
+               <div className="flex justify-between items-end">
+                  <div className="text-left">
+                      <div className="text-xs text-gray-500 mb-1">Low</div>
+                      <div className="font-bold text-gray-900 dark:text-gray-100">{currencySymbol}{quote.dayLow?.toFixed(2) ?? 'N/A'}</div>
+                  </div>
+                  <div className="text-right">
+                      <div className="text-xs text-gray-500 mb-1">High</div>
+                      <div className="font-bold text-gray-900 dark:text-gray-100">{currencySymbol}{quote.dayHigh?.toFixed(2) ?? 'N/A'}</div>
+                  </div>
                </div>
-               <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                  {/* Visual representation of range could go here */}
-                  <div className="bg-blue-500 h-full w-1/2 mx-auto rounded-full opacity-50"></div>
-               </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">High</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">${quote.dayHigh?.toFixed(2) ?? 'N/A'}</span>
+               
+               <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                   {quote.dayHigh && quote.dayLow && quote.price ? (
+                        <div 
+                           className="absolute top-0 h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out"
+                           style={{ 
+                               width: `${Math.min(100, Math.max(0, ((quote.price - quote.dayLow) / (quote.dayHigh - quote.dayLow)) * 100))}%` 
+                           }}
+                        />
+                   ) : null}
                </div>
             </div>
          </div>
@@ -86,7 +96,7 @@ export default async function QuotePage({ params }: any) {
                <span className="text-sm font-medium">Market Cap</span>
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-               {quote.marketCap ? `$${(quote.marketCap / 1e9).toFixed(2)}B` : 'N/A'}
+               {quote.marketCap ? `${currencySymbol}${(quote.marketCap / 1e9).toFixed(2)}B` : 'N/A'}
             </div>
          </div>
 
@@ -96,7 +106,7 @@ export default async function QuotePage({ params }: any) {
                <span className="text-sm font-medium">Previous Close</span>
             </div>
             <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-               ${quote.prevClose?.toFixed(2) ?? 'N/A'}
+               {currencySymbol}{quote.prevClose?.toFixed(2) ?? 'N/A'}
             </div>
          </div>
       </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Plus, Check, Loader2 } from 'lucide-react';
 import { addToWatchlist, removeFromWatchlist } from '@/actions/watchlist';
+import { useUser } from '@clerk/nextjs';
 
 interface WatchlistButtonProps {
   symbol: string;
@@ -10,8 +11,13 @@ interface WatchlistButtonProps {
 }
 
 export default function WatchlistButton({ symbol, isInDataBase }: WatchlistButtonProps) {
+  const { isSignedIn, isLoaded } = useUser();
   const [isInWatchlist, setIsInWatchlist] = useState(isInDataBase);
   const [isLoading, setIsLoading] = useState(false);
+
+  if (isLoaded && !isSignedIn) {
+    return null;
+  }
 
   const toggleWatchlist = async () => {
     setIsLoading(true);
@@ -22,7 +28,6 @@ export default function WatchlistButton({ symbol, isInDataBase }: WatchlistButto
           setIsInWatchlist(false);
         } else {
             console.error('Failed to remove:', result.error);
-            // Ideally show a toast here
             alert('Failed to remove from watchlist: ' + result.error);
         }
       } else {
@@ -31,7 +36,6 @@ export default function WatchlistButton({ symbol, isInDataBase }: WatchlistButto
           setIsInWatchlist(true);
         } else {
              console.error('Failed to add:', result.error);
-             // Ideally show a toast here
              alert('Failed to add to watchlist: ' + result.error);
         }
       }
@@ -41,6 +45,10 @@ export default function WatchlistButton({ symbol, isInDataBase }: WatchlistButto
       setIsLoading(false);
     }
   };
+
+  if (!isLoaded) {
+    return <div className="h-10 w-32 bg-gray-100 dark:bg-gray-800 rounded-full animate-pulse" />;
+  }
 
   return (
     <button

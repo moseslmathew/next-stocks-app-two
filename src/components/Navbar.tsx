@@ -2,81 +2,63 @@
 
 import Link from 'next/link';
 import React from 'react';
-import { TrendingUp, Newspaper, Globe, Menu } from 'lucide-react';
+import { TrendingUp, Newspaper, Globe, Menu, IndianRupee, DollarSign, Search as SearchIcon } from 'lucide-react';
 import Search from './Search';
 import dynamic from 'next/dynamic';
+import { usePathname } from 'next/navigation';
 
 const AuthButtons = dynamic(() => import('./AuthButtons'), { ssr: false });
 const MobileAuthButtons = dynamic(() => import('./MobileAuthButtons'), { ssr: false });
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const pathname = usePathname();
+
+  const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/70 dark:bg-black/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 supports-[backdrop-filter]:bg-white/60">
+    <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-4 sm:gap-8">
-            <Link href="/watchlist/indian" className="flex items-center gap-3 group">
-               <div className="bg-blue-600 p-2 rounded-xl group-hover:scale-105 transition-transform">
-                  <TrendingUp className="w-5 h-5 text-white" />
-               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transform origin-left">
-                MarketPro
-              </span>
-            </Link>
-            
-            <div className="hidden md:block w-96">
-                <Search />
-            </div>
-          </div>
+        <div className="flex items-center justify-between h-16 gap-4">
           
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-1">
-              <Link
-                href="/watchlist/indian"
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
-              >
-                <div className="flex items-center justify-center px-2 h-5 bg-orange-100 dark:bg-orange-900/30 rounded-full text-[10px] font-bold text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800">IN</div>
-                Indian Stocks
-              </Link>
-              <Link
-                href="/watchlist/us"
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
-              >
-                <div className="flex items-center justify-center px-2 h-5 bg-blue-100 dark:bg-blue-900/30 rounded-full text-[10px] font-bold text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">US</div>
-                US Stocks
-              </Link>
-              <Link
-                href="/news"
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
-              >
-                <Newspaper size={18} />
-                News
-              </Link>
-              <Link
-                href="/global-market"
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
-              >
-                <Globe size={18} />
-                Global Market
-              </Link>
-              
-              <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-800 ml-2">
-                <AuthButtons />
-              </div>
+          {/* Logo Section */}
+          <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
+             <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 group-hover:shadow-blue-500/30 transition-all duration-300">
+                <TrendingUp className="w-5 h-5" />
+             </div>
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
+              MarketPro
+            </span>
+          </Link>
+          
+          {/* Search Bar - Centered */}
+          <div className="hidden md:block flex-1 max-w-md mx-4">
+              <Search />
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center">
+            <div className="flex items-center gap-1 mr-4">
+              <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="India" active={isActive('/watchlist/indian')} />
+              <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="US" active={isActive('/watchlist/us')} />
+              <NavLink href="/global-market" icon={<Globe size={16} />} text="Global" active={isActive('/global-market')} />
+              <NavLink href="/news" icon={<Newspaper size={16} />} text="News" active={isActive('/news')} />
+            </div>
+            
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-800 mr-4" />
+            
+            <div className="flex items-center gap-3">
+              <AuthButtons />
             </div>
           </div>
 
-          <div className="-mr-2 flex md:hidden items-center gap-2">
+          {/* Mobile Menu Button */}
+          <div className="flex md:hidden items-center gap-2">
              <MobileAuthButtons />
             <button
               type="button"
-              onClick={() => {
-                console.log('Toggle menu'); 
-                setIsOpen(!isOpen);
-              }}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-200 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none z-50 cursor-pointer"
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <Menu size={24} />
             </button>
@@ -84,49 +66,53 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isOpen && (
-        <div className="fixed top-16 left-0 w-full h-[calc(100vh-4rem)] md:hidden bg-white dark:bg-black shadow-lg z-[100] overflow-y-auto">
-          <div className="px-4 pt-4 pb-2">
-             <Search />
-          </div>
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 h-[calc(100vh-4rem)] overflow-y-auto bg-white dark:bg-black">
-             <Link
-                href="/watchlist/indian"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-3 py-4 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800"
-              >
-                <div className="flex items-center justify-center px-2 h-6 bg-orange-100 dark:bg-orange-900/30 rounded-full text-xs font-bold text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800">IN</div>
-                Indian Stocks
-              </Link>
-              <Link
-                href="/watchlist/us"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-3 py-4 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800"
-              >
-                <div className="flex items-center justify-center px-2 h-6 bg-blue-100 dark:bg-blue-900/30 rounded-full text-xs font-bold text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">US</div>
-                US Stocks
-              </Link>
-              <Link
-                href="/news"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-3 py-4 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800"
-              >
-                <Newspaper size={20} />
-                News
-              </Link>
-              <Link
-                href="/global-market"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-3 py-4 rounded-lg text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <Globe size={20} />
-                Global Market
-              </Link>
+        <div className="absolute top-16 left-0 w-full bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 md:hidden shadow-xl animate-in slide-in-from-top-5">
+          <div className="p-4 space-y-4">
+             <div className="mb-4">
+                <Search />
+             </div>
+             <div className="space-y-1">
+                <MobileLink href="/watchlist/indian" icon={<IndianRupee size={18} />} text="Indian Markets" onClick={() => setIsOpen(false)} />
+                <MobileLink href="/watchlist/us" icon={<DollarSign size={18} />} text="US Markets" onClick={() => setIsOpen(false)} />
+                <MobileLink href="/global-market" icon={<Globe size={18} />} text="Global Markets" onClick={() => setIsOpen(false)} />
+                <MobileLink href="/news" icon={<Newspaper size={18} />} text="Market News" onClick={() => setIsOpen(false)} />
+             </div>
           </div>
         </div>
       )}
     </nav>
   );
 };
+
+function NavLink({ href, icon, text, active }: { href: string; icon: React.ReactNode; text: string; active: boolean }) {
+    return (
+        <Link
+            href={href}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                active 
+                ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400' 
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+        >
+            {icon}
+            <span>{text}</span>
+        </Link>
+    );
+}
+
+function MobileLink({ href, icon, text, onClick }: { href: string; icon: React.ReactNode; text: string; onClick: () => void }) {
+    return (
+        <Link
+            href={href}
+            onClick={onClick}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+        >
+            <div className="text-gray-500 dark:text-gray-400">{icon}</div>
+            {text}
+        </Link>
+    );
+}
 
 export default Navbar;
