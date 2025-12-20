@@ -285,7 +285,17 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   useEffect(() => {
     const loadLists = async () => {
         // Map 'ALL' to undefined for the action if needed, or pass 'ALL' if backend handles it (it does)
-        const lists = await getUserWatchlists(filterRegion);
+        let lists = await getUserWatchlists(filterRegion);
+        
+        // If no lists exist, create a default one explicitly to avoid empty state
+        if (lists.length === 0 && user) {
+             const regionInit = filterRegion === 'ALL' ? 'IN' : filterRegion;
+             const result = await createWatchlist('My Portfolio', regionInit);
+             if (result.success && result.watchlist) {
+                 lists = [result.watchlist];
+             }
+        }
+
         setWatchlists(lists);
         // If current active list is NOT in the new set of lists, switch to first one
         if (lists.length > 0) {
