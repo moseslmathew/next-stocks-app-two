@@ -146,10 +146,6 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   const changePercent = startPrice !== 0 ? (change / startPrice) * 100 : 0;
   const isCurrentlyPositive = change >= 0;
 
-  const low = currentPriceData.length > 0 ? Math.min(...currentPriceData) : 0;
-  const high = currentPriceData.length > 0 ? Math.max(...currentPriceData) : 0;
-  const range_position = high !== low ? ((currentPrice - low) / (high - low)) * 100 : 50;
-  const clampedRangePosition = Math.max(0, Math.min(100, range_position));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -237,24 +233,12 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     </p>
                 </div>
 
-                <div className="md:col-span-7 w-full">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            Range ({activeRange})
-                        </span>
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            Vol: {displayData.volume?.toLocaleString()}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-[11px] font-mono font-bold">
-                        <span className="text-gray-400">{low.toFixed(2)}</span>
-                        <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/5 rounded-full relative">
-                            <div 
-                                className="absolute top-0 bottom-0 w-3 h-3 -mt-0.75 bg-blue-500 rounded-full shadow-lg ring-2 ring-white dark:ring-[#0a0a0a] transition-all duration-300"
-                                style={{ left: `${clampedRangePosition}%`, transform: 'translateX(-50%)' }}
-                            />
-                        </div>
-                        <span className="text-gray-400">{high.toFixed(2)}</span>
+                <div className="md:col-span-4 border-l border-gray-100 dark:border-white/5 pl-6 hidden md:block">
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+                        Active Volume
+                    </span>
+                    <div className="text-xl font-mono font-bold text-gray-700 dark:text-gray-300">
+                        {displayData.volume?.toLocaleString()}
                     </div>
                 </div>
             </div>
