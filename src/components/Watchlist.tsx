@@ -121,7 +121,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[45vw] min-w-[45vw] sm:w-[30%] sm:min-w-0">
+            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[45vw] min-w-[45vw] sm:w-[40%] sm:min-w-0">
                 <div className="flex items-center gap-2">
                     <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
                         <GripVertical size={16} />
@@ -133,7 +133,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start">
+            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-[25%] sm:min-w-0 snap-start">
                 <div className="flex flex-col items-center sm:items-start">
                     <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
                         {formatCurrency(data.regularMarketPrice, data.currency)}
@@ -143,13 +143,13 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-[30%] sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
+            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start">
                     <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
                 </div>
             </td>
 
-            <td className="px-6 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start">
+            <td className="px-6 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-[15%] sm:min-w-0 snap-start">
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                     <button 
                          onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -524,13 +524,25 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   const handleAddToWatchlist = async (symbol: string) => {
     setQuery('');
     setSearchResults([]);
-    if (!activeWatchlistId) {
-        alert('Please select or create a watchlist first.');
-        return;
-    }
-    const result = await addToWatchlist(symbol, activeWatchlistId);
+    
+    // Pass undefined if null so server logic kicks in to find/create default
+    const result = await addToWatchlist(symbol, activeWatchlistId || undefined);
+    
     if (result.success) {
-      fetchWatchlist();
+        // If a new list was auto-created, update state
+        if (result.createdWatchlist) {
+            const newList = result.createdWatchlist;
+            setWatchlists(prev => [...prev, newList]);
+        }
+        
+        // If we didn't have an active list (or it changed), set it now
+        // This will trigger the useEffect to fetch data
+        if (result.watchlistId && activeWatchlistId !== result.watchlistId) {
+            setActiveWatchlistId(result.watchlistId);
+        } else {
+            // Otherwise just refresh current list
+            fetchWatchlist();
+        }
     } else {
         alert('Failed to add to watchlist: ' + result.error);
     }
@@ -803,22 +815,22 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                             ref={(el) => { tableRefs.current[title] = el; }}
                                             className="overflow-x-auto snap-x snap-mandatory scroll-pl-[45vw] no-scrollbar rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black"
                                         >
-                                    <table className="w-full text-left text-sm sm:text-base">
+                                    <table className="w-full text-left text-sm sm:text-base table-fixed">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm">
                                             <tr>
-                                                <th className="px-4 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[45vw] min-w-[45vw] sm:w-[30%] sm:min-w-0" onClick={() => handleSort('symbol')}>
+                                                <th className="px-4 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[45vw] min-w-[45vw] sm:w-[40%] sm:min-w-0" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[55vw] min-w-[55vw] sm:w-[25%] sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center justify-center sm:justify-start gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-[30%] sm:min-w-0 snap-start text-center sm:text-left">
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start text-center sm:text-left">
                                                      <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
                                                          <span className="text-xs sm:text-sm uppercase tracking-wider">Trend</span>
                                                          <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
@@ -844,7 +856,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                      </div>
                                                 </th>
 
-                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start">Actions</th>
+                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-[15%] sm:min-w-0 snap-start">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">

@@ -89,6 +89,7 @@ export async function addToWatchlist(symbol: string, watchlistId?: string) {
 
   try {
     let targetListId = watchlistId;
+    let createdWatchlist = null;
 
     if (!targetListId) {
         // Fallback to first available list
@@ -104,6 +105,7 @@ export async function addToWatchlist(symbol: string, watchlistId?: string) {
                 data: { name: 'My Portfolio', userId }
             });
             targetListId = defaultList.id;
+            createdWatchlist = defaultList;
         }
     }
 
@@ -115,7 +117,7 @@ export async function addToWatchlist(symbol: string, watchlistId?: string) {
     const existing = await prisma.watchlistItem.findUnique({
         where: { watchlistId_symbol: { watchlistId: targetListId, symbol } }
     });
-    if (existing) return { success: true }; // Already there, treat as success
+    if (existing) return { success: true, watchlistId: targetListId, createdWatchlist }; // Already there, treat as success
 
     const lastItem = await prisma.watchlistItem.findFirst({
         where: { watchlistId: targetListId },
@@ -132,7 +134,7 @@ export async function addToWatchlist(symbol: string, watchlistId?: string) {
     });
     revalidatePath('/watchlist');
     revalidatePath(`/quote/${symbol}`); // Revalidate quote page too
-    return { success: true };
+    return { success: true, watchlistId: targetListId, createdWatchlist };
   } catch (error) {
     console.error('Add item failed:', error);
     return { success: false, error: 'Failed to add to watchlist' };
