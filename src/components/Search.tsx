@@ -127,6 +127,25 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
       return true; 
   });
 
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+      setSelectedIndex(-1);
+  }, [results, filter]);
+
+  useEffect(() => {
+      if (selectedIndex >= 0 && listRef.current) {
+           const list = listRef.current;
+           const item = list.children[selectedIndex] as HTMLElement;
+           if (item) {
+                // block: 'nearest' is standard but manual calc is safer for custom scroll containers sometimes.
+                // ScrollIntoView is easier.
+                item.scrollIntoView({ block: 'nearest' });
+           }
+      }
+  }, [selectedIndex]);
+
   return (
     <div className="relative w-full max-w-md" ref={searchRef}>
       <div className="relative">
@@ -137,8 +156,19 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && filteredResults.length > 0) {
-              handleSelect(filteredResults[0].symbol);
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev < filteredResults.length - 1 ? prev + 1 : prev));
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && selectedIndex < filteredResults.length) {
+                  handleSelect(filteredResults[selectedIndex].symbol);
+                } else if (filteredResults.length > 0) {
+                  handleSelect(filteredResults[0].symbol);
+                }
             }
           }}
           onFocus={() => {
@@ -190,17 +220,21 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
       )}
 
       {isOpen && filteredResults.length > 0 && !isAdding && (
-        <div className="absolute top-full mt-2 w-full bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden z-50 max-h-80 overflow-y-auto">
-          {filteredResults.map((result) => {
+        <div ref={listRef} className="absolute top-full mt-2 w-full bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden z-50 max-h-80 overflow-y-auto">
+          {filteredResults.map((result, index) => {
              const isAdded = addedSymbols.has(result.symbol);
+             const isSelected = index === selectedIndex;
              return (
                 <button
                 key={result.symbol}
                 disabled={isAdded}
                 className={`w-full px-4 py-3 text-left border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors group ${
-                    isAdded ? 'bg-green-50 dark:bg-green-900/10 cursor-default' : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                    isAdded ? 'bg-green-50 dark:bg-green-900/10 cursor-default' : 
+                    isSelected ? 'bg-gray-100 dark:bg-gray-800' :
+                    'hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
                 onClick={() => handleSelect(result.symbol)}
+                onMouseEnter={() => setSelectedIndex(index)} // Optional: Sync mouse hover with index
                 >
                 <div className="flex justify-between items-center">
                     <span className={`font-semibold transition-colors ${isAdded ? 'text-green-600 dark:text-green-400' : 'text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>

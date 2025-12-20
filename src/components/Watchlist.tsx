@@ -643,7 +643,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
         <div className="flex flex-col gap-6 mb-8">
             
             {/* Row 1: List Tabs */}
-            <div className="flex items-center gap-3 overflow-x-auto w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+            <div className="flex items-center gap-3 overflow-x-auto w-full p-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                 {watchlists.map(list => (
                     <div key={list.id} className="relative group shrink-0">
                          <button
