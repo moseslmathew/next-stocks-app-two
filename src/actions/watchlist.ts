@@ -137,7 +137,7 @@ export async function addToWatchlist(symbol: string, watchlistId?: string) {
     return { success: true, watchlistId: targetListId, createdWatchlist };
   } catch (error) {
     console.error('Add item failed:', error);
-    return { success: false, error: 'Failed to add to watchlist' };
+    return { success: false, error: (error as Error).message || 'Failed to add to watchlist' };
   }
 }
 
