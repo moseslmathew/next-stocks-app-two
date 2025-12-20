@@ -66,6 +66,9 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
                 } else if (range === '52w') { // Keep for backward compatibility if needed, map to 1y
                      const startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
+                } else if (range === '7d') {
+                     const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
                 }
 
                 const result = await yahooFinance.chart(symbol, queryOptions);
