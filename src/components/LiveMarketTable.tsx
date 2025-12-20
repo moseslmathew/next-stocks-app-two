@@ -165,7 +165,7 @@ export default function LiveMarketTable({ initialData, symbols }: LiveMarketTabl
             priceData={selectedStock.sparkline}
             volumeData={selectedStock.volumeSparkline || []}
             timestamps={selectedStock.timestamps || []}
-            range={trendRange}
+            range={trendRange as any}
         />
       )}
     </div>
