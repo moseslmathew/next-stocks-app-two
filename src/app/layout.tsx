@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Track global markets, news, and your watchlist in real-time.",
 };
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,6 +37,7 @@ export default function RootLayout({
           <main className="pt-16 w-full">
               {children}
           </main>
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
