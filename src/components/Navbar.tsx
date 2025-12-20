@@ -3,8 +3,11 @@
 import Link from 'next/link';
 import React from 'react';
 import { TrendingUp, Newspaper, Globe, Menu } from 'lucide-react';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import Search from './Search';
+import dynamic from 'next/dynamic';
+
+const AuthButtons = dynamic(() => import('./AuthButtons'), { ssr: false });
+const MobileAuthButtons = dynamic(() => import('./MobileAuthButtons'), { ssr: false });
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -60,45 +63,13 @@ const Navbar = () => {
               </Link>
               
               <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-800 ml-2">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="px-5 py-2 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transform hover:-translate-y-0.5">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/" 
-                    appearance={{
-                        elements: {
-                            avatarBox: "w-9 h-9 border-2 border-white dark:border-gray-800 shadow-sm"
-                        }
-                    }}
-                  />
-                </SignedIn>
+                <AuthButtons />
               </div>
             </div>
           </div>
 
           <div className="-mr-2 flex md:hidden items-center gap-2">
-             <div className="flex items-center">
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/" 
-                    appearance={{
-                        elements: {
-                            avatarBox: "w-8 h-8 border-2 border-white dark:border-gray-800 shadow-sm"
-                        }
-                    }}
-                  />
-                </SignedIn>
-                 <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="px-3 py-1.5 rounded-full bg-blue-600 text-white text-xs font-medium">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-             </div>
+             <MobileAuthButtons />
             <button
               type="button"
               onClick={() => {
