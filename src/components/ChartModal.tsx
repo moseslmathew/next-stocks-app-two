@@ -64,7 +64,7 @@ const MemoizedChart = React.memo(({
   latestData: any;
 }) => {
   return (
-    <ResponsiveContainer width="100%" height="100%" className="outline-none [&_.recharts-wrapper]:outline-none">
+    <ResponsiveContainer width="100%" height="100%" className="!outline-none [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none [&_:focus]:!outline-none">
         <ComposedChart data={data} margin={{ top: 20, right: 10, bottom: 20, left: 10 }}>
             {/* ... defs and grid ... */}
             <defs>
