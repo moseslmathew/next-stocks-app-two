@@ -110,15 +110,21 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
     if (latestData) setActiveData(latestData);
   }, [latestData]);
 
+  const handleCursorUpdate = React.useCallback((data: any) => {
+    setActiveData(data);
+  }, []);
+
   if (!isOpen) return null;
 
-  // Prepare data for Recharts
-  const chartData = currentPriceData.map((price, i) => ({
-    timestamp: currentTimestamps[i] || i,
-    price,
-    volume: currentVolumeData[i] || 0,
-    volumeColor: (i > 0 && price >= currentPriceData[i - 1]) ? '#22c55e' : '#ef4444'
-  }));
+  // Prepare data for Recharts - Memoized to prevent re-mapping on every cursor move
+  const chartData = React.useMemo(() => {
+    return currentPriceData.map((price, i) => ({
+      timestamp: currentTimestamps[i] || i,
+      price,
+      volume: currentVolumeData[i] || 0,
+      volumeColor: (i > 0 && price >= currentPriceData[i - 1]) ? '#22c55e' : '#ef4444'
+    }));
+  }, [currentPriceData, currentVolumeData, currentTimestamps]);
 
   const isPositive = currentPriceData.length > 0 && currentPriceData[currentPriceData.length - 1] >= currentPriceData[0];
   const chartColor = isPositive ? '#22c55e' : '#ef4444';
@@ -308,8 +314,9 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                             />
                         )}
                         <Tooltip 
-                            content={<ChartCursorHandler onUpdate={setActiveData} latestData={latestData} />}
+                            content={<ChartCursorHandler onUpdate={handleCursorUpdate} latestData={latestData} />}
                             cursor={{ stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '5 5' }}
+                            isAnimationActive={false}
                         />
                         {showVolume && (
                             <Bar 
