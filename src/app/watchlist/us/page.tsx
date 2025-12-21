@@ -4,7 +4,7 @@ import Watchlist from '@/components/Watchlist';
 import { DollarSign } from 'lucide-react';
 
 export const metadata = {
-  title: 'US Markets - MarketPro',
+  title: 'US Markets - TradeMind',
   description: 'Track your favorite US and Global stocks.',
 };
 

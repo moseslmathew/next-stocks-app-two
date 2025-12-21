@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MarketPro - Real-time Stock Insights",
+  title: "TradeMind - Real-time Stock Insights",
   description: "Track global markets, news, and your watchlist in real-time.",
 };
 

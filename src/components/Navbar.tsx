@@ -6,6 +6,7 @@ import { TrendingUp, Newspaper, Globe, Menu, IndianRupee, DollarSign, Search as 
 import Search from './Search';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 
 const AuthButtons = dynamic(() => import('./AuthButtons'), { ssr: false });
 const MobileAuthButtons = dynamic(() => import('./MobileAuthButtons'), { ssr: false });
@@ -13,6 +14,7 @@ const MobileAuthButtons = dynamic(() => import('./MobileAuthButtons'), { ssr: fa
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const pathname = usePathname();
+  const { isSignedIn } = useUser();
 
   const isActive = (path: string) => pathname === path;
 
@@ -27,7 +29,7 @@ const Navbar = () => {
                 <TrendingUp className="w-5 h-5" />
              </div>
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
-              MarketPro
+              TradeMind
             </span>
           </Link>
           
@@ -39,8 +41,12 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center">
             <div className="flex items-center gap-1 mr-4">
-              <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="India" active={isActive('/watchlist/indian')} />
-              <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="US" active={isActive('/watchlist/us')} />
+              {isSignedIn && (
+                <>
+                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="India" active={isActive('/watchlist/indian')} />
+                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="US" active={isActive('/watchlist/us')} />
+                </>
+              )}
               <NavLink href="/global-market" icon={<Globe size={16} />} text="Global" active={isActive('/global-market')} />
               <NavLink href="/news" icon={<Newspaper size={16} />} text="News" active={isActive('/news')} />
             </div>
@@ -74,8 +80,12 @@ const Navbar = () => {
                 <Search />
              </div>
              <div className="space-y-1">
-                <MobileLink href="/watchlist/indian" icon={<IndianRupee size={18} />} text="Indian Markets" onClick={() => setIsOpen(false)} />
-                <MobileLink href="/watchlist/us" icon={<DollarSign size={18} />} text="US Markets" onClick={() => setIsOpen(false)} />
+                {isSignedIn && (
+                  <>
+                    <MobileLink href="/watchlist/indian" icon={<IndianRupee size={18} />} text="Indian Markets" onClick={() => setIsOpen(false)} />
+                    <MobileLink href="/watchlist/us" icon={<DollarSign size={18} />} text="US Markets" onClick={() => setIsOpen(false)} />
+                  </>
+                )}
                 <MobileLink href="/global-market" icon={<Globe size={18} />} text="Global Markets" onClick={() => setIsOpen(false)} />
                 <MobileLink href="/news" icon={<Newspaper size={18} />} text="Market News" onClick={() => setIsOpen(false)} />
              </div>

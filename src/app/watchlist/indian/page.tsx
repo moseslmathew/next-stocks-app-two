@@ -3,7 +3,7 @@ import { MarketStatusBadge } from '@/components/MarketStatusBadge';
 import Watchlist from '@/components/Watchlist';
 
 export const metadata = {
-  title: 'Indian Markets - MarketPro',
+  title: 'Indian Markets - TradeMind',
   description: 'Track your favorite Indian stocks.',
 };
 

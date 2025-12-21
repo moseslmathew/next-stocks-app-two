@@ -2,7 +2,7 @@
 import Watchlist from '@/components/Watchlist';
 
 export const metadata = {
-  title: 'My Watchlist - MarketPro',
+  title: 'My Watchlist - TradeMind',
   description: 'Track your favorite stocks and analyze market trends.',
 };
 
