@@ -22,6 +22,7 @@ interface ChartModalProps {
   timestamps: number[];
   color?: string;
   range?: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max';
+  hideActiveVolume?: boolean;
 }
 
 // Helper to extract state from Tooltip without rendering it
@@ -36,13 +37,13 @@ const ChartCursorHandler = ({ active, payload, onUpdate, latestData }: any) => {
         onUpdate(newData);
       }
     } else {
-       // Reset to latest when not active
-       if (latestData && latestData.timestamp !== lastTimestamp.current) {
-          lastTimestamp.current = latestData.timestamp;
-          onUpdate(latestData);
+       // Reset to null when not active to hide "Active" values
+       if (lastTimestamp.current !== null) {
+          lastTimestamp.current = null;
+          onUpdate(null);
        }
     }
-  }, [active, payload, onUpdate, latestData]);
+  }, [active, payload, onUpdate]);
 
   return null;
 };
@@ -161,7 +162,7 @@ const MemoizedChart = React.memo(({
     );
 });
 
-export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, range = '1d' }: ChartModalProps) {
+export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, range = '1d', hideActiveVolume = false }: ChartModalProps) {
   const [activeRange, setActiveRange] = React.useState<'1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max'>(range);
   const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[] } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -219,10 +220,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
      };
   }, [currentPriceData, currentVolumeData, currentTimestamps]);
 
-  // Initialize active data
-  React.useEffect(() => {
-    if (latestData) setActiveData(latestData);
-  }, [latestData]);
+
 
   const handleCursorUpdate = React.useCallback((data: any) => {
     setActiveData(data);
@@ -312,14 +310,16 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     </p>
                 </div>
 
-                <div className="md:col-span-4 border-l border-gray-100 dark:border-white/5 pl-6 hidden md:block">
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
-                        Active Volume
-                    </span>
-                    <div className="text-xl font-mono font-bold text-gray-700 dark:text-gray-300">
-                        {displayData.volume?.toLocaleString()}
+                {!hideActiveVolume && (
+                    <div className="md:col-span-4 border-l border-gray-100 dark:border-white/5 pl-6 hidden md:block">
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+                            Active Volume
+                        </span>
+                        <div className="text-xl font-mono font-bold text-gray-700 dark:text-gray-300">
+                            {activeData ? activeData.volume?.toLocaleString() : '--'}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Range & Volume Controls - Moved Below Price */}

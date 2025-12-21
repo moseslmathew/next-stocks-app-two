@@ -221,8 +221,10 @@ export async function getWatchlist(watchlistId: string, range: '1d' | '7d' | '52
     const symbols = items.map((item: { symbol: string }) => item.symbol);
     const marketData = await getMarketData(symbols, range, includeHistory);
     
+    const itemsMap = new Map(items.map(i => [i.symbol, i]));
+    
     return marketData.map(data => {
-        const item = items.find((i: { symbol: string }) => i.symbol === data.symbol);
+        const item = itemsMap.get(data.symbol);
         return {
             ...data,
             order: item ? item.order : 0

@@ -58,7 +58,7 @@ export default async function GlobalIndices() {
   ]);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full max-w-7xl mx-auto px-4 relative z-20">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 w-full relative z-20">
       {INDICES.map((index: any) => {
         let price = 0;
         let change = 0;
@@ -90,9 +90,9 @@ export default async function GlobalIndices() {
         return (
           <div
             key={index.symbol}
-            className={`${cardBackground} backdrop-blur-md border ${borderColor} p-3 rounded-xl shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 group ${index.hoverBorder} flex flex-col justify-between h-full min-h-[85px]`}
+            className={`${cardBackground} backdrop-blur-md border ${borderColor} p-5 rounded-xl shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 group ${index.hoverBorder} flex flex-col justify-between h-full min-h-[110px]`}
           >
-            <div className="flex justify-between items-start mb-1 gap-2">
+            <div className="flex justify-between items-start mb-2 gap-2">
                <div className="text-sm font-bold text-gray-700 dark:text-gray-200 leading-tight flex items-center gap-1.5">
                 {index.symbol === 'GC=F' && <Globe size={14} className="stroke-[2.5px] text-blue-500/80 dark:text-blue-400" />}
                 {index.name}

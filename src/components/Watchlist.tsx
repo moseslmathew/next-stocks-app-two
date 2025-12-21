@@ -666,7 +666,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                             onClick={() => setActiveWatchlistId(list.id)}
                             className={`px-5 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                                 activeWatchlistId === list.id 
-                                ? 'bg-[#2070b4] text-white shadow-md shadow-[#2070b4]/20' 
+                                ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20' 
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                             }`}
                         >
@@ -720,7 +720,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             <div className="flex items-center">
                  <button 
                     onClick={() => setIsSearchOpen(true)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#2070b4] text-white rounded-lg hover:bg-[#3461d4] transition-all shadow-lg shadow-[#2070b4]/20 font-medium text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+                    className="flex items-center gap-2 px-6 py-2.5 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20 font-medium text-sm transform hover:-translate-y-0.5 active:translate-y-0"
                  >
                     <Plus size={18} strokeWidth={2.5} />
                     <span>Add Symbol</span>
@@ -728,14 +728,19 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             </div>
         </div>
 
-        {watchlistData.length === 0 && !isLoadingData ? (
+        {isLoadingData && watchlistData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-800">
+                <Loader2 className="w-10 h-10 text-violet-600 animate-spin mb-4" />
+                <p className="text-gray-500 font-medium">Loading watchlist...</p>
+            </div>
+        ) : watchlistData.length === 0 ? (
            // Empty state
           <div className="text-center py-20 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-dashed border-gray-300 dark:border-gray-800">
             <button 
                 onClick={() => setIsSearchOpen(true)}
-                className="inline-block bg-blue-100 dark:bg-blue-900/20 p-4 rounded-full mb-4 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors cursor-pointer group"
+                className="inline-block bg-violet-100 dark:bg-violet-900/20 p-4 rounded-full mb-4 hover:bg-violet-200 dark:hover:bg-violet-900/40 transition-colors cursor-pointer group"
             >
-                <Plus className="w-8 h-8 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+                <Plus className="w-8 h-8 text-violet-600 dark:text-violet-400 group-hover:scale-110 transition-transform" />
             </button>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Your watchlist is empty</h3>
             <p className="text-gray-500">Search for stocks above to start tracking them.</p>
@@ -982,6 +987,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             volumeData={selectedStock?.volumeSparkline || []}
             timestamps={selectedStock?.timestamps || []}
             range={trendRange === '7d' ? '1w' : trendRange === '52w' ? '1y' : trendRange}
+            hideActiveVolume={selectedStock ? !isIndianStock(selectedStock.symbol) : false}
         />
 
         <NewsModal 

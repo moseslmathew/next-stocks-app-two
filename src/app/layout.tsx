@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TradeMind - Real-time Stock Insights",
+  title: "Tensor Terminal - Real-time Stock Insights",
   description: "Track global markets, news, and your watchlist in real-time.",
 };
 

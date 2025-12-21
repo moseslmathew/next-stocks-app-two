@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import React from 'react';
-import { TrendingUp, Newspaper, Globe, Menu, IndianRupee, DollarSign, Search as SearchIcon } from 'lucide-react';
+import { TrendingUp, Newspaper, Globe, Menu, IndianRupee, DollarSign, Search as SearchIcon, ScatterChart, Brain } from 'lucide-react';
 import Search from './Search';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
@@ -25,11 +25,11 @@ const Navbar = () => {
           
           {/* Logo Section */}
           <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-             <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-2 rounded-xl text-white shadow-lg shadow-blue-500/20 group-hover:scale-105 group-hover:shadow-blue-500/30 transition-all duration-300">
-                <TrendingUp className="w-5 h-5" />
+             <div className="relative p-2 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-xl shadow-lg shadow-violet-500/30 group-hover:shadow-violet-500/50 group-hover:scale-105 transition-all duration-300 ring-1 ring-white/20">
+                <ScatterChart className="w-5 h-5 text-white" strokeWidth={2.5} />
              </div>
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight">
-              TradeMind
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-950 to-indigo-900 dark:from-white dark:to-indigo-200 tracking-tight">
+              Tensor Terminal
             </span>
           </Link>
           
@@ -43,11 +43,12 @@ const Navbar = () => {
             <div className="flex items-center gap-1 mr-4">
               {isSignedIn && (
                 <>
-                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="India" active={isActive('/watchlist/indian')} />
-                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="US" active={isActive('/watchlist/us')} />
+                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="Watchlist (India)" active={isActive('/watchlist/indian')} />
+                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="Watchlist (US)" active={isActive('/watchlist/us')} />
                 </>
               )}
-              <NavLink href="/global-market" icon={<Globe size={16} />} text="Global" active={isActive('/global-market')} />
+              <NavLink href="/global-market" icon={<Globe size={16} />} text="Global Markets" active={isActive('/global-market')} />
+              <NavLink href="/ai-sentiment" icon={<Brain size={16} />} text="AI Sentiment" active={isActive('/ai-sentiment')} />
               <NavLink href="/news" icon={<Newspaper size={16} />} text="News" active={isActive('/news')} />
             </div>
             
@@ -82,11 +83,12 @@ const Navbar = () => {
              <div className="space-y-1">
                 {isSignedIn && (
                   <>
-                    <MobileLink href="/watchlist/indian" icon={<IndianRupee size={18} />} text="Indian Markets" onClick={() => setIsOpen(false)} />
-                    <MobileLink href="/watchlist/us" icon={<DollarSign size={18} />} text="US Markets" onClick={() => setIsOpen(false)} />
+                    <MobileLink href="/watchlist/indian" icon={<IndianRupee size={18} />} text="Watchlist (India)" onClick={() => setIsOpen(false)} />
+                    <MobileLink href="/watchlist/us" icon={<DollarSign size={18} />} text="Watchlist (US)" onClick={() => setIsOpen(false)} />
                   </>
                 )}
                 <MobileLink href="/global-market" icon={<Globe size={18} />} text="Global Markets" onClick={() => setIsOpen(false)} />
+                <MobileLink href="/ai-sentiment" icon={<Brain size={18} />} text="AI Market Sentiment" onClick={() => setIsOpen(false)} />
                 <MobileLink href="/news" icon={<Newspaper size={18} />} text="Market News" onClick={() => setIsOpen(false)} />
              </div>
           </div>
@@ -102,7 +104,7 @@ function NavLink({ href, icon, text, active }: { href: string; icon: React.React
             href={href}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 active 
-                ? 'bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400' 
+                ? 'bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400' 
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
         >

@@ -30,85 +30,91 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
     let historyMap: Map<string, { sparkline: number[], volumeSparkline: number[], timestamps: number[] }> = new Map();
 
     if (includeHistory) {
-         // ... (history fetching logic remains same but omitted for brevity in search replacement if possible, but cleaner to replace block)
-         // To avoid huge replacement, I will just target the interface and the return map part 
-         // But replace_file_content requires contiguous block. I will do full Replace.
-        const historyPromises = symbols.map(async (symbol) => {
-            try {
-                const now = new Date();
-                let queryOptions: any = {};
-                let filterLastSession = false;
+      const chunkArray = (arr: string[], size: number) => {
+          return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+              arr.slice(i * size, i * size + size)
+          );
+      };
 
-                if (range === '1d') {
-                    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // Look back 7 days to find last session
-                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m' };
-                    filterLastSession = true;
-                } else if (range === '1w') {
-                    const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
-                } else if (range === '1m') {
-                    const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '60m' };
-                } else if (range === '3m') {
-                    const startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                } else if (range === '1y') {
-                    const startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-                    queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                } else if (range === '2y') {
-                     const startDate = new Date(now.getTime() - 2 * 365 * 24 * 60 * 60 * 1000);
-                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
-                } else if (range === '5y') {
-                     const startDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);
-                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
-                } else if (range === 'max') {
-                     queryOptions = { period1: '1980-01-01', interval: '1mo' };
-                } else if (range === '52w') { // Keep for backward compatibility if needed, map to 1y
-                     const startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                } else if (range === '7d') {
-                     const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                     queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
-                }
+      const chunks = chunkArray(symbols, 5);
+      const allHistories: { symbol: string, sparkline: number[], volumeSparkline: number[], timestamps: number[] }[] = [];
 
-                const result = await yahooFinance.chart(symbol, queryOptions);
-                const chartData = result as any;
-                
-                if (!chartData || !chartData.quotes || chartData.quotes.length === 0) {
-                     return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };
-                }
+      for (const chunk of chunks) {
+          const chunkPromises = chunk.map(async (symbol) => {
+              try {
+                  const now = new Date();
+                  let queryOptions: any = {};
+                  let filterLastSession = false;
 
-                let quotes = chartData.quotes;
+                  if (range === '1d') {
+                      const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days back to find last session
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m' };
+                      filterLastSession = true;
+                  } else if (range === '7d' || range === '1w') {
+                      const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
+                  } else if (range === '1m') {
+                      const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '60m' };
+                  } else if (range === '3m') {
+                      const startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
+                  } else if (range === '1y' || range === '52w') {
+                      const startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
+                  } else if (range === '2y') {
+                      const startDate = new Date(now.getTime() - 2 * 365 * 24 * 60 * 60 * 1000);
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
+                  } else if (range === '5y') {
+                      const startDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
+                  } else if (range === 'max') {
+                      queryOptions = { period1: '1980-01-01', interval: '1mo' };
+                  } else {
+                       // Default fallback
+                       const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m' };
+                  }
 
-                if (filterLastSession) {
-                    // Find the date of the last valid quote
-                    const lastQuote = quotes[quotes.length - 1];
-                    if (lastQuote && lastQuote.date) {
-                        const lastDate = new Date(lastQuote.date);
-                        // Filter to keep only quotes from the same calendar day (in the exchange's timezone roughly, or just same UTC Day if simple)
-                        // Better: Day/Month/Year matching
-                        const lastDayStr = lastDate.toISOString().split('T')[0];
-                        quotes = quotes.filter((q: any) => new Date(q.date).toISOString().split('T')[0] === lastDayStr);
-                    }
-                }
+                  const result = await yahooFinance.chart(symbol, queryOptions);
+                  const chartData = result as any;
+                  
+                  if (!chartData || !chartData.quotes || chartData.quotes.length === 0) {
+                       return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };
+                  }
 
-                return { 
-                    symbol, 
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    sparkline: quotes.map((q: any) => q.close).filter((c: any) => typeof c === 'number'),
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    volumeSparkline: quotes.map((q: any) => q.volume).filter((v: any) => typeof v === 'number'),
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    timestamps: quotes.map((q: any) => new Date(q.date).getTime()).filter((t: any) => !isNaN(t))
-                };
-            } catch (e) {
-                console.error(`Failed to fetch history for ${symbol} (${range}):`, e);
-                return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };
-            }
-        });
+                  let quotes = chartData.quotes;
 
-        const histories = await Promise.all(historyPromises);
-        historyMap = new Map(histories.map(h => [h.symbol, { sparkline: h.sparkline, volumeSparkline: h.volumeSparkline, timestamps: h.timestamps }]));
+                  if (filterLastSession) {
+                      const lastQuote = quotes[quotes.length - 1];
+                      if (lastQuote && lastQuote.date) {
+                          const lastDate = new Date(lastQuote.date);
+                          const lastDayStr = lastDate.toISOString().split('T')[0];
+                          quotes = quotes.filter((q: any) => new Date(q.date).toISOString().split('T')[0] === lastDayStr);
+                      }
+                  }
+
+                  return { 
+                      symbol, 
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      sparkline: quotes.map((q: any) => q.close).filter((c: any) => typeof c === 'number'),
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      volumeSparkline: quotes.map((q: any) => q.volume).filter((v: any) => typeof v === 'number'),
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      timestamps: quotes.map((q: any) => new Date(q.date).getTime()).filter((t: any) => !isNaN(t))
+                  };
+              } catch (e) {
+                  // Don't log expected errors for crypto/etc if they don't support period1
+                  // console.error(`Failed to fetch history for ${symbol} (${range}):`, e);
+                  return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };
+              }
+          });
+
+          const chunkResults = await Promise.all(chunkPromises);
+          allHistories.push(...chunkResults);
+      }
+
+      historyMap = new Map(allHistories.map(h => [h.symbol, { sparkline: h.sparkline, volumeSparkline: h.volumeSparkline, timestamps: h.timestamps }]));
     }
 
     const quotes = await quotesPromise;

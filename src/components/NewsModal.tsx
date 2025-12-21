@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, ExternalLink, Calendar, Search } from 'lucide-react';
+import { X, ExternalLink, Calendar, Search, Info } from 'lucide-react';
 import { NewsItem } from '@/actions/news';
 import { useState, useEffect } from 'react';
 import { analyzeSentiment, SentimentResult } from '@/actions/ai';
@@ -19,20 +19,47 @@ interface NewsModalProps {
 export function NewsModal({ isOpen, onClose, symbol, newsItems, loading, onSearch }: NewsModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sentiment, setSentiment] = useState<SentimentResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   React.useEffect(() => {
      setSearchQuery('');
      setSentiment(null);
+     setError(null);
   }, [isOpen, symbol]);
 
   useEffect(() => {
     if (isOpen && newsItems.length > 0 && !loading) {
         const analyze = async () => {
             setIsAnalyzing(true);
-            const headlines = newsItems.slice(0, 10).map(i => i.title);
+            setError(null);
+            
+            // Filter for news from the last 30 days to ensure relevance and save quota
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            const recentNews = newsItems.filter(item => {
+                const pubDate = new Date(item.pubDate);
+                // Check if date is valid, if not assume it's recent enough (or filter out? assume recent for safety)
+                if (isNaN(pubDate.getTime())) return true;
+                return pubDate >= thirtyDaysAgo;
+            });
+
+            // Take top 15 of the recent ones, or just top 15 if recent list is empty (fallback)
+            const itemsToUse = recentNews.length > 0 ? recentNews : newsItems;
+            const headlines = itemsToUse.slice(0, 15).map(i => i.title);
+
             const result = await analyzeSentiment(symbol, headlines);
-            setSentiment(result);
+            
+            if (result.success) {
+                setSentiment(result.data);
+            } else if (result.isQuotaExceeded) {
+                setError("AI usage limit exceeded. Please try again later.");
+            } else {
+                // Handle generic error if needed, but for now just silence or generic
+                // setError("Failed to analyze sentiment."); 
+            }
+            
             setIsAnalyzing(false);
         };
         analyze();
@@ -86,17 +113,29 @@ export function NewsModal({ isOpen, onClose, symbol, newsItems, loading, onSearc
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           
           {/* AI Insight Card */}
-          {(isAnalyzing || sentiment) && (
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 mb-4">
+          {(isAnalyzing || sentiment || error) && (
+            <div className={`border rounded-xl p-4 mb-4 ${
+                error 
+                ? 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30' 
+                : 'bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-100 dark:border-indigo-800'
+            }`}>
                 <div className="flex items-start gap-3">
-                    <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg text-indigo-600 dark:text-indigo-400">
+                    <div className={`p-2 rounded-lg ${
+                        error 
+                        ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400' 
+                        : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400'
+                    }`}>
                         <BrainCircuit size={20} />
                     </div>
                     <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                            <h3 className="font-semibold text-gray-900 dark:text-white text-sm">AI Market Sentiment</h3>
+                            <h3 className={`font-semibold text-sm ${
+                                error ? 'text-red-900 dark:text-red-200' : 'text-gray-900 dark:text-white'
+                            }`}>AI Market Sentiment</h3>
                             {isAnalyzing ? (
                                 <span className="text-xs text-indigo-500 animate-pulse font-medium">Analyzing...</span>
+                            ) : error ? (
+                                <span className="text-xs text-red-500 font-bold">Error</span>
                             ) : (
                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                                     sentiment?.sentiment === 'Bullish' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
@@ -107,9 +146,24 @@ export function NewsModal({ isOpen, onClose, symbol, newsItems, loading, onSearc
                                 </span>
                             )}
                         </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                            {isAnalyzing ? "Reading latest headlines to generate insight..." : sentiment?.summary}
+                        <p className={`text-xs leading-relaxed ${
+                            error ? 'text-red-700 dark:text-red-300' : 'text-gray-600 dark:text-gray-300'
+                        }`}>
+                            {isAnalyzing ? "Reading latest headlines to generate insight..." : error ? error : sentiment?.summary}
                         </p>
+                        
+                        {/* Usage Stats - Only show if available and no error */}
+                        {!isAnalyzing && !error && sentiment?.usage && (
+                            <div className="mt-3 flex flex-col gap-1">
+                                <div className="text-[10px] text-gray-400 dark:text-gray-500 font-mono flex flex-wrap items-center gap-x-3">
+                                    {sentiment.model && <span>Model: {sentiment.model}</span>}
+                                    <span>Tokens Used: {sentiment.usage.totalTokens}</span>
+                                </div>
+                                <p className="text-[10px] leading-tight text-gray-400 opacity-80 italic">
+                                    Disclaimer: AI generated content. Not financial advice.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -4,7 +4,7 @@ import Watchlist from '@/components/Watchlist';
 import { DollarSign } from 'lucide-react';
 
 export const metadata = {
-  title: 'US Markets - TradeMind',
+  title: 'US Markets - Tensor Terminal',
   description: 'Track your favorite US and Global stocks.',
 };
 

@@ -8,7 +8,7 @@ const AuthButtons = () => {
     <>
         <SignedOut>
             <SignInButton mode="modal">
-            <button className="px-5 py-2 rounded-full bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 hover:shadow-blue-600/30 transform hover:-translate-y-0.5">
+            <button className="px-5 py-2 rounded-full bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-600/30 transform hover:-translate-y-0.5">
                 Sign In
             </button>
             </SignInButton>
