@@ -246,3 +246,8 @@ export const getInvestingQuote = unstable_cache(
     ['investing-quote'],
     { revalidate: 60, tags: ['investing-quote'] } 
 );
+
+export async function refreshInvestingQuote() {
+  revalidateTag('investing-quote', 'default');
+  return { success: true };
+}
