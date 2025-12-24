@@ -122,31 +122,31 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
         : undefined; // undefined = let Sparkline calculate slope
 
     return (
-        <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black">
-            <td className="px-2 sm:px-6 py-4 sticky left-0 bg-white dark:bg-black z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] align-middle w-[45vw] min-w-[45vw] sm:w-[40%] sm:min-w-0">
+        <tr ref={setNodeRef} style={style} {...attributes} {...listeners} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative">
+            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[40%]">
                 <div className="flex items-center gap-2">
-                    <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
-                        <GripVertical size={16} />
-                    </button>
-                    <div className="min-w-0 w-full">
-                        <div className="font-medium text-sm sm:text-base text-gray-900 dark:text-white break-words" title={data.symbol}>
-                            {data.symbol.replace(/\.NS$|\.BO$/, '')}
+                    <div className="min-w-0 w-full pl-2">
+                        <div className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white break-words capitalize" title={data.symbol}>
+                            {data.symbol.replace(/\.NS$|\.BO$/, '').toLowerCase()}
                         </div>
                     </div>
                 </div>
             </td>
-            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-[25%] sm:min-w-0 snap-start">
-                <div className="flex flex-col items-center sm:items-start">
-                    <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
+            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[25%]">
+                <div className="flex flex-col items-end sm:items-start pr-2 sm:pr-0">
+                    <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100">
                         {formatCurrency(data.regularMarketPrice, data.currency)}
                     </div>
-                    <div className={`text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`text-xs font-medium mt-0.5 ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                     </div>
                 </div>
             </td>
-            <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
-                <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start">
+            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%]" onClick={(e) => {
+                 // Prevent drag initialization when clicking directly on graph if needed, but onSelect handles the modal
+                 onSelect(data);
+            }}>
+                <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-end sm:justify-start">
                     <Sparkline 
                         data={data.sparkline} 
                         previousClose={trendRange === '1d' ? data.regularMarketPrice - data.regularMarketChange : undefined}
@@ -160,7 +160,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 </div>
             </td>
 
-            <td className="px-6 sm:px-6 py-4 text-center sm:text-right align-middle w-[55vw] min-w-[55vw] sm:w-[15%] sm:min-w-0 snap-start">
+            <td className="hidden sm:table-cell px-6 sm:px-6 py-4 text-center sm:text-right border-b border-gray-100 dark:border-gray-800 align-middle sm:w-[15%]">
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                     <button 
                          onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -763,7 +763,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             <p className="text-gray-500">Search for stocks above to start tracking them.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-800">
+          <div className="w-full sm:rounded-xl sm:border sm:border-gray-200 sm:dark:border-gray-800">
             <DndContext 
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -835,53 +835,37 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     </h2>
                                 )}
                                     <div className="relative group">
-                                        <button 
-                                            onClick={() => scrollTable(title, 'left')}
-                                            className="sm:hidden absolute left-[45vw] top-0 h-[84px] z-40 px-1 bg-gradient-to-r from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500 justify-center"
-                                        >
-                                            <ChevronLeft size={20} strokeWidth={3} />
-                                        </button>
-                                        <button 
-                                            onClick={() => scrollTable(title, 'right')}
-                                            className="sm:hidden absolute right-0 top-0 h-[84px] z-40 px-1 bg-gradient-to-l from-gray-50/80 dark:from-gray-900/80 to-transparent flex items-center text-gray-400 hover:text-blue-500 justify-center"
-                                        >
-                                            <ChevronRight size={20} strokeWidth={3} />
-                                        </button>
+                                         {/* Removed mobile scroll buttons as we now fit 3 columns */}
 
                                         <div 
                                             ref={(el) => { tableRefs.current[title] = el; }}
-                                            className="overflow-x-auto snap-x snap-mandatory scroll-pl-[45vw] no-scrollbar rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black"
+                                            className="w-full sm:rounded-xl sm:border sm:border-gray-200 sm:dark:border-gray-800 bg-white dark:bg-black"
                                         >
                                     <table className="w-full text-left text-sm sm:text-base table-fixed">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm">
                                             <tr>
-                                                <th className="px-4 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white sticky left-0 bg-gray-50 dark:bg-gray-900 z-30 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] w-[45vw] min-w-[45vw] sm:w-[40%] sm:min-w-0" onClick={() => handleSort('symbol')}>
-                                                    <div className="flex items-center gap-1">
+                                                <th className="px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[30%] sm:w-[40%]" onClick={() => handleSort('symbol')}>
+                                                    <div className="flex items-center gap-1 pl-2">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[55vw] min-w-[55vw] sm:w-[25%] sm:min-w-0 snap-start text-center sm:text-left" onClick={() => handleSort('price')}>
-                                                     <div className="flex items-center justify-center sm:justify-start gap-1">
+                                                <th className="px-2 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[35%] sm:w-[25%] text-right sm:text-left" onClick={() => handleSort('price')}>
+                                                     <div className="flex items-center justify-end sm:justify-start gap-1 pr-2 sm:pr-0">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start text-center sm:text-left">
-                                                     <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2">
-                                                         <span className="text-xs sm:text-sm uppercase tracking-wider">Trend</span>
-                                                         <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
+                                                <th className="px-2 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 w-[35%] sm:w-[20%] text-right sm:text-left">
+                                                     <div className="flex flex-col sm:flex-row items-end sm:justify-start gap-1 sm:gap-2">
+                                                         <span className="text-[10px] sm:text-sm uppercase tracking-wider hidden sm:inline">Trend</span>
+                                                         {/* Micro-range selector for mobile could go here or keep layout clean */}
+                                                         <div className="flex bg-gray-100 dark:bg-gray-800/50 rounded-lg p-0.5 text-[10px] sm:text-xs scale-90 sm:scale-100 origin-right sm:origin-left">
                                                              <button
                                                                  onClick={() => setTrendRange('1d')}
                                                                  className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                                              >
                                                                  1D
-                                                             </button>
-                                                             <button
-                                                                 onClick={() => setTrendRange('7d')}
-                                                                 className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '7d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                                                             >
-                                                                 7D
                                                              </button>
                                                              <button
                                                                  onClick={() => setTrendRange('52w')}
@@ -893,7 +877,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                      </div>
                                                 </th>
 
-                                                <th className="px-6 sm:px-6 py-4 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right w-[55vw] min-w-[55vw] sm:w-[15%] sm:min-w-0 snap-start">Actions</th>
+                                                <th className="hidden sm:table-cell px-6 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right sm:w-[15%]">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
