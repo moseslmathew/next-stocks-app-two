@@ -123,21 +123,24 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     return (
         <tr ref={setNodeRef} style={style} {...attributes} {...listeners} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative">
-            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[40%]">
+            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[40%]">
                 <div className="flex items-center gap-2">
                     <div className="min-w-0 w-full pl-2">
-                        <div className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white break-words capitalize" title={data.symbol}>
+                        <div className="font-bold text-sm sm:text-base text-gray-900 dark:text-white break-words capitalize leading-tight" title={data.symbol}>
                             {data.symbol.replace(/\.NS$|\.BO$/, '').toLowerCase()}
+                        </div>
+                        <div className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 font-normal">
+                             {data.shortName || 'Company'}
                         </div>
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[25%]">
-                <div className="flex flex-col items-end sm:items-start pr-2 sm:pr-0">
-                    <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100">
+            <td className="px-1 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[25%]">
+                <div className="flex flex-col items-center sm:items-start">
+                    <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
                         {formatCurrency(data.regularMarketPrice, data.currency)}
                     </div>
-                    <div className={`text-xs font-medium mt-0.5 ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                     </div>
                 </div>
@@ -150,7 +153,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     <Sparkline 
                         data={data.sparkline} 
                         previousClose={trendRange === '1d' ? data.regularMarketPrice - data.regularMarketChange : undefined}
-                        width={90} 
+                        width={65} 
                         height={35} 
                         color={sparklineColor} 
                         timestamps={data.timestamps}
@@ -844,14 +847,14 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     <table className="w-full text-left text-sm sm:text-base table-fixed">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm">
                                             <tr>
-                                                <th className="px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[30%] sm:w-[40%]" onClick={() => handleSort('symbol')}>
+                                                <th className="px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[35%] sm:w-[40%]" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1 pl-2">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-2 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[35%] sm:w-[25%] text-right sm:text-left" onClick={() => handleSort('price')}>
-                                                     <div className="flex items-center justify-end sm:justify-start gap-1 pr-2 sm:pr-0">
+                                                <th className="px-1 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[30%] sm:w-[25%] text-center sm:text-left" onClick={() => handleSort('price')}>
+                                                     <div className="flex items-center justify-center sm:justify-start gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
