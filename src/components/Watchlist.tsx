@@ -856,20 +856,19 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-2 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 w-[35%] sm:w-[20%] text-right sm:text-left">
-                                                     <div className="flex flex-col sm:flex-row items-end sm:justify-start gap-1 sm:gap-2">
-                                                         <span className="text-[10px] sm:text-sm uppercase tracking-wider hidden sm:inline">Trend</span>
-                                                         {/* Micro-range selector for mobile could go here or keep layout clean */}
-                                                         <div className="flex bg-gray-100 dark:bg-gray-800/50 rounded-lg p-0.5 text-[10px] sm:text-xs scale-90 sm:scale-100 origin-right sm:origin-left">
+                                                <th className="px-2 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 w-[35%] sm:w-[20%] text-right sm:text-left align-middle">
+                                                     <div className="flex flex-row items-center justify-end sm:justify-start">
+                                                         {/* Micro-range selector */}
+                                                         <div className="flex bg-gray-100 dark:bg-gray-800/50 rounded-lg p-0.5 text-xs sm:text-sm origin-right sm:origin-left">
                                                              <button
                                                                  onClick={() => setTrendRange('1d')}
-                                                                 className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                                 className={`px-2 py-1 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                                              >
                                                                  1D
                                                              </button>
                                                              <button
                                                                  onClick={() => setTrendRange('52w')}
-                                                                 className={`px-1.5 py-0.5 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                                                 className={`px-2 py-1 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                                                              >
                                                                  52W
                                                              </button>
