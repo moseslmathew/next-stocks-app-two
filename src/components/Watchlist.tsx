@@ -80,9 +80,10 @@ interface SortableRowProps {
     highLowRange: '1d' | '52w';
     mobileActiveColumn: 'price' | 'trend' | 'range' | 'actions';
     onToggleColumn: () => void;
+    isLoadingChart?: boolean;
 }
 
-function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange, mobileActiveColumn, onToggleColumn }: SortableRowProps) {
+function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange, mobileActiveColumn, onToggleColumn, isLoadingChart }: SortableRowProps) {
     // ... (hooks remain same)
     const {
         attributes,
@@ -122,9 +123,12 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
         : undefined; // undefined = let Sparkline calculate slope
 
     return (
-        <tr ref={setNodeRef} style={style} {...attributes} {...listeners} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative">
+        <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative">
             <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[40%]">
                 <div className="flex items-center gap-2">
+                    <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
+                        <GripVertical size={16} />
+                    </button>
                     <div className="min-w-0 w-full pl-2">
                         <div className="font-medium text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight capitalize" title={data.symbol}>
                             {(data.shortName || data.symbol.replace(/\.NS$|\.BO$/, '')).toLowerCase()}
@@ -147,8 +151,11 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                  onSelect(data);
             }}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-end sm:justify-start">
-                    <Sparkline 
-                        data={data.sparkline} 
+                    {isLoadingChart ? (
+                        <div className="animate-pulse bg-gray-200 dark:bg-gray-800 h-[35px] w-[90px] rounded" />
+                    ) : (
+                        <Sparkline 
+                           data={data.sparkline} 
                         previousClose={trendRange === '1d' ? data.regularMarketPrice - data.regularMarketChange : undefined}
                         width={65} 
                         height={35} 
@@ -157,6 +164,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                         isIndian={data.symbol.endsWith('.NS') || data.symbol.endsWith('.BO') || data.symbol === '^NSEI' || data.symbol === '^BSESN'}
                         marketState={data.marketState}
                     />
+                    )}
                 </div>
             </td>
 
@@ -239,6 +247,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [watchlistBriefing, setWatchlistBriefing] = useState<Record<string, NewsItem[]>>({});
   const [isBriefingLoading, setIsBriefingLoading] = useState(false);
+  const [isSwitchingRange, setIsSwitchingRange] = useState(false);
   const { refreshRate } = useRefreshRate();
   const tableRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -392,18 +401,32 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   };
 
   const prevActiveWatchlistId = useRef<string | null>(null);
+  const prevTrendRange = useRef(trendRange);
 
   // Effect to fetch items when Active List or Range changes
   useEffect(() => {
     if (activeWatchlistId) {
+        let isListSwitch = false;
+
         // If switching lists, clear old data to avoid showing wrong list
         if (activeWatchlistId !== prevActiveWatchlistId.current) {
             setWatchlistData([]); 
             setIsLoadingData(true);
             prevActiveWatchlistId.current = activeWatchlistId;
+            prevTrendRange.current = trendRange;
+            isListSwitch = true;
         }
-        // Fetch new data (for list or new trend range)
-        fetchWatchlist(true);
+
+        // If switching range
+        if (trendRange !== prevTrendRange.current) {
+             setIsSwitchingRange(true); // Partial load
+             prevTrendRange.current = trendRange;
+        }
+
+        // Fetch new data
+        fetchWatchlist(true).finally(() => {
+             setIsSwitchingRange(false);
+        });
     }
   }, [activeWatchlistId, trendRange]);
 
@@ -895,6 +918,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         trendRange={trendRange}
                                                         mobileActiveColumn={mobileActiveColumn}
                                                         onToggleColumn={cycleMobileColumn}
+                                                        isLoadingChart={isSwitchingRange}
                                                     />
                                                 ))}
                                             </SortableContext>

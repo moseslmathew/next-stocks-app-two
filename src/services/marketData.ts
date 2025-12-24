@@ -97,12 +97,15 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
 
                   return { 
                       symbol, 
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      sparkline: quotes.map((q: any) => q.close).filter((c: any) => typeof c === 'number'),
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      volumeSparkline: quotes.map((q: any) => q.volume).filter((v: any) => typeof v === 'number'),
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      timestamps: quotes.map((q: any) => new Date(q.date).getTime()).filter((t: any) => !isNaN(t))
+                      sparkline: quotes
+                        .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
+                        .map((q: any) => q.close),
+                      volumeSparkline: quotes
+                        .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
+                        .map((q: any) => q.volume || 0), // Use 0 if volume missing but close exists
+                      timestamps: quotes
+                        .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
+                        .map((q: any) => new Date(q.date).getTime())
                   };
               } catch (e) {
                   // Don't log expected errors for crypto/etc if they don't support period1
