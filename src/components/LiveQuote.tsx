@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { getStockQuote } from '@/actions/market';
 import { formatCurrency } from '@/utils/currency';
-
+import { createPusherClient } from '@/lib/pusher';
 import { useRefreshRate } from '@/hooks/useRefreshRate';
 
 interface LiveQuoteProps {
@@ -17,15 +17,58 @@ export default function LiveQuote({ initialData, symbol }: LiveQuoteProps) {
   const { refreshRate } = useRefreshRate();
 
   useEffect(() => {
+    // 1. Subscribe to Pusher
+    const pusher = createPusherClient();
+    const channel = pusher.subscribe('market-data');
+
+    channel.bind('update', (updates: any[]) => {
+       const update = updates.find((u: any) => u.symbol === symbol);
+       if (update) {
+           setData((prev: any) => ({
+               ...prev,
+               price: update.regularMarketPrice,
+               change: update.regularMarketChange,
+               changePercent: update.regularMarketChangePercent,
+           }));
+       }
+    });
+
+    return () => {
+        pusher.unsubscribe('market-data');
+        pusher.disconnect();
+    };
+  }, [symbol]);
+
+  // 2. Keep Alive Stream
+  useEffect(() => {
     if (refreshRate === 0) return;
 
-    const fetchData = async () => {
-      const quote = await getStockQuote(symbol);
-      if (quote) setData(quote);
+    let isMounted = true;
+    let isFetching = false;
+
+    const startStream = async () => {
+        if (isFetching || !isMounted) return;
+        isFetching = true;
+        try {
+             await fetch('/api/stream-prices', {
+                 method: 'POST',
+                 body: JSON.stringify({ symbols: [symbol] }),
+             });
+        } catch (e) {
+            console.error(e);
+            await new Promise(r => setTimeout(r, 2000));
+        } finally {
+            isFetching = false;
+            // Loop if still mounted and not paused
+            if (isMounted && refreshRate !== 0) {
+                startStream();
+            }
+        }
     };
 
-    const interval = setInterval(fetchData, refreshRate);
-    return () => clearInterval(interval);
+    startStream();
+    
+    return () => { isMounted = false; };
   }, [symbol, refreshRate]);
 
   const isPositive = data.change >= 0;

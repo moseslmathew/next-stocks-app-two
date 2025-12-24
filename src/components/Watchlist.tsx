@@ -6,6 +6,7 @@ import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, Arr
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
 import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists } from '@/actions/watchlist';
+import { createPusherClient } from '@/lib/pusher';
 import { getStockNews, getBatchStockNews, NewsItem } from '@/actions/news';
 import MarketCard from '@/components/MarketCard';
 import Sparkline from '@/components/Sparkline';
@@ -58,6 +59,7 @@ interface MarketData {
   sparkline: number[];
   volumeSparkline?: number[];
   timestamps?: number[];
+  regularMarketTime?: number;
   order?: number; // Optional as it might not be in older cached data immediately
   marketState?: string;
   quoteType?: string;
@@ -145,7 +147,16 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
             </td>
             <td className="px-6 sm:px-6 py-4 align-middle w-[55vw] min-w-[55vw] sm:w-[20%] sm:min-w-0 snap-start" onClick={() => onSelect(data)}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start">
-                    <Sparkline data={data.sparkline} width={90} height={35} color={sparklineColor} />
+                    <Sparkline 
+                        data={data.sparkline} 
+                        previousClose={trendRange === '1d' ? data.regularMarketPrice - data.regularMarketChange : undefined}
+                        width={90} 
+                        height={35} 
+                        color={sparklineColor} 
+                        timestamps={data.timestamps}
+                        isIndian={data.symbol.endsWith('.NS') || data.symbol.endsWith('.BO') || data.symbol === '^NSEI' || data.symbol === '^BSESN'}
+                        marketState={data.marketState}
+                    />
                 </div>
             </td>
 
@@ -208,7 +219,12 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [trendRange, setTrendRange] = useState<'1d' | '7d' | '52w'>('1d');
   const [highLowRange, setHighLowRange] = useState<'1d' | '52w'>('1d');
-  const [selectedStock, setSelectedStock] = useState<MarketData | null>(null);
+  const [selectedStockId, setSelectedStockId] = useState<string | null>(null);
+  
+  const selectedStock = useMemo(() => {
+      if (!selectedStockId) return null;
+      return watchlistData.find(s => s.symbol === selectedStockId) || null;
+  }, [watchlistData, selectedStockId]);
   const [mobileActiveColumn, setMobileActiveColumn] = useState<'price' | 'trend' | 'range' | 'actions'>('price');
 
   const cycleMobileColumn = () => {
@@ -427,86 +443,87 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
      watchlistRef.current = watchlistData;
   }, [watchlistData]);
 
-  // Polling Effect
+  // Pusher Subscription & Keep-Alive Stream
+  useEffect(() => {
+    // 1. Subscribe to Pusher
+    const pusher = createPusherClient();
+    const channel = pusher.subscribe('market-data');
+
+    channel.bind('update', (updates: MarketData[]) => {
+        // Merge logic
+        setWatchlistData(prev => {
+            return prev.map(existingItem => {
+                const update = updates.find(u => u.symbol === existingItem.symbol);
+                if (!update) return existingItem;
+                return { 
+                    ...existingItem, 
+                    ...update,
+                    // Append new data point if valid and newer
+                    sparkline: (update.regularMarketTime && update.regularMarketTime > ((existingItem.timestamps && existingItem.timestamps.length > 0) ? existingItem.timestamps[existingItem.timestamps.length - 1] : 0))
+                        ? [...existingItem.sparkline, update.regularMarketPrice]
+                        : existingItem.sparkline,
+                    volumeSparkline: (update.regularMarketTime && update.regularMarketTime > ((existingItem.timestamps && existingItem.timestamps.length > 0) ? existingItem.timestamps[existingItem.timestamps.length - 1] : 0))
+                        ? [...(existingItem.volumeSparkline || []), 0] 
+                        : existingItem.volumeSparkline,
+                    timestamps: (update.regularMarketTime && update.regularMarketTime > ((existingItem.timestamps && existingItem.timestamps.length > 0) ? existingItem.timestamps[existingItem.timestamps.length - 1] : 0))
+                        ? [...(existingItem.timestamps || []), update.regularMarketTime]
+                        : existingItem.timestamps
+                };
+            });
+        });
+    });
+
+    return () => {
+        pusher.unsubscribe('market-data');
+        pusher.disconnect();
+    };
+  }, []);
+
+  // 2. Keep the Server Stream Alive
   useEffect(() => {
     if (refreshRate === 0 || !activeWatchlistId) return;
 
-    let timeoutId: NodeJS.Timeout;
     let isMounted = true;
+    let isFetching = false;
 
-    const runLoop = async () => {
-        const now = new Date();
+    const startStream = async () => {
+        if (isFetching || !isMounted) return;
         
-        // India: 9:15 - 15:30 IST
-        const istTime = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: false });
-        const [iH, iM] = istTime.split(':').map(Number);
-        const iVal = iH * 100 + iM;
-        const isIndianOpen = iVal >= 915 && iVal < 1530; // 9:15 AM - 3:30 PM IST
-
-        // US: 9:30 - 16:00 ET (approximate, timezone dependent)
-        const estTime = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
-        const [uH, uM] = estTime.split(':').map(Number);
-        const uVal = uH * 100 + uM;
-        const isUSOpen = uVal >= 930 && uVal < 1600; // 9:30 AM - 4:00 PM ET
-
-        // Filter symbols to update
+        // Get symbols from REF to avoid stale closure, but only stream if we have data
         const currentData = watchlistRef.current;
-        const symbolsToUpdate: string[] = [];
-        
-        currentData.forEach(item => {
-            const isIndian = isIndianStock(item.symbol);
-            if (isIndian && isIndianOpen) {
-                symbolsToUpdate.push(item.symbol);
-            } else if (!isIndian && isUSOpen) {
-                symbolsToUpdate.push(item.symbol);
-            }
-        });
-
-        const isAnyMarketOpen = isIndianOpen || isUSOpen;
-
-        if (symbolsToUpdate.length > 0) {
-            try {
-                const updates = await getBatchStockQuotes(symbolsToUpdate);
-                
-                if (isMounted) {
-                    setWatchlistData(prev => {
-                        return prev.map(existingItem => {
-                            const update = updates.find(u => u.symbol === existingItem.symbol);
-                            if (!update) return existingItem;
-                            return { 
-                                ...existingItem, 
-                                ...update,
-                                // Preserve sparklines from full fetch
-                                sparkline: existingItem.sparkline,
-                                volumeSparkline: existingItem.volumeSparkline,
-                                timestamps: existingItem.timestamps
-                            };
-                        });
-                    });
-                }
-            } catch (error) {
-                console.warn('Refresh skipped:', error);
-            }
+        if (currentData.length === 0) {
+            // If no data, wait a bit and try again (maybe initial load)
+            setTimeout(startStream, 1000);
+            return;
         }
 
-        // Schedule next tick
-        // If any relevant market is open: use fast rate (e.g. 5s)
-        // If all closed: check every 1 minute
-        const nextDelay = isAnyMarketOpen ? refreshRate : 60000;
-        
-        if (isMounted) {
-            timeoutId = setTimeout(runLoop, nextDelay);
+        const symbols = currentData.map(d => d.symbol);
+        isFetching = true;
+
+        try {
+             // Call the API that runs for ~9 seconds
+             await fetch('/api/stream-prices', {
+                 method: 'POST',
+                 body: JSON.stringify({ symbols }),
+             });
+        } catch (e) {
+            console.error('Stream trigger error:', e);
+            await new Promise(r => setTimeout(r, 2000));
+        } finally {
+            isFetching = false;
+            // Immediately trigger next batch if mounted
+            if (isMounted && refreshRate !== 0) {
+                startStream();
+            }
         }
     };
 
-    // Start the loop
-    runLoop();
+    startStream();
     
     return () => {
         isMounted = false;
-        clearTimeout(timeoutId);
     };
-  }, [user, refreshRate, activeWatchlistId]); 
+  }, [activeWatchlistId, refreshRate]); // Restart stream loop if List changes or we Pause/Resume 
 
   // Search logic
   useEffect(() => {
@@ -889,7 +906,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         key={data.symbol} 
                                                         data={data} 
                                                         onRemove={handleRemoveFromWatchlist}
-                                                        onSelect={setSelectedStock} 
+                                                        onSelect={(s) => setSelectedStockId(s.symbol)} 
                                                         onOpenNews={handleOpenNews}
                                                         highLowRange={highLowRange}
                                                         trendRange={trendRange}
@@ -981,13 +998,16 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
         <ChartModal 
             isOpen={!!selectedStock}
-            onClose={() => setSelectedStock(null)}
+            onClose={() => setSelectedStockId(null)}
             symbol={selectedStock?.symbol || ''}
             priceData={selectedStock?.sparkline || []}
             volumeData={selectedStock?.volumeSparkline || []}
             timestamps={selectedStock?.timestamps || []}
             range={trendRange === '7d' ? '1w' : trendRange === '52w' ? '1y' : trendRange}
             hideActiveVolume={selectedStock ? !isIndianStock(selectedStock.symbol) : false}
+            currentPrice={selectedStock?.regularMarketPrice}
+            change={selectedStock?.regularMarketChange}
+            changePercent={selectedStock?.regularMarketChangePercent}
         />
 
         <NewsModal 

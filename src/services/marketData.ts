@@ -20,6 +20,7 @@ export interface MarketData {
   sparkline: number[];
   volumeSparkline: number[];
   timestamps: number[];
+  regularMarketTime?: number; // timestamp of the price
 }
 
 export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max' | '7d' | '52w' = '1d', includeHistory = true) {
@@ -138,6 +139,7 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
             marketState: quote.marketState || 'CLOSED',
             quoteType: quote.quoteType || 'EQUITY', 
             exchange: quote.exchange || 'UNKNOWN',
+            regularMarketTime: quote.regularMarketTime ? new Date(quote.regularMarketTime).getTime() : Date.now(),
             sparkline: history.sparkline,
             volumeSparkline: history.volumeSparkline,
             timestamps: history.timestamps

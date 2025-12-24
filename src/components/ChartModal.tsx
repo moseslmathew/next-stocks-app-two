@@ -23,6 +23,9 @@ interface ChartModalProps {
   color?: string;
   range?: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max';
   hideActiveVolume?: boolean;
+  currentPrice?: number;
+  change?: number;
+  changePercent?: number;
 }
 
 // Helper to extract state from Tooltip without rendering it
@@ -162,7 +165,7 @@ const MemoizedChart = React.memo(({
     );
 });
 
-export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, range = '1d', hideActiveVolume = false }: ChartModalProps) {
+export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, range = '1d', hideActiveVolume = false, currentPrice: propCurrentPrice, change: propChange, changePercent: propChangePercent }: ChartModalProps) {
   const [activeRange, setActiveRange] = React.useState<'1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max'>(range);
   const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[] } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -254,11 +257,28 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
       return date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  const currentPrice = displayData.price || 0;
-  const startPrice = currentPriceData[0] || 0;
-  const change = currentPrice - startPrice;
-  const changePercent = startPrice !== 0 ? (change / startPrice) * 100 : 0;
+  const currentPrice = activeData ? activeData.price : (propCurrentPrice ?? (latestData?.price || 0));
+  const startPrice = currentPriceData.length > 0 ? currentPriceData[0] : 0;
+  
+  let change: number, changePercent: number;
+
+  if (activeData) {
+      change = activeData.price - startPrice;
+      changePercent = startPrice !== 0 ? (change / startPrice) * 100 : 0;
+  } else {
+      if (propChange !== undefined && propChangePercent !== undefined) {
+          change = propChange;
+          changePercent = propChangePercent;
+      } else {
+          change = currentPrice - startPrice;
+          changePercent = startPrice !== 0 ? (change / startPrice) * 100 : 0;
+      }
+  }
+
   const isCurrentlyPositive = change >= 0;
+  
+  // Display timestamp logic
+  const displayTimestamp = activeData ? activeData.timestamp : (latestData?.timestamp || 0);
 
 
   return (
@@ -306,7 +326,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                         </div>
                     </div>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                        {!activeData && 'Last Traded • '} {formatDate(displayData.timestamp)}
+                        {!activeData && 'Last Traded • '} {propCurrentPrice && !activeData ? 'Live' : formatDate(displayTimestamp)}
                     </p>
                 </div>
 
