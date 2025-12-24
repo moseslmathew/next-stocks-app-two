@@ -126,21 +126,18 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
             <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[40%]">
                 <div className="flex items-center gap-2">
                     <div className="min-w-0 w-full pl-2">
-                        <div className="font-bold text-sm sm:text-base text-gray-900 dark:text-white break-words capitalize leading-tight" title={data.symbol}>
-                            {data.symbol.replace(/\.NS$|\.BO$/, '').toLowerCase()}
-                        </div>
-                        <div className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5 font-normal">
-                             {data.shortName || 'Company'}
+                        <div className="font-medium text-xs sm:text-sm text-gray-900 dark:text-white break-words leading-tight capitalize" title={data.symbol}>
+                            {(data.shortName || data.symbol.replace(/\.NS$|\.BO$/, '')).toLowerCase()}
                         </div>
                     </div>
                 </div>
             </td>
             <td className="px-1 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[25%]">
                 <div className="flex flex-col items-center sm:items-start">
-                    <div className="font-mono text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
+                    <div className="font-mono text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
                         {formatCurrency(data.regularMarketPrice, data.currency)}
                     </div>
-                    <div className={`text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`text-[10px] sm:text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                     </div>
                 </div>

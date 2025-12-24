@@ -25,8 +25,13 @@ export default function Sparkline({
 }: SparklineProps) {
   if (!data || data.length < 2) return null;
 
-  const min = Math.min(...data);
-  const max = Math.max(...data);
+  let min = Math.min(...data);
+  let max = Math.max(...data);
+
+  if (previousClose !== undefined) {
+    min = Math.min(min, previousClose);
+    max = Math.max(max, previousClose);
+  }
   const range = max - min || 1; 
 
   // Determine color
@@ -146,7 +151,7 @@ export default function Sparkline({
         preserveAspectRatio="none"
     >
       {/* Reference Line (Previous Close) */}
-      {previousClose !== undefined && previousClose >= min && previousClose <= max && (
+      {previousClose !== undefined && (
         <line
             x1="0"
             y1={height - ((previousClose - min) / range) * height}
