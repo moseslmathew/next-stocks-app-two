@@ -8,7 +8,8 @@ import {
   Bar,
   ComposedChart,
   Cell,
-  CartesianGrid
+  CartesianGrid,
+  ReferenceLine
 } from 'recharts';
 import { X, BarChart2, Loader2 } from 'lucide-react';
 import { getWatchlistData } from '@/actions/market';
@@ -58,7 +59,8 @@ const MemoizedChart = React.memo(({
   showVolume, 
   activeRange, 
   onCursorUpdate, 
-  latestData 
+  latestData,
+  referencePrice
 }: {
   data: any[];
   chartColor: string;
@@ -66,6 +68,7 @@ const MemoizedChart = React.memo(({
   activeRange: string;
   onCursorUpdate: (data: any) => void;
   latestData: any;
+  referencePrice?: number;
 }) => {
   return (
     <ResponsiveContainer width="100%" height="100%" className="!outline-none [&_.recharts-wrapper]:!outline-none [&_.recharts-surface]:!outline-none [&_:focus]:!outline-none">
@@ -84,6 +87,17 @@ const MemoizedChart = React.memo(({
                 stroke="currentColor" 
                 opacity={0.1}
             />
+            {referencePrice !== undefined && (
+                <ReferenceLine 
+                    y={referencePrice} 
+                    yAxisId="price"
+                    stroke="#9ca3af" 
+                    strokeDasharray="5 5" 
+                    strokeWidth={1}
+                    opacity={0.7}
+
+                />
+            )}
             <XAxis 
                 dataKey="timestamp" 
                 tickFormatter={(val) => {
@@ -161,7 +175,8 @@ const MemoizedChart = React.memo(({
         prevProps.chartColor === nextProps.chartColor &&
         prevProps.showVolume === nextProps.showVolume &&
         prevProps.activeRange === nextProps.activeRange &&
-        prevProps.latestData === nextProps.latestData
+        prevProps.latestData === nextProps.latestData &&
+        prevProps.referencePrice === nextProps.referencePrice
     );
 });
 
@@ -213,6 +228,13 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
         fetchData();
     }
   }, [activeRange, symbol, range, isOpen]);
+
+  const referencePrice = React.useMemo(() => {
+      if (activeRange === '1d' && propCurrentPrice !== undefined && propChange !== undefined) {
+          return propCurrentPrice - propChange;
+      }
+      return undefined;
+  }, [activeRange, propCurrentPrice, propChange]);
 
   const latestData = React.useMemo(() => {
      if (currentPriceData.length === 0) return null;
@@ -279,6 +301,8 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   
   // Display timestamp logic
   const displayTimestamp = activeData ? activeData.timestamp : (latestData?.timestamp || 0);
+
+
 
 
   return (
@@ -396,6 +420,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     activeRange={activeRange}
                     onCursorUpdate={handleCursorUpdate}
                     latestData={latestData}
+                    referencePrice={referencePrice}
                 />
 
 
