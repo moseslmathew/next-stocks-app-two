@@ -501,7 +501,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     </button>
                 </div>
             )}
-        </div>{/* End Card */}
-    </div>{/* End Backdrop */}
+        </div>
+    </div>
   );
 }
