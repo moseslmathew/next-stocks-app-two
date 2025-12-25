@@ -442,12 +442,19 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                 {activeData && activeData.x !== undefined && activeData.y !== undefined && (
                      <>
                      <div 
+                        className="absolute w-2.5 h-2.5 rounded-full border-[2px] z-50 pointer-events-none shadow-sm bg-white dark:bg-black"
+                        style={{ 
+                            left: activeData.x - 5, 
+                            top: activeData.y - 5,
+                            borderColor: chartColor,
+                        }}
+                     />
+                     <div 
                         className="absolute z-50 text-xs font-bold text-gray-900 dark:text-white pointer-events-none whitespace-nowrap"
                         style={{ 
                             left: activeData.x,
                             top: Math.max(10, activeData.y - 40),
                             transform: 'translateX(-50%)',
-                            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
                         }}
                      >
                           <span className="bg-white/90 dark:bg-black/80 backdrop-blur-[2px] px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 shadow-sm">
