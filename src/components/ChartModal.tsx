@@ -444,9 +444,10 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                      <div 
                         className="absolute w-3 h-3 rounded-full border-2 z-50 pointer-events-none shadow-sm border-white dark:border-black"
                         style={{ 
-                            left: activeData.x - 6, 
-                            top: activeData.y - 6,
+                            left: activeData.x, 
+                            top: activeData.y,
                             backgroundColor: chartColor,
+                            transform: 'translate(-50%, -50%)'
                         }}
                      />
                      <div 
