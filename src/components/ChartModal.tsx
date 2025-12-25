@@ -323,8 +323,9 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                               onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
                               className={`
                                   px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 border
+                                  ${['3m', '2y', '5y'].includes(r) ? 'hidden sm:block' : ''}
                                   ${activeRange === r 
-                                      ? 'bg-[#8B5CF6] text-white shadow-lg shadow-[#8B5CF6]/30 scale-105 border-transparent' 
+                                      ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/30 scale-105 border-transparent' 
                                       : 'bg-transparent text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-200/50 dark:hover:bg-white/5'}
                               `}
                           >
