@@ -322,7 +322,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                               key={r}
                               onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
                               className={`
-                                  px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 border
+                                  px-4 sm:px-5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 border
                                   ${['3m', '2y', '5y'].includes(r) ? 'hidden sm:block' : ''}
                                   ${activeRange === r 
                                       ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/30 scale-105 border-transparent' 
