@@ -364,6 +364,8 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       }
   };
 
+  const isTouchRef = React.useRef(false);
+
   const processDragStart = (clientX: number) => {
       if (!chartContainerRef.current) return;
       const rect = chartContainerRef.current.getBoundingClientRect();
@@ -379,6 +381,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
   const [selectionPath, setSelectionPath] = React.useState<string>('');
 
   const processDragMove = (clientX: number) => {
+      // ... same logic ...
       if (!dragStartRef.current || !chartContainerRef.current || !chartRef.current || !areaSeriesRef.current) return;
       const rect = chartContainerRef.current.getBoundingClientRect();
       const x = clientX - rect.left;
@@ -444,6 +447,11 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       }
   };
 
+  const handleTouchStart = (clientX: number) => {
+      isTouchRef.current = true;
+      processDragStart(clientX);
+  };
+
   const handleTouchEnd = () => {
       dragStartRef.current = null;
       setSelectionBox(null);
@@ -456,6 +464,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
   };
 
   const handleMouseLeave = () => {
+      if (isTouchRef.current) return; // Ignore if touch
       dragStartRef.current = null;
       setSelectionBox(null);
       if (onCrosshairMove) onCrosshairMove(null);
@@ -475,7 +484,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
         onMouseMoveCapture={(e) => processDragMove(e.clientX)}
         onMouseUpCapture={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        onTouchStartCapture={(e) => processDragStart(e.touches[0].clientX)}
+        onTouchStartCapture={(e) => handleTouchStart(e.touches[0].clientX)}
         onTouchMoveCapture={(e) => processDragMove(e.touches[0].clientX)}
         onTouchEndCapture={handleTouchEnd}
     >
