@@ -372,6 +372,20 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                   </div>
 
                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                       {/* Volume Toggle */}
+                       <button 
+                          onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
+                          className={`
+                              flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all border
+                              ${showVolume 
+                                  ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
+                                  : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
+                          `}
+                      >
+                          <BarChart2 size={14} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
+                          <span className="hidden sm:inline">Volume</span>
+                      </button>
+
                        {/* Selection Mode Toggle */}
                        <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg border border-gray-200 dark:border-white/10">
                             <button
@@ -389,20 +403,6 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                                 <BoxSelect size={14} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                             </button>
                        </div>
-
-                       {/* Volume Toggle */}
-                       <button 
-                          onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
-                          className={`
-                              flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all border
-                              ${showVolume 
-                                  ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
-                                  : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
-                          `}
-                      >
-                          <BarChart2 size={14} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
-                          <span className="hidden sm:inline">Volume</span>
-                      </button>
 
                        {/* Help Toggle */}
                        <button 
