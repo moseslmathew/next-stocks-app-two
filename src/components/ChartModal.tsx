@@ -260,9 +260,9 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
             <div className="w-12 h-1 bg-gray-200 dark:bg-gray-800 rounded-full" />
         </div>
 
-        <div className="px-6 sm:px-10 pb-4 sm:py-8 flex-1 overflow-hidden flex flex-col">
+        <div className="px-1 sm:px-10 pb-4 sm:py-8 flex-1 overflow-hidden flex flex-col">
             {/* Header / Controls Row */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6 sm:mb-8 px-2">
                 <div className="flex items-center gap-4">
                     <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
                         {symbol}
@@ -277,7 +277,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
             </div>
 
             {/* Price & Primary Info Block */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-10 mb-8 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-10 mb-6 sm:mb-8 items-end px-2">
                 <div className="md:col-span-5">
                     <div className="flex items-baseline gap-3 mb-1">
                         <span className="text-4xl sm:text-5xl font-mono font-black text-gray-900 dark:text-white tracking-tighter">
@@ -298,54 +298,50 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                             Active Volume
                         </span>
                         <div className="text-xl font-mono font-bold text-gray-700 dark:text-gray-300">
-                            {activeData ? activeData.volume?.toLocaleString() : '--'}
+                            {displayData.volume ? displayData.volume.toLocaleString() : '--'}
                         </div>
                     </div>
                 )}
-            </div>
-
-            {/* Range & Volume Controls - Moved Below Price */}
-            <div className="flex justify-between mb-6 w-full">
-                 <div className="flex items-center justify-between gap-2 bg-gray-50 dark:bg-white/5 px-2 py-1 rounded-xl border border-gray-200 dark:border-white/10 w-full">
+                
+                <div className="md:col-span-3 flex justify-end">
+                     {/* Range & Volume Toggle Container */}
+                     <div className="flex flex-col items-end gap-3 w-full">
                         {/* Range Selectors */}
-                        <div className="flex items-center justify-between gap-0.5 sm:gap-1 overflow-x-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {[
-                                { label: '1D', value: '1d' },
-                                { label: '1W', value: '1w' },
-                                { label: '1M', value: '1m' },
-                                { label: '3M', value: '3m' },
-                                { label: '1Y', value: '1y' },
-                                { label: '2Y', value: '2y' },
-                                { label: '5Y', value: '5y' },
-                                { label: 'All', value: 'max' },
-                            ].map((r) => (
-                                <button 
-                                    key={r.value}
-                                    onClick={(e) => { e.stopPropagation(); setActiveRange(r.value as any); }}
-                                    className={`px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap ${
-                                        activeRange === r.value 
-                                        ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-md' 
-                                        : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-white/10'
-                                    }`}
+                        <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl overflow-x-auto max-w-full">
+                            {(['1d', '1w', '1m', '3m', '1y', '5y'] as const).map((r) => (
+                                <button
+                                    key={r}
+                                    onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
+                                    className={`
+                                        px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap
+                                        ${activeRange === r 
+                                            ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' 
+                                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}
+                                    `}
                                 >
-                                    {r.label}
+                                    {r.toUpperCase()}
                                 </button>
                             ))}
                         </div>
 
-
-
+                         {/* Volume Toggle */}
                          <button 
                             onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
-                            className={`p-1.5 rounded-lg transition-all ${showVolume ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'}`}
-                            title="Toggle Volume"
+                            className={`
+                                flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border
+                                ${showVolume 
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
+                                    : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
+                            `}
                         >
-                            <BarChart2 size={16} />
+                            <BarChart2 size={14} />
+                            <span className="hidden sm:inline">Volume</span>
                         </button>
-                    </div>
+                     </div>
+                </div>
             </div>
 
-            <div className="flex-1 min-h-0 w-full px-2 sm:px-6 relative">
+            <div className="flex-1 w-full bg-transparent relative overflow-hidden pl-4 pr-0 py-2 sm:p-6 mb-8 group min-h-0">
                 {isLoading && (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-[1px] animate-in fade-in duration-200">
                         <Loader2 size={32} className="text-blue-500 animate-spin" />

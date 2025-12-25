@@ -97,7 +97,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
         rightOffset: 0,
       },
       rightPriceScale: {
-        minimumWidth: 75, // Enforce consistent chart area width
+        minimumWidth: 55, // Optimized width to save space
         autoScale: true,
         borderVisible: false,
         scaleMargins: {
@@ -121,6 +121,11 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
 
     });
 
+    // Check price level to determine if precision is needed
+    // Use the last data point as reference for current price
+    const latestValue = data.length > 0 ? data[data.length - 1].value : 0;
+    const isPennyStock = latestValue < 20 && latestValue > 0;
+
     const areaSeries = chart.addSeries(AreaSeries, {
       topColor: chartColor,
       bottomColor: 'rgba(0, 0, 0, 0)',
@@ -129,6 +134,15 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       crosshairMarkerVisible: true,
       priceLineVisible: false,
       lastValueVisible: true,
+      priceFormat: isPennyStock ? {
+          type: 'price',
+          precision: 2,
+          minMove: 0.01,
+      } : {
+          type: 'price',
+          precision: 0,
+          minMove: 1,
+      },
     });
     
     const volumeSeries = chart.addSeries(HistogramSeries, {
@@ -235,6 +249,10 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
                 bottom: showVolume ? 0.2 : 0.1,
             }
         });
+        setSelectionBox(null);
+        setSelectionPath('');
+        setSelectionStats(null);
+        setCrosshairPoint(null);
     }
   }, [showVolume]);
   
