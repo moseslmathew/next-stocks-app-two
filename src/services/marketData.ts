@@ -23,7 +23,7 @@ export interface MarketData {
   regularMarketTime?: number; // timestamp of the price
 }
 
-export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max' | '7d' | '52w' = '1d', includeHistory = true, keepPreviousSessions = false) {
+export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '3y' | '5y' | 'max' | '7d' | '52w' = '1d', includeHistory = true, keepPreviousSessions = false) {
   try {
     const quotesPromise = yahooFinance.quote(symbols);
     
@@ -65,6 +65,9 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
                   } else if (range === '2y') {
                       const startDate = new Date(now.getTime() - 2 * 365 * 24 * 60 * 60 * 1000);
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
+                  } else if (range === '3y') {
+                      const startDate = new Date(now.getTime() - 3 * 365 * 24 * 60 * 60 * 1000);
                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
                   } else if (range === '5y') {
                       const startDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);

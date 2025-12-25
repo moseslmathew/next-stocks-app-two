@@ -19,7 +19,7 @@ interface ChartModalProps {
 }
 
 export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, range = '1d', hideActiveVolume = false, currentPrice: propCurrentPrice, change: propChange, changePercent: propChangePercent }: ChartModalProps) {
-  const [activeRange, setActiveRange] = React.useState<'1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max'>(range);
+  const [activeRange, setActiveRange] = React.useState<'1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '3y' | '5y' | 'max'>(range);
   const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[], quoteType?: string } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [activeData, setActiveData] = React.useState<{ price: number, volume: number, timestamp: number, x?: number, y?: number, chartWidth?: number } | null>(null);
@@ -315,15 +315,15 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                 </div>
             </div>
             {/* Controls Row (Below Unified Header) */}
-            <div className="flex flex-row flex-nowrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2 w-full px-2 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+            <div className="flex flex-row flex-nowrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2 w-full px-4 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                   <div className="flex shrink-0 bg-gray-50 dark:bg-white/5 p-1 rounded-2xl gap-1">
-                      {(['1d', '1w', '1m', '3m', '1y', '2y', '5y', 'max'] as const).map((r) => (
+                      {(['1d', '1w', '1m', '3m', '1y', '2y', '3y', '5y', 'max'] as const).map((r) => (
                           <button
                               key={r}
                               onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
                               className={`
-                                  px-4 sm:px-5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 border
-                                  ${['3m', '2y', '5y'].includes(r) ? 'hidden sm:block' : ''}
+                                  px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 border
+                                  ${['1m', '3m', '2y', '3y'].includes(r) ? 'hidden sm:block' : ''}
                                   ${activeRange === r 
                                       ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/30 scale-105 border-transparent' 
                                       : 'bg-transparent text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-200/50 dark:hover:bg-white/5'}
@@ -370,7 +370,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                        {/* Help Toggle */}
                        <button 
                           onClick={(e) => { e.stopPropagation(); setShowHelp(!showHelp); }}
-                          className="flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10"
+                          className="hidden sm:flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10"
                           title="Chart Guide"
                       >
                           <HelpCircle size={14} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />

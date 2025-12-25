@@ -24,7 +24,7 @@ export async function searchStocks(query: string) {
   }
 }
 
-export async function getWatchlistData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max' | '7d' | '52w' = '1d', keepPreviousSessions = false) {
+export async function getWatchlistData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '3y' | '5y' | 'max' | '7d' | '52w' = '1d', keepPreviousSessions = false) {
   if (!symbols.length) return [];
   return await getMarketData(symbols, range, true, keepPreviousSessions);
 }
