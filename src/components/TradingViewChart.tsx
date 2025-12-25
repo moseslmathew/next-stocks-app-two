@@ -135,7 +135,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       bottomColor: 'rgba(0, 0, 0, 0)',
       lineColor: chartColor,
       lineWidth: 2,
-      crosshairMarkerVisible: true,
+      crosshairMarkerVisible: false,
       priceLineVisible: false,
       lastValueVisible: true,
       priceFormat: isPennyStock ? {
