@@ -481,7 +481,14 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                 {/* Lifted Tooltip (Always Visible) */}
                 {activeData && activeData.x !== undefined && activeData.y !== undefined && (
                      <>
-
+                        <div 
+                            className="absolute w-2 h-2 rounded-full bg-white border-[2px] z-50 pointer-events-none shadow-sm"
+                            style={{ 
+                                left: activeData.x - 4, 
+                                top: activeData.y - 4,
+                                borderColor: chartColor,
+                            }}
+                        />
                      <div 
                         className="absolute z-50 text-xs font-bold text-gray-900 dark:text-white pointer-events-none whitespace-nowrap"
                         style={{ 
