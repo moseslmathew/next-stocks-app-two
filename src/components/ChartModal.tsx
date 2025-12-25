@@ -415,7 +415,8 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                    </div>
             </div>
 
-            <div className="flex-1 w-full bg-transparent relative pl-4 pr-0 py-2 sm:p-6 mb-8 group min-h-0">
+            <div className="flex-1 w-full pl-4 pr-0 py-2 sm:p-6 mb-8 min-h-0">
+                <div className="relative w-full h-full bg-transparent group">
                 {isLoading && (
                     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-[1px] animate-in fade-in duration-200">
                         <Loader2 size={32} className="text-blue-500 animate-spin" />
@@ -464,7 +465,9 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                      </div>
                      </>
                 )}
-            </div>{/* End ChartContainer */}
+
+             </div>
+            </div>{/* End ChartContainerWrapper */}
             </div>{/* End FlexContainer */}
 
             {/* Help Overlay (Global Modal Scope - Inside Card, on top of everything) */}
