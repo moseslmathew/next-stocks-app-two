@@ -23,7 +23,7 @@ export interface MarketData {
   regularMarketTime?: number; // timestamp of the price
 }
 
-export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max' | '7d' | '52w' = '1d', includeHistory = true) {
+export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max' | '7d' | '52w' = '1d', includeHistory = true, keepPreviousSessions = false) {
   try {
     const quotesPromise = yahooFinance.quote(symbols);
     
@@ -50,7 +50,7 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
                   if (range === '1d') {
                       const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days back to find last session
                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m' };
-                      filterLastSession = true;
+                      filterLastSession = !keepPreviousSessions;
                   } else if (range === '7d' || range === '1w') {
                       const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
@@ -79,6 +79,7 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
 
                   const result = await yahooFinance.chart(symbol, queryOptions);
                   const chartData = result as any;
+                  console.log(`[MarketData] Fetched ${symbol} range=${range} quotes=${chartData?.quotes?.length} keepPrev=${keepPreviousSessions} filter=${filterLastSession}`);
                   
                   if (!chartData || !chartData.quotes || chartData.quotes.length === 0) {
                        return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };

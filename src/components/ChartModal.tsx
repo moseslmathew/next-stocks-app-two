@@ -20,7 +20,7 @@ interface ChartModalProps {
 
 export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, timestamps, range = '1d', hideActiveVolume = false, currentPrice: propCurrentPrice, change: propChange, changePercent: propChangePercent }: ChartModalProps) {
   const [activeRange, setActiveRange] = React.useState<'1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max'>(range);
-  const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[] } | null>(null);
+  const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[], quoteType?: string } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [activeData, setActiveData] = React.useState<{ price: number, volume: number, timestamp: number } | null>(null);
   const [showVolume, setShowVolume] = React.useState(true);
@@ -40,20 +40,24 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   // Handle range switching
   React.useEffect(() => {
     if (!isOpen) return;
-    if (activeRange === range && !internalData) {
+    // If 1d, always fetch to get extended history (props only have simple 1d)
+    if (activeRange === range && !internalData && activeRange !== '1d') {
         return;
     }
 
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            const result = await getWatchlistData([symbol], activeRange);
+            // Fetch extended history for 1d to allow scrolling back
+            const keepHistory = activeRange === '1d';
+            const result = await getWatchlistData([symbol], activeRange, keepHistory);
             if (result && result.length > 0) {
                 const stock = result[0];
                 setInternalData({
                     price: stock.sparkline,
                     volume: stock.volumeSparkline,
-                    timestamps: stock.timestamps
+                    timestamps: stock.timestamps,
+                    quoteType: stock.quoteType
                 });
             }
         } catch (error) {
@@ -63,7 +67,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
         }
     };
 
-    if (activeRange !== range || (activeRange === range && internalData)) {
+    if (activeRange !== range || (activeRange === range && internalData) || activeRange === '1d') {
         fetchData();
     }
   }, [activeRange, symbol, range, isOpen]);
@@ -129,6 +133,83 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
     return { tvPriceData: uniquePrice, tvVolumeData: uniqueVol };
 
   }, [currentPriceData, currentVolumeData, currentTimestamps]);
+
+  // Calculate initial visible range for 1D view
+  // Calculate initial visible range for 1D view
+  const initialVisibleRange = React.useMemo(() => {
+     if (activeRange !== '1d' || tvPriceData.length === 0) return undefined;
+
+     const lastPoint = tvPriceData[tvPriceData.length - 1];
+     let startIndex = 0;
+     const isIndian = symbol.endsWith('.NS') || symbol.endsWith('.BO') || symbol === '^NSEI' || symbol === '^BSESN';
+
+     // STRATEGY: Find the True Session Start (09:15 IST or 09:30 US Local)
+     // 1. Overnight Gap Detection: This is the most robust way to find the session boundary.
+     //    Find the last gap > 30 minutes.
+     let foundGap = false;
+     for (let i = tvPriceData.length - 1; i > 0; i--) {
+        if (tvPriceData[i].time - tvPriceData[i - 1].time > 1800) {
+            startIndex = i;
+            foundGap = true;
+            break;
+        }
+     }
+     if (!foundGap) startIndex = 0; // If no gap, assume start of data is session start (unlikely for 7d history but safe fallback)
+
+     // 2. Filter Pre-Market Data (Crucial for US Stocks where data starts at 4:00 AM)
+     if (!isIndian) {
+         // US Market Open is 13:30 UTC (Summer) or 14:30 UTC (Winter).
+         // We must strictly filter out pre-market data (< 9:30 AM) to match user request.
+         const month = new Date().getMonth();
+         const isSummer = month > 2 && month < 10; 
+         const marketOpenHour = isSummer ? 13 : 14;
+
+         let currentP = startIndex;
+         while (currentP < tvPriceData.length - 1) {
+             const d = new Date(tvPriceData[currentP].time * 1000);
+             const h = d.getUTCHours();
+             const m = d.getUTCMinutes();
+             
+             // Skip if before Market Open Hour
+             if (h < marketOpenHour) {
+                 currentP++;
+                 continue;
+             }
+             // Skip if in Market Open Hour but minutes < 30
+             if (h === marketOpenHour && m < 30) {
+                 currentP++;
+                 continue;
+             }
+             // If we reach here, we are >= 9:30 AM
+             break;
+         }
+         startIndex = currentP;
+     }
+
+     const startPoint = tvPriceData[startIndex];
+
+     // 3. Crypto Exception: Continuous trading, just show last 5 hours window
+     const quoteType = internalData?.quoteType;
+     if (quoteType === 'CRYPTOCURRENCY' || quoteType === 'CRYPTO') {
+          return { from: startPoint.time, to: lastPoint.time + 300 };
+     }
+
+     // 4. Canonical Axis Alignment (User Request: Consistent Time Lines)
+     // Snap the chart Start to exact 09:15:00 or 09:30:00 to ensure grid lines (hours) align perfectly across all charts.
+     const startObj = new Date(startPoint.time * 1000);
+     if (isIndian) {
+         startObj.setUTCMinutes(15);
+     } else {
+         startObj.setUTCMinutes(30);
+     }
+     startObj.setUTCSeconds(0);
+     const canonicalStart = Math.floor(startObj.getTime() / 1000);
+
+     // 5. Fixed Session Duration (User Request: Divide axis equally)
+     const duration = isIndian ? 22500 : 23400; // 6h 15m or 6h 30m
+
+     return { from: canonicalStart, to: canonicalStart + duration };
+  }, [activeRange, tvPriceData, internalData, symbol]);
 
   if (!isOpen) return null;
 
@@ -252,16 +333,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                             ))}
                         </div>
 
-                         <div className="w-px h-4 bg-gray-300 dark:bg-white/20 mx-1" />
 
-                         <button 
-                            onClick={(e) => { e.stopPropagation(); chartRef.current?.resetChart(); }}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-gray-800 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm transition-all"
-                            title="Reset Chart Zoom"
-                        >
-                            <RotateCcw size={14} />
-                            <span className="hidden sm:inline">Reset</span>
-                        </button>
 
                          <button 
                             onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
@@ -287,6 +359,8 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     showVolume={showVolume}
                     referencePrice={referencePrice}
                     visibleRange={activeRange}
+                    initialVisibleRange={initialVisibleRange}
+                    // timezone={...} // Removed to use local system time (Indian Time for user)
                     onCrosshairMove={handleCursorUpdate}
                 />
             </div>
