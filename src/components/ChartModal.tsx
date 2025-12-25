@@ -322,10 +322,10 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                               key={r}
                               onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
                               className={`
-                                  px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300
+                                  px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 border
                                   ${activeRange === r 
-                                      ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30 scale-105' 
-                                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 dark:hover:bg-white/5'}
+                                      ? 'bg-[#8B5CF6] text-white shadow-lg shadow-[#8B5CF6]/30 scale-105 border-transparent' 
+                                      : 'bg-transparent text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-200/50 dark:hover:bg-white/5'}
                               `}
                           >
                               {r.toUpperCase()}
@@ -340,7 +340,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                           className={`
                               flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border
                               ${showVolume 
-                                  ? 'bg-violet-100 border-violet-200 text-violet-700 dark:bg-violet-500/20 dark:border-violet-500/30 dark:text-violet-300 shadow-sm' 
+                                  ? 'bg-[#F3E8FF] border-[#8B5CF6]/30 text-[#7C3AED] dark:bg-[#7C3AED]/20 dark:border-[#8B5CF6]/30 dark:text-[#A78BFA] shadow-sm' 
                                   : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-white/10'}
                           `}
                       >
@@ -352,14 +352,14 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                        <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-100 dark:border-white/5">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); }}
-                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-white/10 text-violet-600 dark:text-violet-400 shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-white/10 text-[#7C3AED] dark:text-[#A78BFA] shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
                                 title="Point Selection"
                             >
                                 <MousePointer size={16} />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); }}
-                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-white/10 text-violet-600 dark:text-violet-400 shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-white/10 text-[#7C3AED] dark:text-[#A78BFA] shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
                                 title="Area Selection"
                             >
                                 <BoxSelect size={16} />
