@@ -351,15 +351,15 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
             </div>
 
             {/* Controls Row (Below Price) */}
-            <div className="flex flex-row flex-nowrap items-center justify-start gap-2 w-full px-2 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+            <div className="flex flex-row flex-nowrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2 w-full px-2 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                   {/* Range Selectors */}
-                  <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
+                  <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 sm:p-1 rounded-xl">
                       {(['1d', '1w', '1m', '3m', '1y', '5y', 'max'] as const).map((r) => (
                           <button
                               key={r}
                               onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
                               className={`
-                                  px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap
+                                  px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap
                                   ${activeRange === r 
                                       ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' 
                                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}
@@ -370,46 +370,48 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                       ))}
                   </div>
 
-                   {/* Selection Mode Toggle */}
-                   <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg border border-gray-200 dark:border-white/10">
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); }}
-                            className={`p-1.5 rounded-md transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Point Selection"
-                        >
-                            <MousePointer size={14} />
-                        </button>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); }}
-                            className={`p-1.5 rounded-md transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Area Selection"
-                        >
-                            <BoxSelect size={14} />
-                        </button>
+                   <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                       {/* Selection Mode Toggle */}
+                       <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg border border-gray-200 dark:border-white/10">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); }}
+                                className={`p-1 sm:p-1.5 rounded-md transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                title="Point Selection"
+                            >
+                                <MousePointer size={14} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); }}
+                                className={`p-1 sm:p-1.5 rounded-md transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                title="Area Selection"
+                            >
+                                <BoxSelect size={14} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                            </button>
+                       </div>
+
+                       {/* Volume Toggle */}
+                       <button 
+                          onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
+                          className={`
+                              flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all border
+                              ${showVolume 
+                                  ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
+                                  : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
+                          `}
+                      >
+                          <BarChart2 size={14} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
+                          <span className="hidden sm:inline">Volume</span>
+                      </button>
+
+                       {/* Help Toggle */}
+                       <button 
+                          onClick={(e) => { e.stopPropagation(); setShowHelp(!showHelp); }}
+                          className="flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10"
+                          title="Chart Guide"
+                      >
+                          <HelpCircle size={14} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
+                      </button>
                    </div>
-
-                   {/* Volume Toggle */}
-                   <button 
-                      onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
-                      className={`
-                          flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border
-                          ${showVolume 
-                              ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
-                              : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
-                      `}
-                  >
-                      <BarChart2 size={14} />
-                      <span className="hidden sm:inline">Volume</span>
-                  </button>
-
-                   {/* Help Toggle */}
-                   <button 
-                      onClick={(e) => { e.stopPropagation(); setShowHelp(!showHelp); }}
-                      className="flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10"
-                      title="Chart Guide"
-                  >
-                      <HelpCircle size={14} />
-                  </button>
             </div>
 
             <div className="flex-1 w-full bg-transparent relative pl-4 pr-0 py-2 sm:p-6 mb-8 group min-h-0">
