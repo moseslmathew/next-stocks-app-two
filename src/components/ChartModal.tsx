@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, BarChart2, Loader2, RotateCcw, MousePointer, BoxSelect, HelpCircle, Activity, History } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, Maximize2, Minimize2, Calendar, BarChart2, MousePointer, BoxSelect, MoreHorizontal, Activity, History, Loader2 } from 'lucide-react';
 import { getWatchlistData } from '@/actions/market';
 import { TradingViewChart, TradingViewChartHandle } from './TradingViewChart';
 
@@ -26,7 +26,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   const [showVolume, setShowVolume] = React.useState(true);
   const [selectionMode, setSelectionMode] = React.useState<'point' | 'area'>('point');
   const [selectionStats, setSelectionStats] = React.useState<{ change: number; percent: number; startTime: number; endTime: number } | null>(null);
-  const [showHelp, setShowHelp] = React.useState(false);
+  const [showMoreMenu, setShowMoreMenu] = React.useState(false);
   const chartRef = React.useRef<TradingViewChartHandle>(null);
 
   // Sync activeRange with prop when modal opens/prop changes
@@ -315,26 +315,30 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                 </div>
             </div>
             {/* Controls Row (Below Unified Header) */}
-            <div className="flex flex-row flex-nowrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2 w-full px-4 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                  <div className="flex shrink-0 bg-gray-50 dark:bg-white/5 p-1 rounded-2xl gap-1">
-                      {(['1d', '1w', '1m', '3m', '1y', '2y', '3y', '5y', 'max'] as const).map((r) => (
-                          <button
-                              key={r}
-                              onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
-                              className={`
-                                  px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 border
-                                  ${['1m', '3m', '2y', '3y'].includes(r) ? 'hidden sm:block' : ''}
-                                  ${activeRange === r 
-                                      ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/30 scale-105 border-transparent' 
-                                      : 'bg-transparent text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-200/50 dark:hover:bg-white/5'}
-                              `}
-                          >
-                              {r.toUpperCase()}
-                          </button>
-                      ))}
+            {/* Controls Row (Below Unified Header) */}
+            <div className="flex flex-row items-center w-full px-4 mb-6 sm:mb-8 gap-2">
+                  {/* Scrollable Ranges */}
+                  <div className="flex-1 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] min-w-0">
+                      <div className="flex bg-gray-50 dark:bg-white/5 p-0.5 rounded-2xl gap-0 w-fit">
+                          {(['1d', '1w', '3m', '1y', '3y', '5y', 'max'] as const).map((r) => (
+                              <button
+                                  key={r}
+                                  onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
+                                  className={`
+                                      px-2 sm:px-4 py-1 sm:py-1.5 rounded-xl text-[10px] sm:text-xs font-bold transition-all duration-300 border
+                                      ${activeRange === r 
+                                          ? 'bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/30 scale-105 border-transparent' 
+                                          : 'bg-transparent text-gray-400 border-transparent hover:text-gray-600 hover:bg-gray-200/50 dark:hover:bg-white/5'}
+                                  `}
+                              >
+                                  {r.toUpperCase()}
+                              </button>
+                          ))}
+                      </div>
                   </div>
 
-                   <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                   {/* Fixed Tools (Volume + More) */}
+                   <div className="flex items-center gap-1.5 shrink-0 relative">
                        {/* Volume Toggle */}
                        <button 
                           onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
@@ -349,32 +353,44 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                           <span className="hidden sm:inline">Volume</span>
                       </button>
 
-                       {/* Selection Mode Toggle */}
-                       <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-100 dark:border-white/5">
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); }}
-                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-white/10 text-[#7C3AED] dark:text-[#A78BFA] shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
-                                title="Point Selection"
-                            >
-                                <MousePointer size={16} />
-                            </button>
-                            <button
-                                onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); }}
-                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-white/10 text-[#7C3AED] dark:text-[#A78BFA] shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
-                                title="Area Selection"
-                            >
-                                <BoxSelect size={16} />
-                            </button>
-                       </div>
-
-                       {/* Help Toggle */}
+                       {/* More Menu Toggle */}
                        <button 
-                          onClick={(e) => { e.stopPropagation(); setShowHelp(!showHelp); }}
-                          className="hidden sm:flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all border bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10"
-                          title="Chart Guide"
-                      >
-                          <HelpCircle size={14} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
-                      </button>
+                          onClick={(e) => { e.stopPropagation(); setShowMoreMenu(!showMoreMenu); }}
+                          className={`
+                              flex shrink-0 items-center justify-center w-8 h-8 rounded-xl transition-all border
+                              ${showMoreMenu
+                                  ? 'bg-[#7C3AED] text-white border-transparent'
+                                  : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}
+                          `}
+                       >
+                           <MoreHorizontal size={18} />
+                       </button>
+
+                       {/* More Dropdown Menu */}
+                       {showMoreMenu && (
+                           <>
+                           <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
+                           <div className="absolute right-0 top-full mt-2 z-20 w-36 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 p-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+                               <div className="text-[10px] font-bold text-gray-400 px-2 py-1 uppercase tracking-wider">Selection Mode</div>
+                               <button
+                                   onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); setShowMoreMenu(false); }}
+                                   className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium transition-colors ${selectionMode === 'point' ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                               >
+                                   <MousePointer size={14} />
+                                   <span>Pointer</span>
+                                   {selectionMode === 'point' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500" />}
+                               </button>
+                               <button
+                                   onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); setShowMoreMenu(false); }}
+                                   className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium transition-colors ${selectionMode === 'area' ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                               >
+                                   <BoxSelect size={14} />
+                                   <span>Area Select</span>
+                                   {selectionMode === 'area' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500" />}
+                               </button>
+                           </div>
+                           </>
+                       )}
                    </div>
             </div>
 
@@ -448,48 +464,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
             </div>{/* End ChartContainerWrapper */}
             </div>{/* End FlexContainer */}
 
-            {/* Help Overlay (Global Modal Scope - Inside Card, on top of everything) */}
-            {showHelp && (
-                <div className="absolute inset-0 z-[100] bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm p-6 sm:p-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-200 rounded-2xl">
-                    <h3 className="text-2xl font-black mb-6 text-gray-900 dark:text-white">Chart Guide</h3>
-                    <div className="grid gap-6 max-w-lg text-left text-sm text-gray-600 dark:text-gray-300">
-                        <div className="flex gap-3">
-                            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg h-fit text-blue-600"><Activity size={20} /></div>
-                            <div>
-                                <strong className="block text-gray-900 dark:text-white mb-1">Market Data</strong>
-                                Real-time price & daily change. Active Volume shows trading activity for the current session.
-                            </div>
-                        </div>
-                        <div className="flex gap-3">
-                            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg h-fit text-purple-600"><MousePointer size={20} /></div>
-                            <div>
-                                <strong className="block text-gray-900 dark:text-white mb-1">Pointer & Area</strong>
-                                Use <strong>Point</strong> (Arrow) to inspect specific prices. Use <strong>Area</strong> (Box) to drag and measure performance changes.
-                            </div>
-                        </div>
-                        <div className="flex gap-3">
-                            <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg h-fit text-teal-600"><BarChart2 size={20} /></div>
-                            <div>
-                                <strong className="block text-gray-900 dark:text-white mb-1">Volume Control</strong>
-                                Toggle the <strong>Volume</strong> button to show or hide the trading volume bars on the chart.
-                            </div>
-                        </div>
-                        <div className="flex gap-3">
-                            <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg h-fit text-orange-600"><History size={20} /></div>
-                            <div>
-                                <strong className="block text-gray-900 dark:text-white mb-1">Trend Ranges</strong>
-                                Switch between 1D (Intraday) up to 5Y history. Range selector allows scrolling on mobile.
-                            </div>
-                        </div>
-                    </div>
-                    <button 
-                        onClick={() => setShowHelp(false)}
-                        className="mt-8 px-8 py-2 bg-gray-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:opacity-90 transition-opacity"
-                    >
-                        Got it
-                    </button>
-                </div>
-            )}
+
         </div>
     </div>
   );
