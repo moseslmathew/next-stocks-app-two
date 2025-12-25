@@ -56,6 +56,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
 
   // Handle range switching
   React.useEffect(() => {
+    setActiveData(null); // Reset tooltip when range changes
     if (!isOpen) return;
     // If 1d, always fetch to get extended history (props only have simple 1d)
     if (activeRange === range && !internalData && activeRange !== '1d') {
@@ -421,48 +422,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     </div>
                 )}
                 
-                {/* Help Overlay */}
-                {showHelp && (
-                    <div className="absolute inset-0 z-50 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm p-6 sm:p-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-200">
-                        <h3 className="text-2xl font-black mb-6 text-gray-900 dark:text-white">Chart Guide</h3>
-                        <div className="grid gap-6 max-w-lg text-left text-sm text-gray-600 dark:text-gray-300">
-                            <div className="flex gap-3">
-                                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg h-fit text-blue-600"><Activity size={20} /></div>
-                                <div>
-                                    <strong className="block text-gray-900 dark:text-white mb-1">Market Data</strong>
-                                    Real-time price & daily change. Active Volume shows trading activity for the current session.
-                                </div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg h-fit text-purple-600"><MousePointer size={20} /></div>
-                                <div>
-                                    <strong className="block text-gray-900 dark:text-white mb-1">Pointer & Area</strong>
-                                    Use <strong>Point</strong> (Arrow) to inspect specific prices. Use <strong>Area</strong> (Box) to drag and measure performance changes.
-                                </div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg h-fit text-teal-600"><BarChart2 size={20} /></div>
-                                <div>
-                                    <strong className="block text-gray-900 dark:text-white mb-1">Volume Control</strong>
-                                    Toggle the <strong>Volume</strong> button to show or hide the trading volume bars on the chart.
-                                </div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg h-fit text-orange-600"><History size={20} /></div>
-                                <div>
-                                    <strong className="block text-gray-900 dark:text-white mb-1">Trend Ranges</strong>
-                                    Switch between 1D (Intraday) up to 5Y history. Range selector allows scrolling on mobile.
-                                </div>
-                            </div>
-                        </div>
-                        <button 
-                            onClick={() => setShowHelp(false)}
-                            className="mt-8 px-8 py-2 bg-gray-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:opacity-90 transition-opacity"
-                        >
-                            Got it
-                        </button>
-                    </div>
-                )}
+
                 <TradingViewChart 
                     ref={chartRef}
                     data={tvPriceData}
@@ -481,7 +441,6 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                 {/* Lifted Tooltip (Always Visible) */}
                 {activeData && activeData.x !== undefined && activeData.y !== undefined && (
                      <>
-
                      <div 
                         className="absolute z-50 text-xs font-bold text-gray-900 dark:text-white pointer-events-none whitespace-nowrap"
                         style={{ 
@@ -497,9 +456,52 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                      </div>
                      </>
                 )}
-            </div>
-            </div>
-      </div>
-    </div>
+            </div>{/* End ChartContainer */}
+            </div>{/* End FlexContainer */}
+
+            {/* Help Overlay (Global Modal Scope - Inside Card, on top of everything) */}
+            {showHelp && (
+                <div className="absolute inset-0 z-[100] bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm p-6 sm:p-10 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-200 rounded-2xl">
+                    <h3 className="text-2xl font-black mb-6 text-gray-900 dark:text-white">Chart Guide</h3>
+                    <div className="grid gap-6 max-w-lg text-left text-sm text-gray-600 dark:text-gray-300">
+                        <div className="flex gap-3">
+                            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg h-fit text-blue-600"><Activity size={20} /></div>
+                            <div>
+                                <strong className="block text-gray-900 dark:text-white mb-1">Market Data</strong>
+                                Real-time price & daily change. Active Volume shows trading activity for the current session.
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg h-fit text-purple-600"><MousePointer size={20} /></div>
+                            <div>
+                                <strong className="block text-gray-900 dark:text-white mb-1">Pointer & Area</strong>
+                                Use <strong>Point</strong> (Arrow) to inspect specific prices. Use <strong>Area</strong> (Box) to drag and measure performance changes.
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <div className="p-2 bg-teal-50 dark:bg-teal-900/20 rounded-lg h-fit text-teal-600"><BarChart2 size={20} /></div>
+                            <div>
+                                <strong className="block text-gray-900 dark:text-white mb-1">Volume Control</strong>
+                                Toggle the <strong>Volume</strong> button to show or hide the trading volume bars on the chart.
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg h-fit text-orange-600"><History size={20} /></div>
+                            <div>
+                                <strong className="block text-gray-900 dark:text-white mb-1">Trend Ranges</strong>
+                                Switch between 1D (Intraday) up to 5Y history. Range selector allows scrolling on mobile.
+                            </div>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => setShowHelp(false)}
+                        className="mt-8 px-8 py-2 bg-gray-900 dark:bg-white text-white dark:text-black font-bold rounded-full hover:opacity-90 transition-opacity"
+                    >
+                        Got it
+                    </button>
+                </div>
+            )}
+        </div>{/* End Card */}
+    </div>{/* End Backdrop */}
   );
 }
