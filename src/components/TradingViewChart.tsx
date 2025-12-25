@@ -11,7 +11,7 @@ import {
   TickMarkType
 } from 'lightweight-charts';
 
-interface TradingViewChartProps {
+  interface TradingViewChartProps {
   data: { time: number; value: number }[];
   volumeData: { time: number; value: number; color: string }[];
   chartColor: string;
@@ -20,7 +20,7 @@ interface TradingViewChartProps {
   visibleRange: string;
   initialVisibleRange?: { from: number; to: number };
   timezone?: string;
-  onCrosshairMove?: (data: { price: number; volume: number; timestamp: number } | null) => void;
+  onCrosshairMove?: (data: { price: number; volume: number; timestamp: number; x?: number; y?: number } | null) => void;
   onSelectionChange?: (stats: { change: number; percent: number; startTime: number; endTime: number } | null) => void;
   selectionMode?: 'point' | 'area';
 }
@@ -117,7 +117,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
             color: '#9ca3af',
         },
         horzLine: {
-            labelVisible: true,
+            labelVisible: false,
             style: LineStyle.Dashed,
             color: '#9ca3af',
         }
@@ -175,30 +175,27 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
             param.point === undefined ||
             !param.time ||
             param.point.x < 0 ||
-            param.point.x > chartContainerRef.current!.clientWidth ||
-            param.point.y < 0 ||
-            param.point.y > chartContainerRef.current!.clientHeight
+            param.point.x > chartContainerRef.current!.clientWidth
         ) {
-            onCrosshairMove(null);
-            setCrosshairPoint(null);
+            // Ignore implicit clearing to support sticky tooltip on mobile.
+            // onCrosshairMove(null);
         } else {
             const priceData = param.seriesData.get(areaSeries) as { value: number; time: number } | undefined;
             const volumeData = param.seriesData.get(volumeSeries) as { value: number; time: number } | undefined;
 
             if (priceData) {
+                // Calculate coordinates for tooltip
+                const timeScale = chart.timeScale();
+                const px = timeScale.timeToCoordinate(param.time);
+                const py = areaSeries.priceToCoordinate(priceData.value);
+
                 onCrosshairMove({
                     price: priceData.value,
                     volume: volumeData ? volumeData.value : 0,
                     timestamp: (param.time as number) * 1000,
+                    x: px ?? undefined,
+                    y: py ?? undefined
                 });
-
-                // Sync Custom Dot with LWC Crosshair
-                const timeScale = chart.timeScale();
-                const px = timeScale.timeToCoordinate(param.time);
-                const py = areaSeries.priceToCoordinate(priceData.value);
-                if (px !== null && py !== null) {
-                    setCrosshairPoint({ x: px, y: py });
-                }
             }
         }
     });
@@ -265,19 +262,25 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
         setSelectionBox(null);
         setSelectionPath('');
         setSelectionStats(null);
-        setCrosshairPoint(null);
     }
   }, [showVolume]);
 
   // Clear selection when switching to point mode
+  // Clear visual states when switching selection modes
   useEffect(() => {
-      if (selectionMode === 'point') {
-          setSelectionBox(null);
-          setSelectionStats(null);
-          setSelectionPath('');
-          if (onSelectionChange) onSelectionChange(null);
-      }
+      setSelectionBox(null);
+      setSelectionStats(null);
+      setSelectionPath('');
+      if (onSelectionChange) onSelectionChange(null);
   }, [selectionMode]);
+
+  // Clear selection when trend range changes
+  useEffect(() => {
+      setSelectionBox(null);
+      setSelectionStats(null);
+      setSelectionPath('');
+      if (onSelectionChange) onSelectionChange(null);
+  }, [visibleRange]);
 
   useEffect(() => {
     if (areaSeriesRef.current && data) {
@@ -334,8 +337,6 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
      }
   }, [referencePrice]);
 
-  const [crosshairPoint, setCrosshairPoint] = React.useState<{ x: number; y: number } | null>(null);
-
   const updateCrosshairData = (x: number) => {
       if (!chartRef.current || !areaSeriesRef.current || !data.length || !onCrosshairMove) return;
       const timeScale = chartRef.current.timeScale();
@@ -347,20 +348,18 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
 
           if (currentPoint) {
               const currentVol = volumeData.find(v => v.time === currentPoint.time)?.value || 0;
+              
+              // Calculate coordinates for tooltip
+              const px = timeScale.timeToCoordinate(currentPoint.time);
+              const py = areaSeriesRef.current.priceToCoordinate(currentPoint.value);
+
               onCrosshairMove({
                   price: currentPoint.value,
                   volume: currentVol,
-                  timestamp: currentPoint.time * 1000
+                  timestamp: currentPoint.time * 1000,
+                  x: px ?? undefined,
+                  y: py ?? undefined
               });
-
-              // Calculate coordinates for dot
-              const px = timeScale.timeToCoordinate(currentPoint.time);
-              const py = areaSeriesRef.current.priceToCoordinate(currentPoint.value);
-              if (px !== null && py !== null) {
-                  setCrosshairPoint({ x: px, y: py });
-              } else {
-                  setCrosshairPoint(null);
-              }
           }
       }
   };
@@ -445,15 +444,21 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       }
   };
 
-  const processDragEnd = () => {
+  const handleTouchEnd = () => {
       dragStartRef.current = null;
-      setCrosshairPoint(null);
+      setSelectionBox(null);
+      // Sticky Tooltip: Don't clear crosshair on touch end
+  };
+
+  const handleMouseUp = () => {
+      dragStartRef.current = null;
+      setSelectionBox(null);
+  };
+
+  const handleMouseLeave = () => {
+      dragStartRef.current = null;
+      setSelectionBox(null);
       if (onCrosshairMove) onCrosshairMove(null);
-      // Do NOT clear selection stats on drag end (keep them visible until next interaction or explicit clear?)
-      // Actually, user might want to clear them eventually. But usually selection persists.
-      // However, ChartModal handles "clearing" via `setSelectionStats(null)` implies it disappears?
-      // If we want header to revert, we should clear it when selection is cleared (e.g. click outside or new tap).
-      // But for now, keep it active to show result.
   };
 
     // Determine dynamic color based on selection performance
@@ -465,28 +470,18 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
     <div 
         ref={chartContainerRef} 
         className="w-full h-full relative select-none cursor-crosshair"
+        onClick={(e) => processDragStart(e.clientX)} // Force update on single click
         onMouseDownCapture={(e) => processDragStart(e.clientX)}
         onMouseMoveCapture={(e) => processDragMove(e.clientX)}
-        onMouseUpCapture={processDragEnd}
-        onMouseLeave={processDragEnd}
+        onMouseUpCapture={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
         onTouchStartCapture={(e) => processDragStart(e.touches[0].clientX)}
         onTouchMoveCapture={(e) => processDragMove(e.touches[0].clientX)}
-        onTouchEndCapture={processDragEnd}
+        onTouchEndCapture={handleTouchEnd}
     >
         {selectionBox && (
             <>
                 {/* Under-Graph Highlight (SVG) */}
-        {/* Mobile Crosshair Dot */}
-        {crosshairPoint && (
-             <div 
-                className="absolute w-3 h-3 rounded-full bg-white border-2 z-30 pointer-events-none shadow-sm"
-                style={{ 
-                    left: crosshairPoint.x - 6, 
-                    top: crosshairPoint.y - 6,
-                    borderColor: chartColor,
-                }}
-             />
-        )}
                 <svg 
                     className="absolute top-0 left-0 z-10 pointer-events-none"
                     style={{ width: '100%', height: selectionBox.h }}
