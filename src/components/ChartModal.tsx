@@ -316,20 +316,19 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
             </div>
             {/* Controls Row (Below Unified Header) */}
             <div className="flex flex-row flex-nowrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2 w-full px-2 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                  {/* Range Selectors */}
-                  <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 sm:p-1 rounded-xl">
-                      {(['1d', '1w', '1m', '3m', '1y', '5y', 'max'] as const).map((r) => (
+                  <div className="flex shrink-0 bg-gray-50 dark:bg-white/5 p-1 rounded-2xl gap-1">
+                      {(['1d', '1w', '1m', '3m', '1y', '2y', '5y', 'max'] as const).map((r) => (
                           <button
                               key={r}
                               onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
                               className={`
-                                  px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all whitespace-nowrap
+                                  px-3 sm:px-4 py-1.5 rounded-xl text-xs font-bold transition-all duration-300
                                   ${activeRange === r 
-                                      ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' 
-                                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}
+                                      ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/30 scale-105' 
+                                      : 'text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 dark:hover:bg-white/5'}
                               `}
                           >
-                              {r === 'max' ? 'ALL' : r.toUpperCase()}
+                              {r.toUpperCase()}
                           </button>
                       ))}
                   </div>
@@ -339,31 +338,31 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                        <button 
                           onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
                           className={`
-                              flex shrink-0 items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-all border
+                              flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border
                               ${showVolume 
-                                  ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
-                                  : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
+                                  ? 'bg-violet-100 border-violet-200 text-violet-700 dark:bg-violet-500/20 dark:border-violet-500/30 dark:text-violet-300 shadow-sm' 
+                                  : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-600 hover:bg-gray-50 dark:hover:bg-white/10'}
                           `}
                       >
-                          <BarChart2 size={14} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
+                          <BarChart2 size={16} className="w-4 h-4" />
                           <span className="hidden sm:inline">Volume</span>
                       </button>
 
                        {/* Selection Mode Toggle */}
-                       <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg border border-gray-200 dark:border-white/10">
+                       <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-100 dark:border-white/5">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); }}
-                                className={`p-1 sm:p-1.5 rounded-md transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-white/10 text-violet-600 dark:text-violet-400 shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
                                 title="Point Selection"
                             >
-                                <MousePointer size={14} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                <MousePointer size={16} />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); }}
-                                className={`p-1 sm:p-1.5 rounded-md transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                className={`p-1.5 rounded-lg transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-white/10 text-violet-600 dark:text-violet-400 shadow-sm scale-110' : 'text-gray-400 hover:text-gray-600'}`}
                                 title="Area Selection"
                             >
-                                <BoxSelect size={14} className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                <BoxSelect size={16} />
                             </button>
                        </div>
 
