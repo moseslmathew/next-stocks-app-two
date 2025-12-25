@@ -23,7 +23,13 @@ export default function Sparkline({
   isIndian = false,
   marketState
 }: SparklineProps) {
-  if (!data || data.length < 2) return null;
+  if (!data || data.length < 2) {
+    return (
+      <div className={`flex items-center justify-center text-[9px] text-gray-400 ${className}`} style={{ width, height }}>
+        No Data
+      </div>
+    );
+  }
 
   let min = Math.min(...data);
   let max = Math.max(...data);

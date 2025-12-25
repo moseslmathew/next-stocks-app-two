@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, BarChart2, Loader2, RotateCcw } from 'lucide-react';
+import { X, BarChart2, Loader2, RotateCcw, MousePointer, BoxSelect } from 'lucide-react';
 import { getWatchlistData } from '@/actions/market';
 import { TradingViewChart, TradingViewChartHandle } from './TradingViewChart';
 
@@ -24,6 +24,8 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   const [isLoading, setIsLoading] = React.useState(false);
   const [activeData, setActiveData] = React.useState<{ price: number, volume: number, timestamp: number } | null>(null);
   const [showVolume, setShowVolume] = React.useState(true);
+  const [selectionMode, setSelectionMode] = React.useState<'point' | 'area'>('point');
+  const [selectionStats, setSelectionStats] = React.useState<{ change: number; percent: number; startTime: number; endTime: number } | null>(null);
   const chartRef = React.useRef<TradingViewChartHandle>(null);
 
   // Sync activeRange with prop when modal opens/prop changes
@@ -249,6 +251,21 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   // Display timestamp logic
   const displayTimestamp = activeData ? activeData.timestamp : (latestData?.timestamp || 0);
 
+
+
+  const formatDuration = (start: number, end: number) => {
+      const diff = end - start;
+      if (diff < 86400) {
+           return `${new Date(start * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - ${new Date(end * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
+      }
+      const days = Math.round(diff / 86400);
+      if (days < 30) return `${days} day${days !== 1 ? 's' : ''}`;
+      const months = Math.floor(days / 30); 
+      if (months < 12) return `${months} mo ${days % 30 > 0 ? `${days % 30} d` : ''}`;
+      const years = Math.floor(months / 12);
+      return `${years} yr ${months % 12 > 0 ? `${months % 12} mo` : ''}`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div 
@@ -276,24 +293,40 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                 </div>
             </div>
 
-            {/* Price & Primary Info Block */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-10 mb-6 sm:mb-8 items-end px-2">
-                <div className="md:col-span-5">
-                    <div className="flex items-baseline gap-3 mb-1">
+            {/* Primary Info Block (Price + Active Volume) */}
+            <div className="flex items-end justify-between px-2 mb-6">
+                {/* Price */}
+                <div>
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
+                        {/* Main Price (Always Visible) */}
                         <span className="text-4xl sm:text-5xl font-mono font-black text-gray-900 dark:text-white tracking-tighter">
                             {currentPrice.toFixed(2)}
                         </span>
-                        <div className={`flex items-center text-sm sm:text-lg font-bold ${isCurrentlyPositive ? 'text-green-500' : 'text-red-500'}`}>
-                            {isCurrentlyPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
-                        </div>
+                        
+                        {/* Change Indicator */}
+                        {selectionStats ? (
+                             <div className={`flex items-center text-sm sm:text-lg font-bold ${selectionStats.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                 {selectionStats.change >= 0 ? '+' : ''}{selectionStats.change.toFixed(2)} ({selectionStats.change >= 0 ? '+' : ''}{selectionStats.percent.toFixed(2)}%)
+                             </div>
+                        ) : (
+                             <div className={`flex items-center text-sm sm:text-lg font-bold ${isCurrentlyPositive ? 'text-green-500' : 'text-red-500'}`}>
+                                 {isCurrentlyPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
+                             </div>
+                        )}
+
+                        {/* Time / Duration Label */}
+                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            {selectionStats 
+                                ? `• ${formatDuration(selectionStats.startTime, selectionStats.endTime)}` 
+                                : `${!activeData ? '• Last Traded ' : ''}${propCurrentPrice && !activeData ? '• Live' : `• ${formatDate(displayTimestamp)}`}`
+                            }
+                        </span>
                     </div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                        {!activeData && 'Last Traded • '} {propCurrentPrice && !activeData ? 'Live' : formatDate(displayTimestamp)}
-                    </p>
                 </div>
 
+                {/* Active Volume (Desktop Only) */}
                 {!hideActiveVolume && (
-                    <div className="md:col-span-4 border-l border-gray-100 dark:border-white/5 pl-6 hidden md:block">
+                    <div className="border-l border-gray-100 dark:border-white/5 pl-6 hidden md:block mb-1">
                         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
                             Active Volume
                         </span>
@@ -302,43 +335,59 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                         </div>
                     </div>
                 )}
-                
-                <div className="md:col-span-3 flex justify-end">
-                     {/* Range & Volume Toggle Container */}
-                     <div className="flex flex-col items-end gap-3 w-full">
-                        {/* Range Selectors */}
-                        <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl overflow-x-auto max-w-full">
-                            {(['1d', '1w', '1m', '3m', '1y', '5y'] as const).map((r) => (
-                                <button
-                                    key={r}
-                                    onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
-                                    className={`
-                                        px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap
-                                        ${activeRange === r 
-                                            ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' 
-                                            : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}
-                                    `}
-                                >
-                                    {r.toUpperCase()}
-                                </button>
-                            ))}
-                        </div>
+            </div>
 
-                         {/* Volume Toggle */}
-                         <button 
-                            onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
-                            className={`
-                                flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border
-                                ${showVolume 
-                                    ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
-                                    : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
-                            `}
+            {/* Controls Row (Below Price) */}
+            <div className="flex flex-row flex-nowrap items-center justify-start gap-2 w-full px-2 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                  {/* Range Selectors */}
+                  <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
+                      {(['1d', '1w', '1m', '3m', '1y', '5y'] as const).map((r) => (
+                          <button
+                              key={r}
+                              onClick={(e) => { e.stopPropagation(); setActiveRange(r); }}
+                              className={`
+                                  px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap
+                                  ${activeRange === r 
+                                      ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' 
+                                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}
+                              `}
+                          >
+                              {r.toUpperCase()}
+                          </button>
+                      ))}
+                  </div>
+
+                   {/* Selection Mode Toggle */}
+                   <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 rounded-lg border border-gray-200 dark:border-white/10">
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); }}
+                            className={`p-1.5 rounded-md transition-all ${selectionMode === 'point' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                            title="Point Selection"
                         >
-                            <BarChart2 size={14} />
-                            <span className="hidden sm:inline">Volume</span>
+                            <MousePointer size={14} />
                         </button>
-                     </div>
-                </div>
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); }}
+                            className={`p-1.5 rounded-md transition-all ${selectionMode === 'area' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                            title="Area Selection"
+                        >
+                            <BoxSelect size={14} />
+                        </button>
+                   </div>
+
+                   {/* Volume Toggle */}
+                   <button 
+                      onClick={(e) => { e.stopPropagation(); setShowVolume(!showVolume); }}
+                      className={`
+                          flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border
+                          ${showVolume 
+                              ? 'bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400' 
+                              : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10'}
+                      `}
+                  >
+                      <BarChart2 size={14} />
+                      <span className="hidden sm:inline">Volume</span>
+                  </button>
             </div>
 
             <div className="flex-1 w-full bg-transparent relative overflow-hidden pl-4 pr-0 py-2 sm:p-6 mb-8 group min-h-0">
@@ -357,7 +406,9 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     visibleRange={activeRange}
                     initialVisibleRange={initialVisibleRange}
                     // timezone={...} // Removed to use local system time (Indian Time for user)
-                    onCrosshairMove={handleCursorUpdate}
+                    onCrosshairMove={setActiveData}
+                    onSelectionChange={setSelectionStats}
+                    selectionMode={selectionMode}
                 />
             </div>
             </div>

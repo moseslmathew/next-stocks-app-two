@@ -21,6 +21,8 @@ interface TradingViewChartProps {
   initialVisibleRange?: { from: number; to: number };
   timezone?: string;
   onCrosshairMove?: (data: { price: number; volume: number; timestamp: number } | null) => void;
+  onSelectionChange?: (stats: { change: number; percent: number; startTime: number; endTime: number } | null) => void;
+  selectionMode?: 'point' | 'area';
 }
 
 export interface TradingViewChartHandle {
@@ -37,6 +39,8 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
   initialVisibleRange,
   timezone,
   onCrosshairMove,
+  onSelectionChange,
+  selectionMode = 'point',
 }, ref) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const [selectionBox, setSelectionBox] = React.useState<{ x: number; y: number; w: number; h: number } | null>(null);
@@ -58,7 +62,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
           if (chartRef.current) {
               // Priority: Passed range > Prop range (if 1d) > Fit Content
               const targetRange = range || (visibleRange === '1d' ? initialVisibleRange : undefined);
-              
+
               if (targetRange) {
                   chartRef.current.timeScale().setVisibleRange(targetRange as any);
               } else {
@@ -144,18 +148,18 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
           minMove: 1,
       },
     });
-    
+
     const volumeSeries = chart.addSeries(HistogramSeries, {
       color: '#26a69a',
       priceFormat: {
         type: 'volume',
       },
-      priceScaleId: '', 
+      priceScaleId: '',
     });
-    
+
     volumeSeries.priceScale().applyOptions({
         scaleMargins: {
-            top: 0.8, 
+            top: 0.8,
             bottom: 0,
         },
     });
@@ -166,7 +170,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
 
     chart.subscribeCrosshairMove((param) => {
         if (!onCrosshairMove) return;
-        
+
         if (
             param.point === undefined ||
             !param.time ||
@@ -176,16 +180,25 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
             param.point.y > chartContainerRef.current!.clientHeight
         ) {
             onCrosshairMove(null);
+            setCrosshairPoint(null);
         } else {
             const priceData = param.seriesData.get(areaSeries) as { value: number; time: number } | undefined;
             const volumeData = param.seriesData.get(volumeSeries) as { value: number; time: number } | undefined;
-            
+
             if (priceData) {
                 onCrosshairMove({
                     price: priceData.value,
                     volume: volumeData ? volumeData.value : 0,
-                    timestamp: (param.time as number) * 1000, 
+                    timestamp: (param.time as number) * 1000,
                 });
+
+                // Sync Custom Dot with LWC Crosshair
+                const timeScale = chart.timeScale();
+                const px = timeScale.timeToCoordinate(param.time);
+                const py = areaSeries.priceToCoordinate(priceData.value);
+                if (px !== null && py !== null) {
+                    setCrosshairPoint({ x: px, y: py });
+                }
             }
         }
     });
@@ -203,12 +216,12 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       chart.remove();
       resizeObserver.disconnect();
     };
-  }, []); 
+  }, []);
 
   // Format axis based on range
   useEffect(() => {
     if (!chartRef.current) return;
-    
+
     // Intraday (1d) or Short term (1w) -> Show Time
     const isIntraday = visibleRange === '1d' || visibleRange === '1w';
 
@@ -222,19 +235,19 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
                 if (rangeRef.current && time === rangeRef.current.from) {
                     return date.toLocaleDateString(locale, { ...options, day: 'numeric', month: 'short' });
                 }
-                
+
                 // Use TickMarkType to decide format (Day vs Time)
                 if (tickMarkType === TickMarkType.DayOfMonth || tickMarkType === TickMarkType.Month || tickMarkType === TickMarkType.Year) {
                      // Include Year if range is long (> 3m) or explicitly requested
                      const showYear = ['1y', '2y', '5y', 'max'].includes(visibleRange || '');
-                     return date.toLocaleDateString(locale, { 
-                         ...options, 
-                         month: 'short', 
+                     return date.toLocaleDateString(locale, {
+                         ...options,
+                         month: 'short',
                          day: 'numeric',
                          year: showYear ? '2-digit' : undefined
                      });
                 }
-                
+
                 return date.toLocaleTimeString(locale, { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
             },
         }
@@ -255,10 +268,20 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
         setCrosshairPoint(null);
     }
   }, [showVolume]);
-  
+
+  // Clear selection when switching to point mode
+  useEffect(() => {
+      if (selectionMode === 'point') {
+          setSelectionBox(null);
+          setSelectionStats(null);
+          setSelectionPath('');
+          if (onSelectionChange) onSelectionChange(null);
+      }
+  }, [selectionMode]);
+
   useEffect(() => {
     if (areaSeriesRef.current && data) {
-         areaSeriesRef.current.setData(data as any); 
+         areaSeriesRef.current.setData(data as any);
          if (chartRef.current && data.length > 0) {
              if (initialVisibleRange && visibleRange === '1d') {
                  chartRef.current.timeScale().setVisibleRange(initialVisibleRange as any);
@@ -306,7 +329,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
              lineWidth: 1,
              lineStyle: LineStyle.Dotted,
              axisLabelVisible: true,
-             title: 'Prev Close',
+             title: '', // Empty title to clean up label (Prev Close text removed)
          });
      }
   }, [referencePrice]);
@@ -317,11 +340,11 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       if (!chartRef.current || !areaSeriesRef.current || !data.length || !onCrosshairMove) return;
       const timeScale = chartRef.current.timeScale();
       const currentTime = timeScale.coordinateToTime(x) as number;
-      
+
       if (currentTime) {
-          const currentPoint = (data as any[]).find(d => d.time === currentTime) || 
+          const currentPoint = (data as any[]).find(d => d.time === currentTime) ||
                                (data as any[]).reduce((prev, curr) => Math.abs(curr.time - currentTime) < Math.abs(prev.time - currentTime) ? curr : prev);
-          
+
           if (currentPoint) {
               const currentVol = volumeData.find(v => v.time === currentPoint.time)?.value || 0;
               onCrosshairMove({
@@ -347,7 +370,9 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       const rect = chartContainerRef.current.getBoundingClientRect();
       const x = clientX - rect.left;
       dragStartRef.current = { x, y: 0 };
-      setSelectionBox(null); 
+      setSelectionBox(null);
+      setSelectionStats(null);
+      if (onSelectionChange) onSelectionChange(null);
       updateCrosshairData(x);
   };
 
@@ -358,19 +383,25 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       if (!dragStartRef.current || !chartContainerRef.current || !chartRef.current || !areaSeriesRef.current) return;
       const rect = chartContainerRef.current.getBoundingClientRect();
       const x = clientX - rect.left;
-      
+
       const startX = Math.min(x, dragStartRef.current.x);
       let width = Math.abs(x - dragStartRef.current.x);
 
       const timeScaleHeight = chartRef.current.timeScale().height();
       const priceScaleWidth = chartRef.current.priceScale('right').width();
-      const plotHeight = rect.height - timeScaleHeight;
-      const plotWidth = rect.width - priceScaleWidth;
+       const plotHeight = rect.height - timeScaleHeight;
+       const plotWidth = rect.width - priceScaleWidth;
 
-      if (startX + width > plotWidth) {
+       // If Point Selection Mode, just update crosshair and return
+       if (selectionMode === 'point') {
+            updateCrosshairData(x);
+            return;
+       }
+
+       if (startX + width > plotWidth) {
           width = Math.max(0, plotWidth - startX);
       }
-      
+
       setSelectionBox({ x: startX, y: 0, w: width, h: plotHeight });
 
       if (chartRef.current && data.length > 0) {
@@ -406,7 +437,9 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
               if (p1 && p2) {
                   const change = p2.value - p1.value;
                   const percent = (change / p1.value) * 100;
-                  setSelectionStats({ change, percent, startTime: t1, endTime: t2 });
+                  const stats = { change, percent, startTime: t1, endTime: t2 };
+                  setSelectionStats(stats);
+                  if (onSelectionChange) onSelectionChange(stats);
               }
           }
       }
@@ -416,6 +449,11 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       dragStartRef.current = null;
       setCrosshairPoint(null);
       if (onCrosshairMove) onCrosshairMove(null);
+      // Do NOT clear selection stats on drag end (keep them visible until next interaction or explicit clear?)
+      // Actually, user might want to clear them eventually. But usually selection persists.
+      // However, ChartModal handles "clearing" via `setSelectionStats(null)` implies it disappears?
+      // If we want header to revert, we should clear it when selection is cleared (e.g. click outside or new tap).
+      // But for now, keep it active to show result.
   };
 
     // Determine dynamic color based on selection performance
@@ -439,7 +477,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
             <>
                 {/* Under-Graph Highlight (SVG) */}
         {/* Mobile Crosshair Dot */}
-        {crosshairPoint && dragStartRef.current && (
+        {crosshairPoint && (
              <div 
                 className="absolute w-3 h-3 rounded-full bg-white border-2 z-30 pointer-events-none shadow-sm"
                 style={{ 
@@ -461,35 +499,6 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
                         strokeWidth={1}
                     />
                 </svg>
-
-                {selectionStats && (
-                    <div 
-                        className="absolute z-20 bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 rounded-lg p-2 text-xs whitespace-nowrap pointer-events-none"
-                        style={{ 
-                            left: Math.max(0, Math.min(selectionBox.x + (selectionBox.w / 2) - 60, (chartContainerRef.current?.clientWidth || 0) - 120)), // Clamp
-                            top: 20 
-                        }}
-                    >
-                        <div className={`font-bold ${selectionStats.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                            {Math.abs(selectionStats.change).toFixed(2)} ({Math.abs(selectionStats.percent).toFixed(2)}%)
-                        </div>
-                        <div className="text-gray-500 dark:text-gray-400 mt-0.5">
-                           {(() => {
-                               const diff = selectionStats.endTime - selectionStats.startTime;
-                               if (diff < 86400) {
-                                   return `${new Date(selectionStats.startTime * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - ${new Date(selectionStats.endTime * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
-                               } else {
-                                    const days = Math.round(diff / 86400);
-                                    if (days < 30) return `${days} day${days !== 1 ? 's' : ''}`;
-                                    const months = Math.floor(days / 30); 
-                                    if (months < 12) return `${months} mo ${days % 30 > 0 ? `${days % 30} d` : ''}`;
-                                    const years = Math.floor(months / 12);
-                                    return `${years} yr ${months % 12 > 0 ? `${months % 12} mo` : ''}`;
-                               }
-                           })()}
-                        </div>
-                    </div>
-                )}
             </>
         )}
     </div>

@@ -87,14 +87,18 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
 
                   let quotes = chartData.quotes;
 
-                  if (filterLastSession) {
-                      const lastQuote = quotes[quotes.length - 1];
-                      if (lastQuote && lastQuote.date) {
-                          const lastDate = new Date(lastQuote.date);
-                          const lastDayStr = lastDate.toISOString().split('T')[0];
-                          quotes = quotes.filter((q: any) => new Date(q.date).toISOString().split('T')[0] === lastDayStr);
-                      }
-                  }
+                  // if (filterLastSession) {
+                  //    const lastQuote = quotes[quotes.length - 1];
+                  //    if (lastQuote && lastQuote.date) {
+                  //        const lastDate = new Date(lastQuote.date);
+                  //        const lastDayStr = lastDate.toISOString().split('T')[0];
+                  //        const filtered = quotes.filter((q: any) => new Date(q.date).toISOString().split('T')[0] === lastDayStr);
+                  //        // Only apply filter if it creates a valid sparkline (>1 point), else fallback to show multi-day context
+                  //        if (filtered.length > 1) {
+                  //            quotes = filtered;
+                  //        }
+                  //    }
+                  // }
 
                   return { 
                       symbol, 
