@@ -20,7 +20,7 @@ import {
   visibleRange: string;
   initialVisibleRange?: { from: number; to: number };
   timezone?: string;
-  onCrosshairMove?: (data: { price: number; volume: number; timestamp: number; x?: number; y?: number } | null) => void;
+  onCrosshairMove?: (data: { price: number; volume: number; timestamp: number; x?: number; y?: number; chartWidth?: number } | null) => void;
   onSelectionChange?: (stats: { change: number; percent: number; startTime: number; endTime: number } | null) => void;
   selectionMode?: 'point' | 'area';
 }
@@ -182,6 +182,7 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
         } else {
             const priceData = param.seriesData.get(areaSeries) as { value: number; time: number } | undefined;
             const volumeData = param.seriesData.get(volumeSeries) as { value: number; time: number } | undefined;
+            const chartWidth = chartContainerRef.current?.clientWidth || 0;
 
             if (priceData) {
                 // Calculate coordinates for tooltip
@@ -194,7 +195,8 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
                     volume: volumeData ? volumeData.value : 0,
                     timestamp: (param.time as number) * 1000,
                     x: px ?? undefined,
-                    y: py ?? undefined
+                    y: py ?? undefined,
+                    chartWidth: chartWidth
                 });
             }
         }

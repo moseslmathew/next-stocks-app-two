@@ -22,7 +22,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   const [activeRange, setActiveRange] = React.useState<'1d' | '1w' | '1m' | '3m' | '1y' | '2y' | '5y' | 'max'>(range);
   const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[], quoteType?: string } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [activeData, setActiveData] = React.useState<{ price: number, volume: number, timestamp: number, x?: number, y?: number } | null>(null);
+  const [activeData, setActiveData] = React.useState<{ price: number, volume: number, timestamp: number, x?: number, y?: number, chartWidth?: number } | null>(null);
   const [showVolume, setShowVolume] = React.useState(true);
   const [selectionMode, setSelectionMode] = React.useState<'point' | 'area'>('point');
   const [selectionStats, setSelectionStats] = React.useState<{ change: number; percent: number; startTime: number; endTime: number } | null>(null);
@@ -290,12 +290,22 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
         </div>
 
         <div className="px-1 sm:px-10 pb-4 sm:py-8 flex-1 overflow-hidden flex flex-col">
-            {/* Header / Controls Row */}
-            <div className="flex items-center justify-between mb-6 sm:mb-8 px-2">
-                <div className="flex items-center gap-4">
-                    <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tighter">
+            {/* Unified Header (Symbol, Price, Controls) */}
+            <div className="flex items-start justify-between px-2 mb-8">
+                <div className="flex flex-col">
+                    <h2 className="text-lg sm:text-2xl font-medium text-gray-500 dark:text-gray-400 tracking-tight mb-1">
                         {symbol}
                     </h2>
+                    <div className="flex flex-wrap items-baseline gap-x-3 text-gray-900 dark:text-white">
+                        <span className="text-2xl sm:text-4xl font-mono font-medium tracking-tight">
+                            {currentPrice.toFixed(2)}
+                        </span>
+                         <div className={`flex items-center text-sm sm:text-lg font-medium ${isCurrentlyPositive ? 'text-green-500' : 'text-red-500'}`}>
+                             {isCurrentlyPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
+                         </div>
+                    </div>
+
+
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -304,54 +314,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     </button>
                 </div>
             </div>
-
-            {/* Primary Info Block (Price + Active Volume) */}
-            <div className="flex items-end justify-between px-2 mb-6">
-                {/* Price */}
-                <div>
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
-                        {/* Main Price (Always Visible) */}
-                        <span className="text-4xl sm:text-5xl font-mono font-black text-gray-900 dark:text-white tracking-tighter">
-                            {currentPrice.toFixed(2)}
-                        </span>
-                        
-                        {/* Change Indicator (Always Daily/Active) */}
-                         <div className={`flex items-center text-sm sm:text-lg font-bold ${isCurrentlyPositive ? 'text-green-500' : 'text-red-500'}`}>
-                             {isCurrentlyPositive ? '▲' : '▼'} {Math.abs(changePercent).toFixed(2)}%
-                         </div>
-
-                        {/* Time Label */}
-                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                            {latestData?.timestamp ? `• ${formatDate(latestData.timestamp)}` : ''}
-                        </span>
-                    </div>
-
-                    {/* Selection Stats (Separate) */}
-                    {selectionStats && (
-                        <div className="flex flex-wrap items-center gap-2 mt-2 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-lg px-2 py-1.5 w-fit animate-in fade-in slide-in-from-top-1 duration-200">
-                            <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Selected:</span>
-                            <div className={`flex items-center text-xs sm:text-sm font-bold ${selectionStats.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {selectionStats.change >= 0 ? '+' : ''}{selectionStats.change.toFixed(2)} ({selectionStats.change >= 0 ? '+' : ''}{selectionStats.percent.toFixed(2)}%)
-                            </div>
-                            <span className="text-xs text-gray-400">• {formatDuration(selectionStats.startTime, selectionStats.endTime)}</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Active Volume (Desktop Only) */}
-                {!hideActiveVolume && (
-                    <div className="border-l border-gray-100 dark:border-white/5 pl-6 hidden md:block mb-1">
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
-                            Active Volume
-                        </span>
-                        <div className="text-xl font-mono font-bold text-gray-700 dark:text-gray-300">
-                            {displayData.volume ? displayData.volume.toLocaleString() : '--'}
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Controls Row (Below Price) */}
+            {/* Controls Row (Below Unified Header) */}
             <div className="flex flex-row flex-nowrap items-center justify-between sm:justify-start gap-1.5 sm:gap-2 w-full px-2 mb-6 sm:mb-8 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                   {/* Range Selectors */}
                   <div className="flex shrink-0 bg-gray-100 dark:bg-white/5 p-0.5 sm:p-1 rounded-xl">
@@ -438,30 +401,45 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                     onSelectionChange={setSelectionStats}
                     selectionMode={selectionMode}
                 />
-                
-                {/* Lifted Tooltip (Always Visible) */}
-                {activeData && activeData.x !== undefined && activeData.y !== undefined && (
+                {/* Floating Header (Pointer or Selection Stats) */}
+                {(activeData?.x !== undefined || selectionStats) && (
                      <>
+                     {/* Dot (Only show if NO selection) */}
+                     {!selectionStats && activeData?.x !== undefined && activeData?.y !== undefined && (
+                        <div 
+                            className="absolute w-3 h-3 rounded-full border-2 z-50 pointer-events-none shadow-sm border-white"
+                            style={{ 
+                                left: activeData.x, 
+                                top: activeData.y,
+                                backgroundColor: '#000000',
+                                transform: 'translate(-50%, -50%)'
+                            }}
+                        />
+                     )}
+
+                     {/* Text Info */}
                      <div 
-                        className="absolute w-3 h-3 rounded-full border-2 z-50 pointer-events-none shadow-sm border-white dark:border-black"
+                        className="absolute z-50 text-xs font-semibold text-gray-600 dark:text-gray-300 pointer-events-none whitespace-nowrap"
                         style={{ 
-                            left: activeData.x, 
-                            top: activeData.y,
-                            backgroundColor: chartColor,
-                            transform: 'translate(-50%, -50%)'
-                        }}
-                     />
-                     <div 
-                        className="absolute z-50 text-xs font-bold text-gray-900 dark:text-white pointer-events-none whitespace-nowrap"
-                        style={{ 
-                            left: activeData.x,
-                            top: Math.max(10, activeData.y - 40),
-                            transform: 'translateX(-50%)',
+                            left: 0,
+                            top: 0,
                         }}
                      >
-                          <span className="bg-white/90 dark:bg-black/80 backdrop-blur-[2px] px-2 py-1 rounded-md border border-gray-200 dark:border-gray-800 shadow-sm">
-                              {activeData.price.toFixed(2)} <span className="opacity-50 mx-1">|</span> {new Date(activeData.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </span>
+                          {selectionStats ? (
+                              <div className="flex items-center gap-2 animate-in fade-in duration-200">
+                                   <span className={selectionStats.change >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                      {selectionStats.change >= 0 ? '+' : ''}{selectionStats.change.toFixed(2)} ({selectionStats.change >= 0 ? '+' : ''}{selectionStats.percent.toFixed(2)}%)
+                                   </span>
+                                   <span className="text-gray-400">|</span>
+                                   <span>{formatDuration(selectionStats.startTime, selectionStats.endTime)}</span>
+                              </div>
+                          ) : (
+                              activeData && (
+                                <>
+                                ₹{activeData.price.toFixed(2)}<span className="mx-1 text-gray-400">|</span>{new Date(activeData.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                </>
+                              )
+                          )}
                      </div>
                      </>
                 )}
