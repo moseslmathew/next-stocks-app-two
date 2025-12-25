@@ -65,12 +65,12 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
                   } else if (range === '2y') {
                       const startDate = new Date(now.getTime() - 2 * 365 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
                   } else if (range === '5y') {
                       const startDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1wk' };
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
                   } else if (range === 'max') {
-                      queryOptions = { period1: '1980-01-01', interval: '1mo' };
+                      queryOptions = { period1: '1980-01-01', interval: '1wk' };
                   } else {
                        // Default fallback
                        const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
