@@ -33,6 +33,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   React.useEffect(() => {
     setActiveRange(range);
     setInternalData(null);
+    setSelectionMode('point');
   }, [range, symbol, isOpen]);
 
 
