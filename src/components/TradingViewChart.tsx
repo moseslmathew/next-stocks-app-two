@@ -95,8 +95,8 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
         timeVisible: true,
         secondsVisible: false,
         borderVisible: false,
-        fixLeftEdge: true,
-        fixRightEdge: true,
+        fixLeftEdge: false,
+        fixRightEdge: false,
         // Give a small right offset? No, user wants consistent scaling.
         rightOffset: 0,
       },

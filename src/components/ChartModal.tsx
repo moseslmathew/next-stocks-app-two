@@ -213,16 +213,26 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
           return { from: startPoint.time, to: lastPoint.time + 300 };
      }
 
-     // 4. Canonical Axis Alignment (User Request: Consistent Time Lines)
-     // Snap the chart Start to exact 09:15:00 or 09:30:00 to ensure grid lines (hours) align perfectly across all charts.
+     // 4. Canonical Axis Alignment
+     // Snap the chart Start to exact Market Open (09:15 IST or 09:30 ET)
      const startObj = new Date(startPoint.time * 1000);
+     const originalTime = startPoint.time;
+
      if (isIndian) {
-         startObj.setUTCMinutes(15);
+         // India Open: 09:15 IST = 03:45 UTC. Target Minutes: 45.
+         startObj.setUTCMinutes(45);
      } else {
+         // US Open: 09:30 ET = XX:30 UTC. Target Minutes: 30.
          startObj.setUTCMinutes(30);
      }
      startObj.setUTCSeconds(0);
-     const canonicalStart = Math.floor(startObj.getTime() / 1000);
+     
+     let canonicalStart = Math.floor(startObj.getTime() / 1000);
+
+     // If snapping minutes moved us forward (e.g. Data=09:30 IST -> Snap=10:15 IST), move back an hour to hit 09:15
+     if (canonicalStart > originalTime) {
+         canonicalStart -= 3600;
+     }
 
      // 5. Fixed Session Duration (User Request: Divide axis equally)
      const duration = isIndian ? 22500 : 23400; // 6h 15m or 6h 30m
