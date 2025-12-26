@@ -49,7 +49,7 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
 
                   if (range === '1d') {
                       const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days back to find last session
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m' };
+                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '2m' };
                       filterLastSession = !keepPreviousSessions;
                   } else if (range === '7d' || range === '1w') {
                       const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -77,7 +77,7 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
                   } else {
                        // Default fallback
                        const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m' };
+                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '2m' };
                   }
 
                   const result = await yahooFinance.chart(symbol, queryOptions);

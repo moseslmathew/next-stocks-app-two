@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight, ChevronLeft, Pencil, Check, AlertTriangle } from 'lucide-react';
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
-import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists } from '@/actions/watchlist';
+import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists, renameWatchlist } from '@/actions/watchlist';
 import { createPusherClient } from '@/lib/pusher';
 import { getStockNews, getBatchStockNews, NewsItem } from '@/actions/news';
 import MarketCard from '@/components/MarketCard';
@@ -84,7 +84,6 @@ interface SortableRowProps {
 }
 
 function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange, mobileActiveColumn, onToggleColumn, isLoadingChart }: SortableRowProps) {
-    // ... (hooks remain same)
     const {
         attributes,
         listeners,
@@ -94,12 +93,55 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
         isDragging
     } = useSortable({ id: data.symbol });
 
+    const [swipeX, setSwipeX] = useState(0);
+    const touchStart = useRef<{ x: number, y: number } | null>(null);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (!touchStart.current) return;
+        const deltaX = e.touches[0].clientX - touchStart.current.x;
+        const deltaY = e.touches[0].clientY - touchStart.current.y;
+
+        // Disambiguate: only handle horizontal swipes
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+             // Only swipe right (deltaX > 0)
+             if (deltaX > 0) {
+                 // Resistance / Damping can be added, but linear is fine for now
+                 setSwipeX(deltaX);
+             }
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (swipeX > 150) { // Threshold for delete
+             // Animate off screen
+             setSwipeX(window.innerWidth); 
+             // Call remove after animation
+             setTimeout(() => {
+                 onRemove(data.symbol);
+                 // Reset after removal (though component might unmount)
+                 setSwipeX(0);
+             }, 300);
+        } else {
+             // Snap back
+             setSwipeX(0);
+        }
+        touchStart.current = null;
+    };
+
+    const dndTransform = CSS.Transform.toString(transform);
+    
     const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.5 : 1,
+        // Combine transforms: Dnd first (though usually null when not dragging), then Swipe
+        transform: dndTransform ? dndTransform : (swipeX !== 0 ? `translateX(${swipeX}px)` : undefined),
+        transition: isDragging ? undefined : (swipeX === 0 ? 'transform 0.3s ease-out' : 'transform 0.1s linear'), // Smooth snap back, linear drag
+        opacity: isDragging ? 0.5 : (swipeX > 0 ? Math.max(0.2, 1 - swipeX / 300) : 1), // Fade out on swipe
         zIndex: isDragging ? 10 : 1,
         position: 'relative' as const,
+        touchAction: 'pan-y', // Critical for handling horizontal swipe while allowing vertical scroll
     };
 
     const high = highLowRange === '1d' ? data.regularMarketDayHigh : data.fiftyTwoWeekHigh;
@@ -111,21 +153,36 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
       : 0;
     const clampedPosition = Math.min(Math.max(position, 0), 100);
 
-    // Color logic:
-    // If 1D: strictly match the daily change sign (Change = Current - Prev Close).
-    // If >1D: let Sparkline decide locally (Start vs End of graph).
-    // Or better: Always match the Daily Change color for consistency? 
-    // Usually "Trend" implies the graph's own trend.
-    // However, if the user sees Green Text, they expect Green Graph for 1D.
     const isDailyPositive = data.regularMarketChange >= 0;
     const sparklineColor = trendRange === '1d' 
         ? (isDailyPositive ? '#16a34a' : '#dc2626') 
-        : undefined; // undefined = let Sparkline calculate slope
+        : undefined; 
 
     return (
-        <tr ref={setNodeRef} style={style} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative">
-            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[40%]">
-                <div className="flex items-center gap-2">
+        <tr 
+            ref={setNodeRef} 
+            style={style} 
+            className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative overflow-visible" // Added overflow-visible so the negative left div shows
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
+            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[40%] bg-white dark:bg-black relative z-10 overflow-visible">
+                {/* Background for Swipe Action */}
+                {swipeX > 10 && (
+                    <div 
+                        className="absolute inset-y-0 bg-red-500 flex items-center justify-end pr-4 text-white font-bold z-0 pointer-events-none"
+                        style={{ 
+                            width: `${swipeX}px`, 
+                            left: `-${swipeX}px`,
+                            transition: 'none' 
+                        }}
+                    >
+                        <Trash2 size={24} />
+                    </div>
+                )}
+                
+                <div className="flex items-center gap-2 relative z-10">
                     <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 touch-none flex-shrink-0">
                         <GripVertical size={16} />
                     </button>
@@ -136,7 +193,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-1 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[25%]">
+            <td className="px-1 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[25%] bg-white dark:bg-black relative z-10">
                 <div className="flex flex-col items-center sm:items-start">
                     <div className="font-mono text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
                         {formatCurrency(data.regularMarketPrice, data.currency)}
@@ -146,8 +203,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%]" onClick={(e) => {
-                 // Prevent drag initialization when clicking directly on graph if needed, but onSelect handles the modal
+            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%] bg-white dark:bg-black relative z-10" onClick={(e) => {
                  onSelect(data);
             }}>
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-end sm:justify-start">
@@ -168,7 +224,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 </div>
             </td>
 
-            <td className="hidden sm:table-cell px-6 sm:px-6 py-4 text-center sm:text-right border-b border-gray-100 dark:border-gray-800 align-middle sm:w-[15%]">
+            <td className="hidden sm:table-cell px-6 sm:px-6 py-4 text-center sm:text-right border-b border-gray-100 dark:border-gray-800 align-middle sm:w-[15%] bg-white dark:bg-black relative z-10">
                 <div className="flex items-center justify-center sm:justify-end gap-2">
                     <button 
                          onClick={() => onOpenNews(data.shortName, data.symbol)}
@@ -222,6 +278,26 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   const [activeWatchlistId, setActiveWatchlistId] = useState<string | null>(null);
   const [newListName, setNewListName] = useState('');
   const [isCreatingList, setIsCreatingList] = useState(false);
+  const [editingListId, setEditingListId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+
+  const  startEditing = (id: string, currentName: string) => {
+      setEditingListId(id);
+      setEditName(currentName);
+  };
+
+  const handleRename = async (id: string) => {
+      if (!editName.trim()) return;
+      
+      const result = await renameWatchlist(id, editName);
+      if (result.success) {
+          setWatchlists(prev => prev.map(l => l.id === id ? { ...l, name: editName } : l));
+          setEditingListId(null);
+      } else {
+          alert('Failed to rename');
+      }
+  };
+
   
   const [sortColumn, setSortColumn] = useState<SortColumn>('custom');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
@@ -352,17 +428,24 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
       }
   };
 
-  const handleDeleteList = async (id: string) => {
-      if (confirm('Are you sure? This will delete the list and all items in it.')) {
-          const result = await deleteWatchlist(id);
-          if (result.success) {
-              const remaining = watchlists.filter(w => w.id !== id);
-              setWatchlists(remaining);
-              if (activeWatchlistId === id) {
-                  setActiveWatchlistId(remaining[0]?.id || null);
-              }
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean, listId: string | null, listName: string }>({ isOpen: false, listId: null, listName: '' });
+
+  const handleDeleteList = (id: string, name: string) => {
+      setDeleteConfirmation({ isOpen: true, listId: id, listName: name });
+  };
+
+  const confirmDeleteList = async () => {
+      if (!deleteConfirmation.listId) return;
+      
+      const result = await deleteWatchlist(deleteConfirmation.listId);
+      if (result.success) {
+          const remaining = watchlists.filter(w => w.id !== deleteConfirmation.listId);
+          setWatchlists(remaining);
+          if (activeWatchlistId === deleteConfirmation.listId) {
+              setActiveWatchlistId(remaining[0]?.id || null);
           }
       }
+      setDeleteConfirmation({ isOpen: false, listId: null, listName: '' });
   };
 
   // Fetch watchlist items
@@ -696,74 +779,123 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
   return (
     <div className="space-y-6">
-        <div className="flex flex-col gap-6 mb-8">
+        <div className="flex flex-col gap-2 mb-4">
             
-            {/* Row 1: List Tabs */}
-            <div className="flex items-center gap-3 overflow-x-auto w-full p-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-                {watchlists.map(list => (
-                    <div key={list.id} className="relative group shrink-0">
-                         <button
-                            onClick={() => setActiveWatchlistId(list.id)}
-                            className={`px-5 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                                activeWatchlistId === list.id 
-                                ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20' 
-                                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                            }`}
-                        >
-                            {list.name}
-                        </button>
-                        {/* Delete Button (Hover) */}
-                        {watchlists.length > 1 && (
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); handleDeleteList(list.id); }}
-                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm z-10"
-                                title="Delete List"
-                            >
-                                <Trash2 size={10} />
-                            </button>
-                        )}
-                    </div>
-                ))}
+
+
+            {/* Header / Toolbar */}
+            <div className="flex items-center justify-between gap-4 w-full overflow-hidden mt-8">
                 
-                {/* Add New List */}
-                {isCreatingList ? (
-                    <form 
-                        onSubmit={(e) => { e.preventDefault(); handleCreateList(); }}
-                        className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-1.5 rounded-lg shrink-0 border border-gray-200 dark:border-gray-700"
-                    >
-                        <input 
-                            type="text" 
-                            autoFocus
-                            placeholder="List Name"
-                            className="bg-transparent border-none text-sm px-2 py-1 outline-none w-32 text-gray-900 dark:text-white"
-                            value={newListName}
-                            onChange={(e) => setNewListName(e.target.value)}
-                        />
-                         <button type="submit" disabled={!newListName.trim()} className="text-green-600 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/30 p-1.5 rounded disabled:opacity-50 disabled:cursor-not-allowed">
-                            <Plus size={16}/>
-                         </button>
-                         <button type="button" onClick={() => setIsCreatingList(false)} className="text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 p-1.5 rounded">×</button>
-                    </form>
-                ) : (
-                    <button 
-                        onClick={() => setIsCreatingList(true)}
-                        className="h-[42px] px-4 rounded-lg text-sm font-medium border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-500 hover:border-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors flex items-center gap-2 shrink-0 bg-transparent"
-                    >
-                        <Plus size={16} /> 
-                        <span className="hidden sm:inline">New List</span>
-                        <span className="sm:hidden">New</span>
-                    </button>
-                )}
+                {/* Scrollable List Tabs */}
+                <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-1 mask-linear-fade">
+                    {watchlists.map(list => {
+                        if (editingListId === list.id) {
+                            return (
+                                <form 
+                                    key={list.id}
+                                    onSubmit={(e) => { e.preventDefault(); handleRename(list.id); }}
+                                    className="flex items-center gap-1 bg-white dark:bg-black px-2 py-1 rounded-full shrink-0 border border-violet-600"
+                                >
+                                    <input 
+                                        type="text" 
+                                        autoFocus
+                                        className="bg-transparent border-none text-xs outline-none w-20 text-gray-900 dark:text-white font-medium"
+                                        value={editName}
+                                        onChange={(e) => setEditName(e.target.value)}
+                                        onBlur={() => { /* Optional: save on blur or cancel? Let's just keep buttons */ }}
+                                    />
+                                    <button type="submit" className="text-green-600 p-0.5 hover:bg-green-50 rounded">
+                                        <Check size={12} />
+                                    </button>
+                                     <button type="button" onClick={() => setEditingListId(null)} className="text-red-500 p-0.5 hover:bg-red-50 rounded">
+                                        <X size={12} />
+                                    </button>
+                                </form>
+                            );
+                        }
+
+                        const isActive = activeWatchlistId === list.id;
+                        
+                        return (
+                        <div key={list.id} className="relative group shrink-0 flex items-center">
+                             <button
+                                onClick={() => setActiveWatchlistId(list.id)}
+                                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap border ${
+                                    isActive 
+                                    ? 'bg-transparent border-violet-600 text-violet-600 dark:text-violet-400' 
+                                    : 'bg-transparent border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                                }`}
+                            >
+                                <span>{list.name}</span>
+                                
+                                {isActive && (
+                                    <div className="flex items-center gap-1 ml-1 pl-2 border-l border-violet-200 dark:border-violet-800">
+                                         <span 
+                                            role="button"
+                                            onClick={(e) => { e.stopPropagation(); startEditing(list.id, list.name); }}
+                                            className="text-violet-400 hover:text-violet-600 hover:bg-violet-50 rounded p-0.5 transition-colors"
+                                            title="Rename"
+                                         >
+                                             <Pencil size={10} />
+                                         </span>
+                                         {watchlists.length > 1 && (
+                                             <span 
+                                                role="button"
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteList(list.id, list.name); }}
+                                                className="text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded p-0.5 transition-colors"
+                                                title="Delete"
+                                             >
+                                                 <Trash2 size={10} />
+                                             </span>
+                                         )}
+                                    </div>
+                                )}
+                            </button>
+                        </div>
+                    )})}
+                    
+                    {/* New List Trigger */}
+                     {isCreatingList ? (
+                        <form 
+                            onSubmit={(e) => { e.preventDefault(); handleCreateList(); }}
+                            className="flex items-center gap-1 bg-white dark:bg-black px-2 py-1 rounded-full shrink-0 border border-violet-600 animate-in fade-in slide-in-from-left-2"
+                        >
+                            <input 
+                                type="text" 
+                                autoFocus
+                                placeholder="Name"
+                                className="bg-transparent border-none text-xs outline-none w-16 text-gray-900 dark:text-white placeholder:text-gray-400"
+                                value={newListName}
+                                onChange={(e) => setNewListName(e.target.value)}
+                            />
+                             <button type="submit" disabled={!newListName.trim()} className="text-green-600 hover:text-green-700 p-0.5 disabled:opacity-50">
+                                <Plus size={12}/>
+                             </button>
+                             <button type="button" onClick={() => setIsCreatingList(false)} className="text-gray-400 hover:text-gray-600 p-0.5">
+                                <X size={12} />
+                             </button>
+                        </form>
+                    ) : (
+                        <button 
+                            onClick={() => setIsCreatingList(true)}
+                            className="p-1.5 text-gray-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-full transition-colors shrink-0"
+                            title="Create New List"
+                        >
+                            <Plus size={16} /> 
+                        </button>
+                    )}
+                </div>
+
             </div>
 
-            {/* Row 2: Actions */}
-            <div className="flex items-center">
+            {/* Row 2: Add Symbol Action */}
+            <div className="flex justify-end px-1">
                  <button 
                     onClick={() => setIsSearchOpen(true)}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/20 font-medium text-sm transform hover:-translate-y-0.5 active:translate-y-0"
+                    className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/20 hover:bg-violet-700 transition-all hover:scale-105 active:scale-95"
+                    title="Add Symbol"
                  >
-                    <Plus size={18} strokeWidth={2.5} />
-                    <span>Add Symbol</span>
+                    <Plus size={18} />
                  </button>
             </div>
         </div>
@@ -1045,6 +1177,39 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                         watchlistId={activeWatchlistId ?? undefined} 
                         onAdd={() => fetchWatchlist(true)}
                     />
+                </div>
+            </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteConfirmation.isOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm p-6 border border-gray-100 dark:border-gray-800 scale-100 animate-in zoom-in-95 duration-200">
+                    <div className="flex flex-col items-center text-center gap-4">
+                        <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <div className="space-y-2">
+                             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Delete "{deleteConfirmation.listName}"?</h3>
+                             <p className="text-sm text-gray-500 dark:text-gray-400">
+                                This action cannot be undone. All items in this watchlist will be permanently removed.
+                             </p>
+                        </div>
+                        <div className="flex gap-3 w-full mt-2">
+                            <button 
+                                onClick={() => setDeleteConfirmation({ isOpen: false, listId: null, listName: '' })}
+                                className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={confirmDeleteList}
+                                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         )}

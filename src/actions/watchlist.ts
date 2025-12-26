@@ -25,6 +25,7 @@ export async function createWatchlist(name: string, region: string = 'IN') {
   }
 }
 
+
 export async function deleteWatchlist(watchlistId: string) {
     const { userId } = await auth();
     if (!userId) return { success: false, error: 'Unauthorized' };
@@ -39,6 +40,23 @@ export async function deleteWatchlist(watchlistId: string) {
     } catch (error) {
       console.error('Delete list failed:', error);
       return { success: false, error: 'Failed to delete watchlist' };
+    }
+}
+
+export async function renameWatchlist(watchlistId: string, newName: string) {
+    const { userId } = await auth();
+    if (!userId) return { success: false, error: 'Unauthorized' };
+
+    try {
+        await prisma.watchlist.update({
+            where: { id: watchlistId, userId },
+            data: { name: newName }
+        });
+        revalidatePath('/watchlist');
+        return { success: true };
+    } catch (error) {
+        console.error('Rename list failed:', error);
+        return { success: false, error: 'Failed to rename watchlist' };
     }
 }
 

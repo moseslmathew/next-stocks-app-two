@@ -83,8 +83,8 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
         textColor: '#9ca3af',
       },
       grid: {
-        vertLines: { color: 'rgba(156, 163, 175, 0.15)', style: LineStyle.Solid },
-        horzLines: { color: 'rgba(42, 46, 57, 0.1)', style: LineStyle.Dotted },
+        vertLines: { visible: false },
+        horzLines: { visible: false },
       },
       width: chartContainerRef.current.clientWidth,
       height: chartContainerRef.current.clientHeight,
@@ -94,11 +94,33 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
       timeScale: {
         timeVisible: true,
         secondsVisible: false,
-        borderVisible: false,
-        fixLeftEdge: false,
+        borderVisible: true,
+        borderColor: '#2a2e39',
+        fixLeftEdge: true, // Prevent start label trimming
         fixRightEdge: false,
-        // Give a small right offset? No, user wants consistent scaling.
         rightOffset: 0,
+        tickMarkFormatter: (time: number, tickMarkType: TickMarkType, locale: string) => {
+             const date = new Date(time * 1000);
+             const options: Intl.DateTimeFormatOptions = timezone ? { timeZone: timezone } : {};
+
+             // Show Date + Time for the session start tick (1D view)
+             // Use loose equality (within 5 mins) to catch the first tick
+             if (rangeRef.current && Math.abs(time - rangeRef.current.from) < 300) {
+                 return date.toLocaleString(locale, { ...options, month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+             }
+
+             if (tickMarkType === TickMarkType.DayOfMonth || tickMarkType === TickMarkType.Month || tickMarkType === TickMarkType.Year) {
+                  const showYear = ['1y', '2y', '5y', 'max'].includes(visibleRange || '');
+                  return date.toLocaleDateString(locale, {
+                      ...options,
+                      month: 'short',
+                      day: 'numeric',
+                      year: showYear ? '2-digit' : undefined
+                  });
+             }
+
+             return date.toLocaleTimeString(locale, { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
+        },
       },
       rightPriceScale: {
         minimumWidth: 55, // Optimized width to save space
@@ -223,35 +245,42 @@ export const TradingViewChart = forwardRef<TradingViewChartHandle, TradingViewCh
 
     // Intraday (1d) or Short term (1w) -> Show Time
     const isIntraday = visibleRange === '1d' || visibleRange === '1w';
+    
+    // Force fixLeftEdge and custom formatter update
+    if (chartRef.current) {
+        chartRef.current.applyOptions({
+            timeScale: {
+                fixLeftEdge: true,
+                tickMarkFormatter: (time: number, tickMarkType: TickMarkType, locale: string) => {
+                    const date = new Date(time * 1000);
+                    const options: Intl.DateTimeFormatOptions = timezone ? { timeZone: timezone } : {};
 
-    chartRef.current.applyOptions({
-        timeScale: {
-            tickMarkFormatter: (time: number, tickMarkType: TickMarkType, locale: string) => {
-                const date = new Date(time * 1000);
-                const options: Intl.DateTimeFormatOptions = { timeZone: timezone };
+                    // Show Compact Date + Time for the session start tick
+                    // Tolerance 20 mins to catch the first available tick near start
+                    if (rangeRef.current && Math.abs(time - rangeRef.current.from) < 1200) {
+                         const day = date.getDate();
+                         const month = date.toLocaleString('default', { month: 'short' });
+                         const timeStr = date.toLocaleTimeString(locale, { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
+                         return `${day} ${month} ${timeStr}`;
+                    }
 
-                // Show Date for the session start tick (1D view)
-                if (rangeRef.current && time === rangeRef.current.from) {
-                    return date.toLocaleDateString(locale, { ...options, day: 'numeric', month: 'short' });
+                    if (tickMarkType === TickMarkType.DayOfMonth || tickMarkType === TickMarkType.Month || tickMarkType === TickMarkType.Year) {
+                         const showYear = ['1y', '2y', '5y', 'max'].includes(visibleRange || '');
+                         return date.toLocaleDateString(locale, {
+                             ...options,
+                             month: 'short',
+                             day: 'numeric',
+                             year: showYear ? '2-digit' : undefined
+                         });
+                    }
+
+                    return date.toLocaleTimeString(locale, { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
                 }
+            }
+        });
+    }
 
-                // Use TickMarkType to decide format (Day vs Time)
-                if (tickMarkType === TickMarkType.DayOfMonth || tickMarkType === TickMarkType.Month || tickMarkType === TickMarkType.Year) {
-                     // Include Year if range is long (> 3m) or explicitly requested
-                     const showYear = ['1y', '2y', '5y', 'max'].includes(visibleRange || '');
-                     return date.toLocaleDateString(locale, {
-                         ...options,
-                         month: 'short',
-                         day: 'numeric',
-                         year: showYear ? '2-digit' : undefined
-                     });
-                }
-
-                return date.toLocaleTimeString(locale, { ...options, hour: '2-digit', minute: '2-digit', hour12: false });
-            },
-        }
-    });
-  }, [visibleRange, timezone]);
+  }, [visibleRange, timezone, initialVisibleRange]);
 
   useEffect(() => {
     if (chartRef.current) {

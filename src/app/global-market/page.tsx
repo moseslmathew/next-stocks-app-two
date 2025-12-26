@@ -60,60 +60,62 @@ export default async function GlobalMarketPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-        <div>
-           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Global Markets</h1>
-           </div>
-          <p className="text-gray-600 dark:text-gray-400">
-            Real-time updates from major stock exchanges around the world.
-          </p>
-        </div>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
 
       <div className="space-y-12">
         <section>
-            <div className="flex items-center gap-3 mb-6">
-                <img 
-                    src="https://flagcdn.com/w40/in.png" 
-                    alt="India"
-                    className="w-6 h-4 rounded shadow-sm object-cover"
-                />
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Indian Indices</h2>
-            </div>
-            <LiveMarketTable initialData={indianData} symbols={indianSymbols} />
+            <LiveMarketTable 
+                initialData={indianData} 
+                symbols={indianSymbols} 
+                title={
+                    <div className="flex items-center gap-3">
+                        <img 
+                            src="https://flagcdn.com/w40/in.png" 
+                            alt="India"
+                            className="w-6 h-4 rounded shadow-sm object-cover"
+                        />
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Indian Indices</h2>
+                    </div>
+                }
+            />
         </section>
 
         <section>
-             <div className="flex items-center gap-3 mb-6">
-                <Globe className="w-5 h-5 text-gray-500" />
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">International Markets</h2>
-            </div>
-            <LiveMarketTable initialData={globalData} symbols={globalSymbols} />
+            <LiveMarketTable 
+                initialData={globalData} 
+                symbols={globalSymbols}
+                title={
+                    <div className="flex items-center gap-3">
+                        <Globe className="w-5 h-5 text-gray-500" />
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">International Markets</h2>
+                    </div>
+                }
+            />
         </section>
 
         <section>
-             <div className="flex items-center gap-3 mb-6">
-                <div className="w-5 h-5 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 font-bold text-xs">
-                    $
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Commodities & Crypto</h2>
-            </div>
-            
-            {/* Indian Gold Rates Section */}
-            {(goldRateProps.price1g22k || goldRateProps.spotPriceInr) && (
-                <div className="mb-8">
-                    <GoldRates 
-                        {...goldRateProps}
-                    />
-                </div>
-            )}
-
-            <LiveMarketTable initialData={commodityTableData} symbols={commoditySymbols.filter(s => s !== 'USDINR=X')} />
+            <LiveMarketTable 
+                initialData={commodityTableData} 
+                symbols={commoditySymbols.filter(s => s !== 'USDINR=X')}
+                title={
+                    <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 font-bold text-xs">
+                            $
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Commodities & Crypto</h2>
+                    </div>
+                }
+            >
+                 {/* Indian Gold Rates Section */}
+                {(goldRateProps.price1g22k || goldRateProps.spotPriceInr) && (
+                    <div className="mb-6 mt-2">
+                        <GoldRates 
+                            {...goldRateProps}
+                        />
+                    </div>
+                )}
+            </LiveMarketTable>
         </section>
       </div>
     </div>

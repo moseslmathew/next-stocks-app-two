@@ -23,7 +23,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
   const [internalData, setInternalData] = React.useState<{ price: number[], volume: number[], timestamps: number[], quoteType?: string } | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [activeData, setActiveData] = React.useState<{ price: number, volume: number, timestamp: number, x?: number, y?: number, chartWidth?: number } | null>(null);
-  const [showVolume, setShowVolume] = React.useState(true);
+  const [showVolume, setShowVolume] = React.useState(false);
   const [selectionMode, setSelectionMode] = React.useState<'point' | 'area'>('point');
   const [selectionStats, setSelectionStats] = React.useState<{ change: number; percent: number; startTime: number; endTime: number } | null>(null);
   const [showMoreMenu, setShowMoreMenu] = React.useState(false);
@@ -175,31 +175,27 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
      }
      if (!foundGap) startIndex = 0; // If no gap, assume start of data is session start (unlikely for 7d history but safe fallback)
 
-     // 2. Filter Pre-Market Data (Crucial for US Stocks where data starts at 4:00 AM)
+      // 2. Filter Pre-Market Data (Crucial for US Stocks)
      if (!isIndian) {
-         // US Market Open is 13:30 UTC (Summer) or 14:30 UTC (Winter).
-         // We must strictly filter out pre-market data (< 9:30 AM) to match user request.
-         const month = new Date().getMonth();
-         const isSummer = month > 2 && month < 10; 
-         const marketOpenHour = isSummer ? 13 : 14;
-
          let currentP = startIndex;
          while (currentP < tvPriceData.length - 1) {
              const d = new Date(tvPriceData[currentP].time * 1000);
-             const h = d.getUTCHours();
-             const m = d.getUTCMinutes();
+             // Use Intl to parse New York time reliably (handles DST automatically)
+             const parts = new Intl.DateTimeFormat('en-US', {
+                 timeZone: 'America/New_York',
+                 hour: 'numeric',
+                 minute: 'numeric',
+                 hour12: false
+             }).formatToParts(d);
              
-             // Skip if before Market Open Hour
-             if (h < marketOpenHour) {
+             const h = parseInt(parts.find(p => p.type === 'hour')?.value || '0');
+             const m = parseInt(parts.find(p => p.type === 'minute')?.value || '0');
+             
+             // Market Open is 09:30 NY Time
+             if (h < 9 || (h === 9 && m < 30)) {
                  currentP++;
                  continue;
              }
-             // Skip if in Market Open Hour but minutes < 30
-             if (h === marketOpenHour && m < 30) {
-                 currentP++;
-                 continue;
-             }
-             // If we reach here, we are >= 9:30 AM
              break;
          }
          startIndex = currentP;
@@ -254,6 +250,7 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
       }
       return date.toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric' });
   };
+
 
   // Fixed Header Logic (Ignore Hover)
   const currentPrice = propCurrentPrice ?? (latestData?.price || 0);
@@ -364,70 +361,61 @@ export function ChartModal({ isOpen, onClose, symbol, priceData, volumeData, tim
                           <span className="hidden sm:inline">Volume</span>
                       </button>
 
-                       {/* More Menu Toggle */}
-                       <button 
-                          onClick={(e) => { e.stopPropagation(); setShowMoreMenu(!showMoreMenu); }}
-                          className={`
-                              flex shrink-0 items-center justify-center w-8 h-8 rounded-xl transition-all border
-                              ${showMoreMenu
-                                  ? 'bg-[#7C3AED] text-white border-transparent'
-                                  : 'bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}
-                          `}
-                       >
-                           <MoreHorizontal size={18} />
-                       </button>
-
-                       {/* More Dropdown Menu */}
-                       {showMoreMenu && (
-                           <>
-                           <div className="fixed inset-0 z-10" onClick={() => setShowMoreMenu(false)} />
-                           <div className="absolute right-0 top-full mt-2 z-20 w-36 bg-white dark:bg-[#1a1a1a] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 p-1 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
-                               <div className="text-[10px] font-bold text-gray-400 px-2 py-1 uppercase tracking-wider">Selection Mode</div>
-                               <button
-                                   onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); setShowMoreMenu(false); }}
-                                   className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium transition-colors ${selectionMode === 'point' ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                               >
-                                   <MousePointer size={14} />
-                                   <span>Pointer</span>
-                                   {selectionMode === 'point' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500" />}
-                               </button>
-                               <button
-                                   onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); setShowMoreMenu(false); }}
-                                   className={`w-full flex items-center gap-2 px-2 py-2 rounded-lg text-xs font-medium transition-colors ${selectionMode === 'area' ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'}`}
-                               >
-                                   <BoxSelect size={14} />
-                                   <span>Area Select</span>
-                                   {selectionMode === 'area' && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-500" />}
-                               </button>
-                           </div>
-                           </>
-                       )}
                    </div>
+            </div>
+
+            {/* Sub-controls Row: Selection Modes */}
+            <div className="flex flex-row items-center w-full px-4 mb-2 gap-2">
+                 <div className="flex items-center bg-gray-50 dark:bg-white/5 p-0.5 rounded-xl">
+                      <button
+                           onClick={(e) => { e.stopPropagation(); setSelectionMode('point'); }}
+                           className={`
+                               flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                               ${selectionMode === 'point' 
+                                   ? 'bg-white dark:bg-white/10 text-violet-600 dark:text-violet-400 shadow-sm' 
+                                   : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}
+                           `}
+                       >
+                           <MousePointer size={14} />
+                           <span>Pointer</span>
+                       </button>
+                       <button
+                           onClick={(e) => { e.stopPropagation(); setSelectionMode('area'); }}
+                           className={`
+                               flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                               ${selectionMode === 'area' 
+                                   ? 'bg-white dark:bg-white/10 text-violet-600 dark:text-violet-400 shadow-sm' 
+                                   : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}
+                           `}
+                       >
+                           <BoxSelect size={14} />
+                           <span>Select</span>
+                       </button>
+                 </div>
             </div>
 
             <div className="flex-1 w-full pl-4 pr-0 py-2 sm:p-6 mb-8 min-h-0">
                 <div className="relative w-full h-full bg-transparent group">
-                {isLoading && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 dark:bg-[#0a0a0a]/40 backdrop-blur-[1px] animate-in fade-in duration-200">
+                {isLoading ? (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white dark:bg-[#0a0a0a] animate-in fade-in duration-200">
                         <Loader2 size={32} className="text-blue-500 animate-spin" />
                     </div>
+                ) : (
+                    <TradingViewChart 
+                        ref={chartRef}
+                        data={tvPriceData}
+                        volumeData={tvVolumeData}
+                        chartColor={chartColor}
+                        showVolume={showVolume}
+                        referencePrice={referencePrice}
+                        visibleRange={activeRange}
+                        initialVisibleRange={initialVisibleRange}
+                        // timezone={...} // Removed to use local system time (Indian Time for user)
+                        onCrosshairMove={setActiveData}
+                        onSelectionChange={setSelectionStats}
+                        selectionMode={selectionMode}
+                    />
                 )}
-                
-
-                <TradingViewChart 
-                    ref={chartRef}
-                    data={tvPriceData}
-                    volumeData={tvVolumeData}
-                    chartColor={chartColor}
-                    showVolume={showVolume}
-                    referencePrice={referencePrice}
-                    visibleRange={activeRange}
-                    initialVisibleRange={initialVisibleRange}
-                    // timezone={...} // Removed to use local system time (Indian Time for user)
-                    onCrosshairMove={setActiveData}
-                    onSelectionChange={setSelectionStats}
-                    selectionMode={selectionMode}
-                />
                 {/* Floating Header (Pointer or Selection Stats) */}
                 {(activeData?.x !== undefined || selectionStats) && (
                      <>
