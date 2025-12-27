@@ -31,101 +31,81 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
     let historyMap: Map<string, { sparkline: number[], volumeSparkline: number[], timestamps: number[] }> = new Map();
 
     if (includeHistory) {
-      const chunkArray = (arr: string[], size: number) => {
-          return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
-              arr.slice(i * size, i * size + size)
-          );
-      };
+      const historyPromises = symbols.map(async (symbol) => {
+          try {
+              const now = new Date();
+              let queryOptions: any = {};
 
-      const chunks = chunkArray(symbols, 5);
-      const allHistories: { symbol: string, sparkline: number[], volumeSparkline: number[], timestamps: number[] }[] = [];
+              // Default standard interval
+              let interval = '5m';
+              let rangeStr = range;
 
-      for (const chunk of chunks) {
-          const chunkPromises = chunk.map(async (symbol) => {
-              try {
-                  const now = new Date();
-                  let queryOptions: any = {};
-                  let filterLastSession = false;
-
-                  if (range === '1d') {
-                      const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days back to find last session
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '2m' };
-                      filterLastSession = !keepPreviousSessions;
-                  } else if (range === '7d' || range === '1w') {
-                      const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
-                  } else if (range === '1m') {
-                      const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '60m' };
-                  } else if (range === '3m') {
-                      const startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                  } else if (range === '1y' || range === '52w') {
-                      const startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                  } else if (range === '2y') {
-                      const startDate = new Date(now.getTime() - 2 * 365 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                  } else if (range === '3y') {
-                      const startDate = new Date(now.getTime() - 3 * 365 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                  } else if (range === '5y') {
-                      const startDate = new Date(now.getTime() - 5 * 365 * 24 * 60 * 60 * 1000);
-                      queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
-                  } else if (range === 'max') {
-                      queryOptions = { period1: '1980-01-01', interval: '1wk' };
-                  } else {
-                       // Default fallback
-                       const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                       queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '2m' };
-                  }
-
-                  const result = await yahooFinance.chart(symbol, queryOptions);
-                  const chartData = result as any;
-                  console.log(`[MarketData] Fetched ${symbol} range=${range} quotes=${chartData?.quotes?.length} keepPrev=${keepPreviousSessions} filter=${filterLastSession}`);
+              if (range === '1d') {
+                  const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); 
+                  queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m', includePrePost: false };
+              } else if (range === '7d' || range === '1w') {
+                  const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                  queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };
+              } else if (range === '1m') {
+                  const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                  queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '60m' };
+              } else if (['3m', '1y', '52w', '2y', '3y', '5y'].includes(range)) {
+                  let days = 365;
+                  if (range === '3m') days = 90;
+                  if (range === '2y') days = 730;
+                  if (range === '3y') days = 1095;
+                  if (range === '5y') days = 1825;
                   
-                  if (!chartData || !chartData.quotes || chartData.quotes.length === 0) {
-                       return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };
-                  }
-
-                  let quotes = chartData.quotes;
-
-                  // if (filterLastSession) {
-                  //    const lastQuote = quotes[quotes.length - 1];
-                  //    if (lastQuote && lastQuote.date) {
-                  //        const lastDate = new Date(lastQuote.date);
-                  //        const lastDayStr = lastDate.toISOString().split('T')[0];
-                  //        const filtered = quotes.filter((q: any) => new Date(q.date).toISOString().split('T')[0] === lastDayStr);
-                  //        // Only apply filter if it creates a valid sparkline (>1 point), else fallback to show multi-day context
-                  //        if (filtered.length > 1) {
-                  //            quotes = filtered;
-                  //        }
-                  //    }
-                  // }
-
-                  return { 
-                      symbol, 
-                      sparkline: quotes
-                        .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
-                        .map((q: any) => q.close),
-                      volumeSparkline: quotes
-                        .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
-                        .map((q: any) => q.volume || 0), // Use 0 if volume missing but close exists
-                      timestamps: quotes
-                        .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
-                        .map((q: any) => new Date(q.date).getTime())
-                  };
-              } catch (e) {
-                  // Don't log expected errors for crypto/etc if they don't support period1
-                  // console.error(`Failed to fetch history for ${symbol} (${range}):`, e);
-                  return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };
+                  const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+                  queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1d' };
+              } else if (range === 'max') {
+                  queryOptions = { period1: '1980-01-01', interval: '1wk' };
+              } else {
+                  // Fallback
+                  const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                  queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m', includePrePost: false };
               }
-          });
 
-          const chunkResults = await Promise.all(chunkPromises);
-          allHistories.push(...chunkResults);
-      }
+              const result = await yahooFinance.chart(symbol, queryOptions);
+              const chartData = result as any;
+              
+              const quotesOrigin = chartData.quotes;
+              let quotes = quotesOrigin;
 
+              // Filter for '1d' to only show the last trading session (Today)
+              if (range === '1d' && quotes && quotes.length > 0) {
+                   const lastQuote = quotes[quotes.length - 1];
+                   if (lastQuote && lastQuote.date) {
+                       const lastDate = new Date(lastQuote.date);
+                       // Filter to keep only points from the same UTC day as the last point
+                       // This works well for US and Indian markets which are within a single UTC day
+                       quotes = quotes.filter((q: any) => {
+                           const qDate = new Date(q.date);
+                           return qDate.getUTCDate() === lastDate.getUTCDate() &&
+                                  qDate.getUTCMonth() === lastDate.getUTCMonth() &&
+                                  qDate.getUTCFullYear() === lastDate.getUTCFullYear();
+                       });
+                   }
+              }
+
+              return { 
+                  symbol, 
+                  sparkline: quotes
+                    .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
+                    .map((q: any) => q.close),
+                  volumeSparkline: quotes
+                    .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
+                    .map((q: any) => q.volume || 0),
+                  timestamps: quotes
+                    .filter((q: any) => typeof q.close === 'number' && !isNaN(new Date(q.date).getTime()))
+                    .map((q: any) => new Date(q.date).getTime())
+              };
+          } catch (e) {
+              return { symbol, sparkline: [], volumeSparkline: [], timestamps: [] };
+          }
+      });
+
+      const allHistories = await Promise.all(historyPromises);
       historyMap = new Map(allHistories.map(h => [h.symbol, { sparkline: h.sparkline, volumeSparkline: h.volumeSparkline, timestamps: h.timestamps }]));
     }
 
