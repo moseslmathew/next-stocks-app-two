@@ -86,10 +86,9 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
         return (num * 100).toFixed(2) + '%';
     };
 
-    const StatItem = ({ label, value, icon: Icon, subValue }: { label: string, value: string | number, icon?: any, subValue?: string }) => (
+    const StatItem = ({ label, value, subValue }: { label: string, value: string | number, subValue?: string }) => (
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
-            {Icon && <Icon size={16} className="text-violet-500/70" />}
             <span className="truncate">{label}</span>
             <button 
                 onClick={() => setSelectedMetric(label)}
@@ -118,21 +117,20 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
         <>
             <section className="py-2">
                 <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
-                    <Activity className="text-violet-600" size={16} />
-                    Fundamentals
+                    FUNDAMENTALS
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
                     <div className="space-y-0"> 
-                        <StatItem label="Market Cap" value={formatLargeNumber(stock.marketCap)} icon={PieChart} />
-                        <StatItem label="P/E Ratio" value={stock.peRatio ? stock.peRatio.toFixed(2) : '---'} subValue={stock.forwardPE ? `Fwd: ${stock.forwardPE.toFixed(2)}` : undefined} icon={BarChart3} />
-                        <StatItem label="EPS (TTM)" value={stock.eps ? stock.eps.toFixed(2) : '---'} icon={DollarSign} />
-                        <StatItem label="Beta" value={stock.beta ? stock.beta.toFixed(2) : '---'} icon={Activity} />
+                        <StatItem label="Market Cap" value={formatLargeNumber(stock.marketCap)} />
+                        <StatItem label="P/E Ratio" value={stock.peRatio ? stock.peRatio.toFixed(2) : '---'} subValue={stock.forwardPE ? `Fwd: ${stock.forwardPE.toFixed(2)}` : undefined} />
+                        <StatItem label="EPS (TTM)" value={stock.eps ? stock.eps.toFixed(2) : '---'} />
+                        <StatItem label="Beta" value={stock.beta ? stock.beta.toFixed(2) : '---'} />
                     </div>
                     <div className="space-y-0">
-                        <StatItem label="Div Yield" value={formatPercent(stock.dividendYield)} icon={PieChart} />
-                        <StatItem label="Profit Margin" value={formatPercent(stock.profitMargins)} icon={BarChart3} />
-                        <StatItem label="ROE" value={formatPercent(stock.roe)} icon={Activity} />
-                        <StatItem label="52 Week Range" value={`${stock.fiftyTwoWeekLow?.toLocaleString() || '---'} - ${stock.fiftyTwoWeekHigh?.toLocaleString() || '---'}`} icon={Activity} />
+                        <StatItem label="Div Yield" value={formatPercent(stock.dividendYield)} />
+                        <StatItem label="Profit Margin" value={formatPercent(stock.profitMargins)} />
+                        <StatItem label="ROE" value={formatPercent(stock.roe)} />
+                        <StatItem label="52 Week Range" value={`${stock.fiftyTwoWeekLow?.toLocaleString() || '---'} - ${stock.fiftyTwoWeekHigh?.toLocaleString() || '---'}`} />
                     </div>
                 </div>
             </section>
