@@ -114,10 +114,10 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
 
     return (
         <>
-            <section className="bg-gray-50 dark:bg-gray-900/30 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-                <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-                    <Activity className="text-violet-600" size={20} />
-                    Key Fundamentals
+            <section className="py-2">
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
+                    <Activity className="text-violet-600" size={16} />
+                    Fundamentals
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4">
                     <StatItem 
