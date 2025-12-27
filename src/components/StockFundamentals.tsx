@@ -135,22 +135,24 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                 </div>
 
                 {/* 52 Week Range Bar */}
-                <div className="mt-6 pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
-                    <div className="flex items-center justify-between mb-2">
-                         <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">52 Week Range</div>
+                <div className="mt-8 pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
+                    <div className="flex items-center justify-between mb-3">
+                         <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">52 Week Range</span>
                     </div>
-                    <div className="relative h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <div 
-                           className="absolute top-0 bottom-0 w-2 h-full bg-gray-900 dark:bg-gray-100 rounded-full transition-all duration-500 shadow-sm"
-                           style={{
-                               left: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`,
-                               transform: 'translateX(-50%)' 
-                           }}
-                        />
-                    </div>
-                    <div className="flex justify-between mt-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                        <span>Low: {stock.fiftyTwoWeekLow?.toLocaleString()}</span>
-                        <span>High: {stock.fiftyTwoWeekHigh?.toLocaleString()}</span>
+                    
+                    <div className="flex items-center gap-4 text-xs font-semibold text-gray-900 dark:text-gray-100">
+                        <span>{stock.fiftyTwoWeekLow?.toLocaleString()}</span>
+                        <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full flex-1 overflow-visible">
+                            {/* Current Price Marker */}
+                            <div 
+                                className="absolute top-1/2 w-3 h-3 bg-violet-600 dark:bg-violet-400 rounded-full shadow-lg ring-4 ring-white dark:ring-gray-950 z-10 transition-all duration-500"
+                                style={{
+                                    left: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`,
+                                    transform: 'translate(-50%, -50%)' 
+                                }}
+                            />
+                        </div>
+                        <span>{stock.fiftyTwoWeekHigh?.toLocaleString()}</span>
                     </div>
                 </div>
             </section>
