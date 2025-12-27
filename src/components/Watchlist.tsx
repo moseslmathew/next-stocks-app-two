@@ -1263,19 +1263,20 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
         )}
         {/* Undo Toast */}
         {removedItem && (
-            <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-gray-400 px-4 py-2 rounded-full shadow-lg shadow-black/5 flex items-center gap-2 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto ring-1 ring-black/5">
-                <span className="text-xs sm:text-sm font-medium pl-1">Deleted <span className="text-gray-900 dark:text-gray-200">{removedItem.data.symbol}</span></span>
+            <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] bg-gray-900/90 dark:bg-black/90 backdrop-blur-xl border border-white/10 text-white px-5 py-3 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
+                <span className="text-sm font-medium">Deleted <span className="font-bold text-gray-200">{removedItem.data.symbol}</span></span>
+                <div className="h-4 w-px bg-white/20 mx-1" />
                 <button 
                     onClick={handleUndo}
-                    className="ml-2 text-xs sm:text-sm font-bold text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/30 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors px-3 py-1 rounded-lg"
+                    className="text-sm font-bold text-violet-400 hover:text-violet-300 transition-colors"
                 >
                     Undo
                 </button>
                 <button 
                     onClick={() => setRemovedItem(null)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="text-gray-500 hover:text-gray-300 transition-colors ml-1 p-0.5"
                 >
-                    <X size={14} />
+                    <X size={16} />
                 </button>
             </div>
         )}
