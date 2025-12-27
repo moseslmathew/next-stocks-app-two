@@ -3,5 +3,5 @@
 
 export const DEMO_CREDENTIALS = {
   email: 'trade@test.com',
-  password: 'password'
+  password: 'nubzok-6Bodpy-susrix'
 };
