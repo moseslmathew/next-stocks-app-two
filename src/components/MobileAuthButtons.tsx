@@ -77,13 +77,13 @@ const MobileAuthButtons = () => {
             <button 
                 onClick={handleGuestLogin}
                 disabled={isLoadingGuest}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-900/10 text-violet-600 dark:text-violet-300 text-xs font-medium border border-violet-100 dark:border-violet-800"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-violet-50 dark:bg-violet-900/10 text-violet-600 dark:text-violet-300 text-xs font-medium border border-violet-100 dark:border-violet-800 whitespace-nowrap"
             >
-                {isLoadingGuest ? <Loader2 size={14} className="animate-spin" /> : <UserCircle size={14} />}
+                {isLoadingGuest ? <Loader2 size={14} className="animate-spin" /> : <UserCircle size={14} className="hidden sm:block" />}
                 Guest
             </button>
             <SignInButton mode="modal">
-            <button className="px-3 py-1.5 rounded-full bg-violet-600 text-white text-xs font-medium whitespace-nowrap">
+            <button className="px-3 py-1.5 rounded-full bg-violet-600 text-white text-xs font-medium whitespace-nowrap shadow-sm">
                 Sign In
             </button>
             </SignInButton>
