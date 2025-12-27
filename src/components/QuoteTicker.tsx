@@ -92,21 +92,26 @@ export default function QuoteTicker() {
                                 Know More
                             </button>
                         ) : (
-                            <div className="relative overflow-hidden mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-lg border border-gray-100 dark:border-zinc-800 text-left w-full animate-in slide-in-from-top-2 fade-in duration-300">
+                            <div className="relative overflow-hidden mt-2 text-sm text-gray-800 dark:text-gray-200 bg-white/60 dark:bg-zinc-900/60 backdrop-blur-xl p-5 rounded-xl border border-white/60 dark:border-white/10 shadow-xl shadow-black/5 dark:shadow-black/20 text-left w-full animate-in slide-in-from-top-2 fade-in duration-500 group ring-1 ring-white/50 dark:ring-white/5">
                                 
+                                {/* Glass Reflection Gradients */}
+                                <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-90" />
+                                <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-white/80 to-transparent opacity-90" />
+                                <div className="absolute -top-12 -left-12 w-24 h-24 bg-violet-500/10 rounded-full blur-3xl pointer-events-none" />
+
                                 {/* Author Watermark Image */}
                                 {AUTHOR_IMAGES[quote.author] && (
-                                    <div className="absolute -right-2 -bottom-2 w-24 h-24 opacity-[0.15] dark:opacity-[0.25] pointer-events-none select-none grayscale mix-blend-multiply dark:mix-blend-screen">
+                                    <div className="absolute -right-4 -bottom-4 w-32 h-32 opacity-[0.1] dark:opacity-[0.15] pointer-events-none select-none grayscale mix-blend-multiply dark:mix-blend-screen transition-transform duration-700 group-hover:scale-105">
                                         <img 
                                             src={AUTHOR_IMAGES[quote.author]} 
                                             alt="" 
-                                            className="w-full h-full object-cover object-top rounded-full blur-[0.5px]"
-                                            style={{ maskImage: 'radial-gradient(circle, black 40%, transparent 80%)' }}
+                                            className="w-full h-full object-cover object-top rounded-full blur-[1px]"
+                                            style={{ maskImage: 'radial-gradient(circle, black 40%, transparent 70%)' }}
                                         />
                                     </div>
                                 )}
 
-                                <p className="relative z-10">{quote.explanation}</p>
+                                <p className="relative z-10 font-medium leading-relaxed drop-shadow-sm">{quote.explanation}</p>
                             </div>
                         )}
                     </div>
