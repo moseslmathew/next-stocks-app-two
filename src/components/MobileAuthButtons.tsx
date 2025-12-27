@@ -14,8 +14,22 @@ const MobileAuthButtons = () => {
     
     setIsLoadingGuest(true);
     try {
-      const { status, createdSessionId } = await signIn.create({
+      const { status: createStatus, supportedFirstFactors } = await signIn.create({
         identifier: DEMO_CREDENTIALS.email,
+      });
+
+      if (createStatus !== "needs_first_factor") {
+         throw new Error(`Unexpected status after create: ${createStatus}`);
+      }
+
+      const passwordFactor = supportedFirstFactors?.find((factor: any) => factor.strategy === 'password') as any;
+
+      if (!passwordFactor) {
+          throw new Error("Password login is not enabled for this user.");
+      }
+
+      const { status, createdSessionId } = await signIn.attemptFirstFactor({
+        strategy: 'password',
         password: DEMO_CREDENTIALS.password,
       });
 

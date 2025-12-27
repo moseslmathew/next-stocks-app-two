@@ -16,8 +16,25 @@ const AuthButtons = () => {
     
     setIsLoadingGuest(true);
     try {
-      const { status, createdSessionId } = await signIn.create({
+      // 1. Start the sign-in process with just the email
+      const { status: createStatus, supportedFirstFactors } = await signIn.create({
         identifier: DEMO_CREDENTIALS.email,
+      });
+
+      if (createStatus !== "needs_first_factor") {
+         // Should not happen for a password user, but handle edge cases (e.g. if already verified?)
+         throw new Error(`Unexpected status after create: ${createStatus}`);
+      }
+
+      // 2. Attempt the password strategy
+      const passwordFactor = supportedFirstFactors?.find((factor: any) => factor.strategy === 'password') as any;
+
+      if (!passwordFactor) {
+          throw new Error("Password login is not enabled for this user.");
+      }
+
+      const { status, createdSessionId } = await signIn.attemptFirstFactor({
+        strategy: 'password',
         password: DEMO_CREDENTIALS.password,
       });
 
