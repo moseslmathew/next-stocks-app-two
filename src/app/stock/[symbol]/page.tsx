@@ -4,8 +4,14 @@ import { ArrowLeft, Globe, Building2, Users, TrendingUp, TrendingDown, DollarSig
 import { notFound } from 'next/navigation';
 import { formatCurrency } from '@/utils/currency';
 
-export default async function StockDetailsPage({ params }: { params: { symbol: string } }) {
-  const symbol = decodeURIComponent(params.symbol);
+export default async function StockDetailsPage({ params }: { params: Promise<{ symbol: string }> }) {
+  const { symbol: symbolParam } = await params;
+  const symbol = decodeURIComponent(symbolParam);
+  
+  if (!symbol || symbol === 'undefined') {
+    notFound(); 
+  }
+
   const stock = await getStockDetails(symbol);
 
   if (!stock) {
