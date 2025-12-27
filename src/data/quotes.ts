@@ -259,5 +259,12 @@ export const AUTHOR_IMAGES: Record<string, string> = {
   "John C. Bogle": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/John_C._Bogle.jpg/320px-John_C._Bogle.jpg",
   "John Bogle": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/John_C._Bogle.jpg/320px-John_C._Bogle.jpg",
   "Sir John Templeton": "https://upload.wikimedia.org/wikipedia/commons/6/6f/John_Templeton_1999.jpg",
-  "George Soros": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/George_Soros_-_Festival_of_Economics_2012.jpg/320px-George_Soros_-_Festival_of_Economics_2012.jpg"
+  "George Soros": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/George_Soros_-_Festival_of_Economics_2012.jpg/320px-George_Soros_-_Festival_of_Economics_2012.jpg",
+  "Albert Einstein": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Albert_Einstein_Head.jpg/320px-Albert_Einstein_Head.jpg",
+  "Benjamin Franklin": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Joseph_Siffred_Duplessis_-_Benjamin_Franklin_-_Google_Art_Project.jpg/320px-Joseph_Siffred_Duplessis_-_Benjamin_Franklin_-_Google_Art_Project.jpg",
+  "John Maynard Keynes": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/John_Maynard_Keynes_1929.jpg/320px-John_Maynard_Keynes_1929.jpg",
+  "Paul Samuelson": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Paul_Samuelson.jpg/320px-Paul_Samuelson.jpg",
+  "Leonardo da Vinci": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg/320px-Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg",
+  "Mellody Hobson": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Mellody_Hobson.jpg/320px-Mellody_Hobson.jpg",
+  "Howard Marks": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Howard_Marks_2.17.12.jpg/320px-Howard_Marks_2.17.12.jpg"
 };
