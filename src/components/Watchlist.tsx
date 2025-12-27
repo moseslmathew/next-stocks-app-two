@@ -1051,7 +1051,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
                                         <div 
                                             ref={(el) => { tableRefs.current[title] = el; }}
-                                            className="w-full sm:rounded-xl sm:border sm:border-gray-200 sm:dark:border-gray-800 bg-white dark:bg-black overflow-hidden"
+                                            className="w-full sm:rounded-xl sm:border sm:border-gray-200 sm:dark:border-gray-800 bg-white dark:bg-black overflow-x-hidden"
                                         >
                                     <table className="w-full text-left text-sm sm:text-base table-fixed">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm">
