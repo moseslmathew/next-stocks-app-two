@@ -1,6 +1,6 @@
 import { getStockDetails } from '@/actions/market';
 import Link from 'next/link';
-import { ArrowLeft, Globe, Building2, Users, TrendingUp, TrendingDown, DollarSign, Activity, PieChart, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Globe, Building2, Users, TrendingUp, TrendingDown, DollarSign, Activity, PieChart, BarChart3, HelpCircle } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { formatCurrency } from '@/utils/currency';
 
@@ -33,11 +33,21 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
     return (num * 100).toFixed(2) + '%';
   };
 
-  const StatCard = ({ label, value, icon: Icon, subValue }: { label: string, value: string | number, icon?: any, subValue?: string }) => (
-    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">
+  const StatCard = ({ label, value, icon: Icon, subValue, helpText }: { label: string, value: string | number, icon?: any, subValue?: string, helpText?: string }) => (
+    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative group">
+      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider relative">
         {Icon && <Icon size={14} />}
         {label}
+        {helpText && (
+            <div className="relative group/help cursor-help">
+                <HelpCircle size={12} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors" />
+                {/* Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 bg-gray-900 dark:bg-gray-800 text-white text-[10px] normal-case tracking-normal rounded-lg opacity-0 invisible group-hover/help:opacity-100 group-hover/help:visible transition-all duration-200 z-50 pointer-events-none shadow-xl border border-gray-700/50">
+                    {helpText}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+                </div>
+            </div>
+        )}
       </div>
       <div className="text-xl font-bold text-gray-900 dark:text-white">
         {value}
@@ -101,32 +111,38 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
                             label="Market Cap" 
                             value={formatLargeNumber(stock.marketCap)} 
                             icon={PieChart}
+                            helpText="The total value of all a company's shares of stock."
                         />
                          <StatCard 
                             label="P/E Ratio" 
                             value={stock.peRatio ? stock.peRatio.toFixed(2) : '---'} 
                             subValue={stock.forwardPE ? `Fwd P/E: ${stock.forwardPE.toFixed(2)}` : undefined}
                             icon={BarChart3}
+                            helpText="Price-to-Earnings Ratio. Measures current share price relative to its per-share earnings."
                         />
                         <StatCard 
                             label="EPS (TTM)" 
                             value={stock.eps ? stock.eps.toFixed(2) : '---'} 
                             icon={DollarSign}
+                            helpText="Earnings Per Share. The portion of a company's profit allocated to each share."
                         />
                         <StatCard 
                             label="Beta" 
                             value={stock.beta ? stock.beta.toFixed(2) : '---'} 
                             icon={Activity}
+                            helpText="Measures a stock's volatility in relation to the overall market. High beta means high volatility."
                         />
                          <StatCard 
                             label="Div Yield" 
                             value={formatPercent(stock.dividendYield)} 
                             icon={PieChart}
+                            helpText="Dividend Yield. Shows how much a company pays out in dividends relative to its stock price."
                         />
                          <StatCard 
                             label="Profit Margin" 
                             value={formatPercent(stock.profitMargins)} 
                             icon={BarChart3}
+                            helpText="The percentage of revenue that remains as profit after all expenses."
                         />
                     </div>
                 </section>
