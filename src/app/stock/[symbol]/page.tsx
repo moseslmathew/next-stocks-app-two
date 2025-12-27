@@ -24,7 +24,7 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white pb-20">
       {/* Header / Nav */}
-      <div className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+      <div className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-md">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
           <BackButton />
           <div>
