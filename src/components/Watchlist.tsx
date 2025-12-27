@@ -686,12 +686,63 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
     }
   };
 
+  const [removedItem, setRemovedItem] = useState<{data: MarketData, index: number} | null>(null);
+
+  // Auto-dismiss undo toast
+  useEffect(() => {
+    if (removedItem) {
+        const timer = setTimeout(() => setRemovedItem(null), 4000);
+        return () => clearTimeout(timer);
+    }
+  }, [removedItem]);
+
   const handleRemoveFromWatchlist = async (symbol: string) => {
     if (!activeWatchlistId) return;
+
+    const itemIndex = watchlistData.findIndex(i => i.symbol === symbol);
+    const item = watchlistData[itemIndex];
+    if (item) {
+        setRemovedItem({ data: item, index: itemIndex });
+    }
+
     setWatchlistData(prev => prev.filter(item => item.symbol !== symbol));
-    const result = await removeFromWatchlist(symbol, activeWatchlistId);
-    if (!result.success) {
-        alert('Failed to remove from watchlist: ' + result.error);
+    
+    try {
+        const result = await removeFromWatchlist(symbol, activeWatchlistId);
+        if (!result.success) {
+            console.error('Failed to remove from watchlist:', result.error);
+             // Optionally fetchWatchlist() here if we want to be strict, but for swipe UX ignoring is smoother unless critical.
+        }
+    } catch (e) {
+        console.error('Network error during remove:', e);
+    }
+  };
+
+  const handleUndo = async () => {
+    if (!removedItem || !activeWatchlistId) return;
+    
+    const { data, index } = removedItem;
+    const idToRestore = activeWatchlistId; // Capture current ID
+    
+    // Optimistic Restore
+    setWatchlistData(prev => {
+        const newArr = [...prev];
+        if (index >= 0 && index <= newArr.length) {
+            newArr.splice(index, 0, data);
+        } else {
+            newArr.push(data);
+        }
+        return newArr;
+    });
+    
+    setRemovedItem(null); 
+
+    // Backend Restore
+    try {
+        await addToWatchlist(data.symbol, idToRestore);
+        // Note: Backend append order might differ until refresh, but UI looks correct immediately.
+    } catch (error) {
+        console.error('Undo failed', error);
         fetchWatchlist();
     }
   };
@@ -1211,6 +1262,25 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                         </div>
                     </div>
                 </div>
+            </div>
+        )}
+        {/* Undo Toast */}
+        {removedItem && (
+            <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] bg-gray-900 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-4 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
+                <span className="text-sm font-medium">Deleted <span className="font-bold text-violet-300">{removedItem.data.symbol}</span></span>
+                <div className="h-4 w-px bg-gray-700"></div>
+                <button 
+                    onClick={handleUndo}
+                    className="text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                    Undo
+                </button>
+                <button 
+                    onClick={() => setRemovedItem(null)}
+                    className="text-gray-500 hover:text-gray-300 transition-colors ml-2"
+                >
+                    <X size={16} />
+                </button>
             </div>
         )}
     </div>
