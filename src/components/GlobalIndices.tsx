@@ -2,10 +2,7 @@ import { getMarketData } from '@/services/marketData';
 import { getScrapedGoldRate } from '@/actions/gold';
 import { TrendingUp, TrendingDown, Globe } from 'lucide-react';
 
-// ... (imports)
-
 const INDICES = [
-  // ... (other indices remain unchanged)
   { 
     symbol: '^NSEI', name: 'Nifty 50', region: 'IN', 
     badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 border-orange-200 dark:border-orange-800',
@@ -118,7 +115,7 @@ export default async function GlobalIndices() {
                </div>
             </div>
             
-            <div className="relative z-10 text-lg font-black text-gray-900 dark:text-white tracking-tight">
+            <div className="text-lg font-black text-gray-900 dark:text-white tracking-tight">
                 {price ? (
                     index.symbol === 'GC=F' 
                     ? `$ ${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` 
