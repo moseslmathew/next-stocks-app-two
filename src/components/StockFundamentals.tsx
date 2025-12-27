@@ -87,26 +87,28 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
     };
 
     const StatItem = ({ label, value, icon: Icon, subValue }: { label: string, value: string | number, icon?: any, subValue?: string }) => (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">
-            {Icon && <Icon size={14} className="text-violet-500" />}
+        <div className="flex items-center justify-between py-3">
+          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs sm:text-sm font-medium uppercase tracking-wider">
+            {Icon && <Icon size={16} className="text-violet-500/70" />}
             <span className="truncate">{label}</span>
             <button 
                 onClick={() => setSelectedMetric(label)}
-                className="opacity-50 hover:opacity-100 transition-opacity"
+                className="opacity-40 hover:opacity-100 transition-opacity"
                 title="Click for details"
             >
-                <HelpCircle size={12} className="text-gray-400 dark:text-gray-500" />
+                <HelpCircle size={14} />
             </button>
           </div>
-          <div className="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate" title={String(value)}>
-            {value}
+          <div className="text-right">
+             <div className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-100" title={String(value)}>
+                {value}
+             </div>
+             {subValue && (
+                <div className="text-[10px] sm:text-xs text-gray-400">
+                   {subValue}
+                </div>
+             )}
           </div>
-          {subValue && (
-            <div className="text-xs text-gray-400 truncate">
-               {subValue}
-            </div>
-          )}
         </div>
     );
 
@@ -119,48 +121,19 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                     <Activity className="text-violet-600" size={16} />
                     Fundamentals
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4">
-                    <StatItem 
-                        label="Market Cap" 
-                        value={formatLargeNumber(stock.marketCap)} 
-                        icon={PieChart}
-                    />
-                     <StatItem 
-                        label="P/E Ratio" 
-                        value={stock.peRatio ? stock.peRatio.toFixed(2) : '---'} 
-                        subValue={stock.forwardPE ? `Fwd P/E: ${stock.forwardPE.toFixed(2)}` : undefined}
-                        icon={BarChart3}
-                    />
-                    <StatItem 
-                        label="EPS (TTM)" 
-                        value={stock.eps ? stock.eps.toFixed(2) : '---'} 
-                        icon={DollarSign}
-                    />
-                    <StatItem 
-                        label="Beta" 
-                        value={stock.beta ? stock.beta.toFixed(2) : '---'} 
-                        icon={Activity}
-                    />
-                     <StatItem 
-                        label="Div Yield" 
-                        value={formatPercent(stock.dividendYield)} 
-                        icon={PieChart}
-                    />
-                     <StatItem 
-                        label="Profit Margin" 
-                        value={formatPercent(stock.profitMargins)} 
-                        icon={BarChart3}
-                    />
-                     <StatItem 
-                        label="ROE" 
-                        value={formatPercent(stock.roe)} 
-                        icon={Activity}
-                    />
-                    <StatItem 
-                        label="52 Week Range" 
-                        value={`${stock.fiftyTwoWeekLow?.toLocaleString() || '---'} - ${stock.fiftyTwoWeekHigh?.toLocaleString() || '---'}`}
-                        icon={Activity}
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
+                    <div className="space-y-0"> 
+                        <StatItem label="Market Cap" value={formatLargeNumber(stock.marketCap)} icon={PieChart} />
+                        <StatItem label="P/E Ratio" value={stock.peRatio ? stock.peRatio.toFixed(2) : '---'} subValue={stock.forwardPE ? `Fwd: ${stock.forwardPE.toFixed(2)}` : undefined} icon={BarChart3} />
+                        <StatItem label="EPS (TTM)" value={stock.eps ? stock.eps.toFixed(2) : '---'} icon={DollarSign} />
+                        <StatItem label="Beta" value={stock.beta ? stock.beta.toFixed(2) : '---'} icon={Activity} />
+                    </div>
+                    <div className="space-y-0">
+                        <StatItem label="Div Yield" value={formatPercent(stock.dividendYield)} icon={PieChart} />
+                        <StatItem label="Profit Margin" value={formatPercent(stock.profitMargins)} icon={BarChart3} />
+                        <StatItem label="ROE" value={formatPercent(stock.roe)} icon={Activity} />
+                        <StatItem label="52 Week Range" value={`${stock.fiftyTwoWeekLow?.toLocaleString() || '---'} - ${stock.fiftyTwoWeekHigh?.toLocaleString() || '---'}`} icon={Activity} />
+                    </div>
                 </div>
             </section>
 
