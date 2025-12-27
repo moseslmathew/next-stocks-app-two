@@ -98,15 +98,23 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
 
     const [swipeX, setSwipeX] = useState(0);
     const touchStart = useRef<{ x: number, y: number } | null>(null);
+    const hasMoved = useRef(false);
 
     const handleTouchStart = (e: React.TouchEvent) => {
         touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        hasMoved.current = false;
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
         if (!touchStart.current) return;
-        const deltaX = e.touches[0].clientX - touchStart.current.x;
-        const deltaY = e.touches[0].clientY - touchStart.current.y;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const deltaX = currentX - touchStart.current.x;
+        const deltaY = currentY - touchStart.current.y;
+        
+        if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+            hasMoved.current = true;
+        }
 
         // Disambiguate: only handle horizontal swipes
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
@@ -131,6 +139,11 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
         } else {
              // Snap back
              setSwipeX(0);
+             
+             // If no movement (tap), navigate
+             if (!hasMoved.current && touchStart.current) {
+                 router.push(`/stock/${data.symbol}`);
+             }
         }
         touchStart.current = null;
     };
