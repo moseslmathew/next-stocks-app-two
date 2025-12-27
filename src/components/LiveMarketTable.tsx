@@ -245,6 +245,9 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
             volumeData={selectedStock.volumeSparkline || []}
             timestamps={selectedStock.timestamps || []}
             range={trendRange as any}
+            currentPrice={selectedStock.regularMarketPrice}
+            change={selectedStock.regularMarketChange}
+            changePercent={selectedStock.regularMarketChangePercent}
         />
       )}
     </div>

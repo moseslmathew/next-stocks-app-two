@@ -136,6 +136,22 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
     return quotesArray.map((quote: any) => {
         // Use empty default if history was skipped
         const history = historyMap.get(quote.symbol) || { sparkline: [], volumeSparkline: [], timestamps: [] };
+        
+        // Append live price point if it's newer than the last historical point
+        let finalSparkline = history.sparkline;
+        let finalTimestamps = history.timestamps;
+        let finalVolumeSparkline = history.volumeSparkline;
+
+        const liveTime = quote.regularMarketTime ? new Date(quote.regularMarketTime).getTime() : Date.now();
+        const lastHistoryTime = finalTimestamps.length > 0 ? finalTimestamps[finalTimestamps.length - 1] : 0;
+
+        if (liveTime > lastHistoryTime) {
+            finalSparkline = [...finalSparkline, quote.regularMarketPrice ?? 0];
+            finalTimestamps = [...finalTimestamps, liveTime];
+            // Volume for live point is often unknown in quote, default to 0 or repeat last? 0 is safer.
+            finalVolumeSparkline = [...finalVolumeSparkline, 0];
+        }
+
         return {
             symbol: quote.symbol,
             regularMarketPrice: quote.regularMarketPrice ?? 0,
@@ -150,10 +166,10 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
             marketState: quote.marketState || 'CLOSED',
             quoteType: quote.quoteType || 'EQUITY', 
             exchange: quote.exchange || 'UNKNOWN',
-            regularMarketTime: quote.regularMarketTime ? new Date(quote.regularMarketTime).getTime() : Date.now(),
-            sparkline: history.sparkline,
-            volumeSparkline: history.volumeSparkline,
-            timestamps: history.timestamps
+            regularMarketTime: liveTime,
+            sparkline: finalSparkline,
+            volumeSparkline: finalVolumeSparkline,
+            timestamps: finalTimestamps
         };
     });
   } catch (error) {
