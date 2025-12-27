@@ -99,8 +99,8 @@ const Navbar = () => {
                     <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="Watchlist (US)" active={isActive('/watchlist/us')} />
                   </>
                )}
-               <MobileNavChip href="/global-market" icon={<Globe size={14} />} text="Global" active={isActive('/global-market')} />
-               <MobileNavChip href="/ai-sentiment" icon={<Brain size={14} />} text="AI" active={isActive('/ai-sentiment')} />
+               <MobileNavChip href="/global-market" icon={<Globe size={14} />} text="Global Markets" active={isActive('/global-market')} />
+               <MobileNavChip href="/ai-sentiment" icon={<Brain size={14} />} text="AI Sentiment" active={isActive('/ai-sentiment')} />
                <MobileNavChip href="/news" icon={<Newspaper size={14} />} text="News" active={isActive('/news')} />
            </div>
       </div>
