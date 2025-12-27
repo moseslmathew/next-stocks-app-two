@@ -69,7 +69,7 @@ export default function QuoteTicker() {
                 </div>
             </div>
             
-            <div className={`relative transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+            <div className={`relative transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'} min-h-[130px]`}>
 
                 <div className="relative z-10">
                 <blockquote className="text-lg sm:text-xl font-medium text-gray-800 dark:text-gray-200 leading-relaxed font-serif italic mb-2">
