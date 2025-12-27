@@ -1219,14 +1219,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
         {isSearchOpen && (
             <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsSearchOpen(false)} />
-                <div className="relative bg-white dark:bg-gray-900 w-full max-w-lg rounded-2xl shadow-2xl p-6 border border-gray-200 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-200">
-                    <button 
-                        onClick={() => setIsSearchOpen(false)}
-                        className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                    >
-                        <X size={20} />
-                    </button>
-
+                <div className="relative w-full max-w-lg animate-in fade-in zoom-in-95 duration-200">
                     <SearchComponent 
                         watchlistId={activeWatchlistId ?? undefined} 
                         region={activeWatchlistRegion}
