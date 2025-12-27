@@ -16,15 +16,16 @@ const AuthButtons = () => {
     
     setIsLoadingGuest(true);
     try {
-      const result = await signIn.create({
+      const { status, createdSessionId } = await signIn.create({
         identifier: DEMO_CREDENTIALS.email,
         password: DEMO_CREDENTIALS.password,
       });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
+      if (status === "complete") {
+        await setActive({ session: createdSessionId });
       } else {
-        console.error("SignIn not complete", result);
+        console.error("SignIn not complete. Status:", status);
+        alert(`Guest Login Status: ${status}. Check console for details.`);
       }
     } catch (err: any) {
       console.error("Guest login failed", err);
