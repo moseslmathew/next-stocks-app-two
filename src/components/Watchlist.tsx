@@ -21,7 +21,7 @@ import {
   DndContext, 
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -342,7 +342,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
         activationConstraint: {
             distance: 8, // Requires 8px movement before drag starts (good for mouse)
         }
