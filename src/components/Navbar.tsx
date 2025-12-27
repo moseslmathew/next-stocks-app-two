@@ -44,8 +44,8 @@ const Navbar = () => {
               {isSignedIn && (
                 <>
                 <>
-                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="Watchlist (₹)" active={isActive('/watchlist/indian')} />
-                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="Watchlist ($)" active={isActive('/watchlist/us')} />
+                  <NavLink href="/watchlist/indian" icon={<span className="hidden"/>} text="Watchlist (₹)" active={isActive('/watchlist/indian')} />
+                  <NavLink href="/watchlist/us" icon={<span className="hidden"/>} text="Watchlist ($)" active={isActive('/watchlist/us')} />
                 </>
                 </>
               )}
