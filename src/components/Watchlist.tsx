@@ -1226,10 +1226,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                     >
                         <X size={20} />
                     </button>
-                    <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add to Watchlist</h3>
-                        <p className="text-sm text-gray-500">Search for a stock or ETF to add.</p>
-                    </div>
+
                     <SearchComponent 
                         watchlistId={activeWatchlistId ?? undefined} 
                         region={activeWatchlistRegion}
