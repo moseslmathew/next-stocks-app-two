@@ -52,7 +52,7 @@ export default function QuoteTicker() {
   if (!quote) return null;
 
   return (
-    <div className="flex justify-end animate-fade-in w-full pb-8">
+    <div className="mt-8 flex justify-end animate-fade-in w-full pb-8">
         <div className="max-w-lg w-full px-4 text-right">
              <div className="flex justify-end items-center gap-2 mb-3">
                 <button 
@@ -92,29 +92,21 @@ export default function QuoteTicker() {
                                 Know More
                             </button>
                         ) : (
-                            <div className="relative overflow-hidden mt-2 text-sm text-gray-700 dark:text-gray-300 bg-gradient-to-br from-white/90 via-white/60 to-white/30 dark:from-zinc-800/90 dark:via-zinc-900/60 dark:to-black/30 backdrop-blur-xl p-5 rounded-2xl border border-white/50 dark:border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] dark:shadow-none text-left w-full animate-in slide-in-from-top-2 fade-in duration-500 group">
+                            <div className="relative overflow-hidden mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-lg border border-gray-100 dark:border-zinc-800 text-left w-full animate-in slide-in-from-top-2 fade-in duration-300">
                                 
-                                {/* Glossy Reflection Highlight */}
-                                <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-80" />
-                                <div className="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-transparent via-white/80 to-transparent opacity-80" />
-                                
-                                {/* Subtle internal gradient blob for depth */}
-                                <div className="absolute -top-10 -left-10 w-20 h-20 bg-violet-500/10 rounded-full blur-2xl pointer-events-none" />
-                                <div className="absolute -bottom-10 -right-10 w-20 h-20 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none" />
-
                                 {/* Author Watermark Image */}
                                 {AUTHOR_IMAGES[quote.author] && (
-                                    <div className="absolute -right-4 -bottom-4 w-32 h-32 opacity-[0.08] dark:opacity-[0.15] pointer-events-none select-none grayscale mix-blend-multiply dark:mix-blend-screen transition-transform duration-700 group-hover:scale-105">
+                                    <div className="absolute -right-2 -bottom-2 w-24 h-24 opacity-[0.15] dark:opacity-[0.25] pointer-events-none select-none grayscale mix-blend-multiply dark:mix-blend-screen">
                                         <img 
                                             src={AUTHOR_IMAGES[quote.author]} 
                                             alt="" 
-                                            className="w-full h-full object-cover object-top rounded-full blur-[1px]"
-                                            style={{ maskImage: 'radial-gradient(circle, black 30%, transparent 70%)' }}
+                                            className="w-full h-full object-cover object-top rounded-full blur-[0.5px]"
+                                            style={{ maskImage: 'radial-gradient(circle, black 40%, transparent 80%)' }}
                                         />
                                     </div>
                                 )}
 
-                                <p className="relative z-10 font-medium leading-relaxed tracking-wide drop-shadow-sm">{quote.explanation}</p>
+                                <p className="relative z-10">{quote.explanation}</p>
                             </div>
                         )}
                     </div>
