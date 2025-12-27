@@ -1,5 +1,6 @@
 import { getStockDetails } from '@/actions/market';
 import Link from 'next/link';
+import StockFundamentals from '@/components/StockFundamentals';
 import { ArrowLeft, Globe, Building2, Users, TrendingUp, TrendingDown, DollarSign, Activity, PieChart, BarChart3, HelpCircle } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { formatCurrency } from '@/utils/currency';
@@ -100,52 +101,8 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
                 
-                {/* Fundamentals Grid */}
-                <section>
-                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                        <Activity className="text-violet-600" />
-                        Key Fundamentals
-                    </h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <StatCard 
-                            label="Market Cap" 
-                            value={formatLargeNumber(stock.marketCap)} 
-                            icon={PieChart}
-                            helpText="The total value of all a company's shares of stock."
-                        />
-                         <StatCard 
-                            label="P/E Ratio" 
-                            value={stock.peRatio ? stock.peRatio.toFixed(2) : '---'} 
-                            subValue={stock.forwardPE ? `Fwd P/E: ${stock.forwardPE.toFixed(2)}` : undefined}
-                            icon={BarChart3}
-                            helpText="Price-to-Earnings Ratio. Measures current share price relative to its per-share earnings."
-                        />
-                        <StatCard 
-                            label="EPS (TTM)" 
-                            value={stock.eps ? stock.eps.toFixed(2) : '---'} 
-                            icon={DollarSign}
-                            helpText="Earnings Per Share. The portion of a company's profit allocated to each share."
-                        />
-                        <StatCard 
-                            label="Beta" 
-                            value={stock.beta ? stock.beta.toFixed(2) : '---'} 
-                            icon={Activity}
-                            helpText="Measures a stock's volatility in relation to the overall market. High beta means high volatility."
-                        />
-                         <StatCard 
-                            label="Div Yield" 
-                            value={formatPercent(stock.dividendYield)} 
-                            icon={PieChart}
-                            helpText="Dividend Yield. Shows how much a company pays out in dividends relative to its stock price."
-                        />
-                         <StatCard 
-                            label="Profit Margin" 
-                            value={formatPercent(stock.profitMargins)} 
-                            icon={BarChart3}
-                            helpText="The percentage of revenue that remains as profit after all expenses."
-                        />
-                    </div>
-                </section>
+                {/* Fundamentals Grid (Client Component) */}
+                <StockFundamentals stock={stock} />
 
                 <section className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
                     <h2 className="text-lg font-bold mb-4">Price Range (52 Week)</h2>
