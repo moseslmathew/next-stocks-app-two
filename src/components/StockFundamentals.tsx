@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Activity, PieChart, BarChart3, DollarSign, HelpCircle, X, Info } from 'lucide-react';
 
 interface StockData {
@@ -54,6 +54,17 @@ const METRIC_DEFINITIONS: Record<string, { title: string, definition: string, im
 
 export default function StockFundamentals({ stock }: { stock: StockData }) {
     const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (selectedMetric) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [selectedMetric]);
 
     const formatLargeNumber = (num?: number) => {
         if (!num) return '---';
