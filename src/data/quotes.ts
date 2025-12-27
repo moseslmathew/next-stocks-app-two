@@ -266,5 +266,18 @@ export const AUTHOR_IMAGES: Record<string, string> = {
   "Paul Samuelson": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Paul_Samuelson.jpg/320px-Paul_Samuelson.jpg",
   "Leonardo da Vinci": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg/320px-Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg",
   "Mellody Hobson": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Mellody_Hobson.jpg/320px-Mellody_Hobson.jpg",
-  "Howard Marks": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Howard_Marks_2.17.12.jpg/320px-Howard_Marks_2.17.12.jpg"
+  "Howard Marks": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Howard_Marks_2.17.12.jpg/320px-Howard_Marks_2.17.12.jpg",
+  "Ken Fisher": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg",
+  "Philip Fisher": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg",
+  "Alexander Elder": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg",
+  "Jesse Livermore": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg",
+  "Bill Gross": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg", 
+  "Robert Arnott": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg", 
+  "Common investing maxim": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/New_York_Stock_Exchange_-_panoramio.jpg/320px-New_York_Stock_Exchange_-_panoramio.jpg",
+  "Trading maxim": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/New_York_Stock_Exchange_-_panoramio.jpg/320px-New_York_Stock_Exchange_-_panoramio.jpg",
+  "Proverb": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/New_York_Stock_Exchange_-_panoramio.jpg/320px-New_York_Stock_Exchange_-_panoramio.jpg",
+  "Old Wall Street saying": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/New_York_Stock_Exchange_-_panoramio.jpg/320px-New_York_Stock_Exchange_-_panoramio.jpg",
+  "Anonymous / Market Adage": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/New_York_Stock_Exchange_-_panoramio.jpg/320px-New_York_Stock_Exchange_-_panoramio.jpg",
+  "Mohnish Pabrai": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg",
+  "Shelby Cullom Davis": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Wall_Street_Bull.jpg/320px-Wall_Street_Bull.jpg"
 };
