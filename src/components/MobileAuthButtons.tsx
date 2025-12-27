@@ -83,7 +83,7 @@ const MobileAuthButtons = () => {
                 Guest
             </button>
             <SignInButton mode="modal">
-            <button className="px-3 py-1.5 rounded-full bg-violet-600 text-white text-xs font-medium">
+            <button className="px-3 py-1.5 rounded-full bg-violet-600 text-white text-xs font-medium whitespace-nowrap">
                 Sign In
             </button>
             </SignInButton>
