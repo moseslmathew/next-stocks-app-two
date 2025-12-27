@@ -84,9 +84,7 @@ export default async function GlobalIndices() {
             isPositive = change >= 0;
         }
 
-        const baseStyle = index.isGold 
-            ? 'bg-amber-50/40 dark:bg-amber-900/10 border-amber-200/50 dark:border-amber-700/30' 
-            : 'bg-white/60 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700';
+        const baseStyle = 'bg-white/60 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700';
 
         return (
           <div
