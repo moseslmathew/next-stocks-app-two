@@ -1266,20 +1266,20 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
         )}
         {/* Undo Toast */}
         {removedItem && (
-            <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] bg-gray-900 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-4 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
-                <span className="text-sm font-medium">Deleted <span className="font-bold text-violet-300">{removedItem.data.symbol}</span></span>
-                <div className="h-4 w-px bg-gray-700"></div>
+            <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
+                <span className="text-sm">Deleted <span className="font-medium text-gray-900 dark:text-white">{removedItem.data.symbol}</span></span>
+                <div className="h-3 w-px bg-gray-300 dark:bg-gray-600"></div>
                 <button 
                     onClick={handleUndo}
-                    className="text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors"
+                    className="text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                 >
                     Undo
                 </button>
                 <button 
                     onClick={() => setRemovedItem(null)}
-                    className="text-gray-500 hover:text-gray-300 transition-colors ml-2"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors ml-1"
                 >
-                    <X size={16} />
+                    <X size={14} />
                 </button>
             </div>
         )}
