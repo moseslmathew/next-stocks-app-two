@@ -102,25 +102,32 @@ export default async function GlobalIndices() {
                  </div>
              )}
 
-            <div className="relative z-10 flex justify-between items-start mb-2 gap-2">
-               <div className="text-sm font-bold text-gray-700 dark:text-gray-200 leading-tight flex items-center gap-1.5">
-                {index.symbol === 'GC=F' && <Globe size={14} className="stroke-[2.5px] text-blue-500/80 dark:text-blue-400" />}
-                {index.name}
+            <div className="relative z-10 flex flex-col gap-4 h-full">
+               <div className="flex justify-between items-start">
+                   <div className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors ${index.badgeColor}`}>
+                    {index.symbol === 'GC=F' && <Globe size={12} className="stroke-[2.5px]" />}
+                    {index.name}
+                   </div>
+                   <div className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-md ${isPositive ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'}`}>
+                        {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                        {Math.abs(percent).toFixed(2)}%
+                   </div>
                </div>
-               <div className={`text-xs font-bold flex items-center gap-1 whitespace-nowrap shrink-0 mt-0.5 ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                    {isPositive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                    {Math.abs(percent).toFixed(2)}%
+               
+               <div className="mt-auto">
+                   <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-1">
+                    {price ? (
+                        index.symbol === 'GC=F' 
+                        ? `$${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` 
+                        : index.symbol === 'KERALA_GOLD'
+                        ? `₹${price.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+                        : price.toLocaleString('en-IN', { maximumFractionDigits: 2 })
+                    ) : '---'}
+                   </div>
+                   <div className="text-[10px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                       {index.region === 'IN' ? 'NSE/BSE' : index.region === 'US' ? 'US MARKET' : index.region === 'JP' ? 'TOKYO' : 'COMMODITY'}
+                   </div>
                </div>
-            </div>
-            
-            <div className="text-lg font-black text-gray-900 dark:text-white tracking-tight">
-                {price ? (
-                    index.symbol === 'GC=F' 
-                    ? `$ ${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` 
-                    : index.symbol === 'KERALA_GOLD'
-                    ? `₹ ${price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
-                    : price.toLocaleString('en-IN', { maximumFractionDigits: 2 })
-                ) : '---'}
             </div>
           </div>
         );
