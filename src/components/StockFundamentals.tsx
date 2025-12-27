@@ -143,9 +143,22 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                     <div className="flex items-center gap-4 text-xs font-semibold text-gray-900 dark:text-gray-100">
                         <span>{stock.fiftyTwoWeekLow?.toLocaleString()}</span>
                         <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full flex-1 overflow-visible">
-                            {/* Current Price Marker */}
+                            {/* Filled portion (using overflow visible wrapper parent might clip, but let's try clean fill first) 
+                                Actually, standard range sliders are usually contained. I'll use overflow-hidden on container for fill, 
+                                but I need marker to stick out if I want the "halo" effect.
+                                A simple filled bar is cleaner.
+                            */}
+                             <div className="absolute inset-0 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-violet-500 dark:bg-violet-400 transition-all duration-500"
+                                    style={{
+                                        width: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`
+                                    }}
+                                />
+                             </div>
+                            {/* Marker - positioned absolutely on top */}
                             <div 
-                                className="absolute top-1/2 w-3 h-3 bg-violet-600 dark:bg-violet-400 rounded-full shadow-lg ring-4 ring-white dark:ring-gray-950 z-10 transition-all duration-500"
+                                className="absolute top-1/2 w-4 h-4 bg-white dark:bg-gray-900 border-4 border-violet-600 dark:border-violet-400 rounded-full shadow-sm z-10 transition-all duration-500"
                                 style={{
                                     left: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`,
                                     transform: 'translate(-50%, -50%)' 
