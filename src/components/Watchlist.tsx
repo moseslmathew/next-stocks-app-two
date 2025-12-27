@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight, ChevronLeft, Pencil, Check, AlertTriangle, Sparkles } from 'lucide-react';
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
@@ -92,6 +93,8 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
         transition,
         isDragging
     } = useSortable({ id: data.symbol });
+    
+    const router = useRouter();
 
     const [swipeX, setSwipeX] = useState(0);
     const touchStart = useRef<{ x: number, y: number } | null>(null);
@@ -162,10 +165,11 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
         <tr 
             ref={setNodeRef} 
             style={style} 
-            className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative overflow-visible" // Added overflow-visible so the negative left div shows
+            className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors bg-white dark:bg-black relative overflow-visible cursor-pointer" // Added overflow-visible so the negative left div shows
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onDoubleClick={() => router.push(`/stock/${data.symbol}`)}
         >
             <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[40%] bg-white dark:bg-black relative z-10 overflow-visible">
                 {/* Background for Swipe Action */}

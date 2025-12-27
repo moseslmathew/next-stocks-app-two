@@ -57,3 +57,56 @@ export async function getStockQuote(symbol: string) {
     return null;
   }
 }
+export async function getStockDetails(symbol: string) {
+  try {
+    const result = await yahooFinance.quoteSummary(symbol, {
+      modules: [
+        'price',
+        'summaryDetail',
+        'defaultKeyStatistics',
+        'assetProfile',
+        'financialData'
+      ]
+    });
+
+    const price = result.price;
+    const summary = result.summaryDetail;
+    const stats = result.defaultKeyStatistics;
+    const profile = result.assetProfile;
+    const financial = result.financialData;
+
+    return {
+      symbol: symbol,
+      name: price?.shortName || price?.longName || symbol,
+      price: price?.regularMarketPrice,
+      currency: price?.currency,
+      change: price?.regularMarketChange,
+      changePercent: price?.regularMarketChangePercent,
+      
+      // Fundamentals
+      marketCap: price?.marketCap,
+      peRatio: summary?.trailingPE,
+      forwardPE: summary?.forwardPE,
+      eps: stats?.trailingEps,
+      beta: summary?.beta,
+      dividendYield: summary?.dividendYield,
+      profitMargins: financial?.profitMargins,
+      bookValue: stats?.bookValue,
+      priceToBook: stats?.priceToBook,
+      
+      // Range
+      fiftyTwoWeekHigh: summary?.fiftyTwoWeekHigh,
+      fiftyTwoWeekLow: summary?.fiftyTwoWeekLow,
+      
+      // Profile
+      sector: profile?.sector,
+      industry: profile?.industry,
+      description: profile?.longBusinessSummary,
+      website: profile?.website,
+      employees: profile?.fullTimeEmployees,
+    };
+  } catch (error) {
+    console.error(`Failed to fetch details for ${symbol}:`, error);
+    return null;
+  }
+}
