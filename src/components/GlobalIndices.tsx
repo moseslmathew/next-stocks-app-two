@@ -84,48 +84,16 @@ export default async function GlobalIndices() {
             isPositive = change >= 0;
         }
 
-        const baseStyle = 'bg-white/60 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700';
+        const baseStyle = index.isGold 
+            ? 'bg-amber-50/40 dark:bg-amber-900/10 border-amber-200/50 dark:border-amber-700/30' 
+            : 'bg-white/60 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700';
 
         return (
           <div
             key={index.symbol}
             className={`${baseStyle} backdrop-blur-md border p-5 rounded-xl shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 group ${index.hoverBorder} flex flex-col justify-between h-full min-h-[110px] relative overflow-hidden`}
           >
-             {/* Gold Background Illustration (Inline SVG) */}
-             {index.isGold && (
-                 <div className="absolute -right-4 -bottom-4 w-32 h-32 opacity-80 dark:opacity-60 pointer-events-none rotate-12 transition-transform group-hover:scale-110 duration-700">
-                    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-md">
-                        <defs>
-                            <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#FCD34D" />
-                                <stop offset="30%" stopColor="#FBBF24" />
-                                <stop offset="60%" stopColor="#D97706" />
-                                <stop offset="100%" stopColor="#B45309" />
-                            </linearGradient>
-                            <linearGradient id="gold-shine" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="white" stopOpacity="0.1" />
-                                <stop offset="50%" stopColor="white" stopOpacity="0.4" />
-                                <stop offset="100%" stopColor="white" stopOpacity="0.1" />
-                            </linearGradient>
-                        </defs>
-                        {/* Bottom Bar */}
-                        <path d="M40 140 L140 120 L160 150 L60 170 Z" fill="url(#gold-grad)" />
-                        <path d="M40 140 L140 120 L160 150 L60 170 Z" fill="url(#gold-shine)" />
-                        <path d="M40 140 L50 110 L150 90 L140 120" fill="#F59E0B" />
-                        <path d="M150 90 L160 150 L140 120" fill="#B45309" />
-                        
-                        {/* Top Bar */}
-                        <path d="M30 110 L130 90 L150 120 L50 140 Z" fill="url(#gold-grad)" />
-                        <path d="M30 110 L130 90 L150 120 L50 140 Z" fill="url(#gold-shine)" />
-                        <path d="M30 110 L40 80 L140 60 L130 90" fill="#F59E0B" />
-                        <path d="M140 60 L150 120 L130 90" fill="#B45309" />
-                        
-                        {/* Top Face details */}
-                        <rect x="60" y="85" width="40" height="20" rx="2" transform="rotate(-12 60 85)" fill="#B45309" fillOpacity="0.2" />
-                        <text x="65" y="100" fontFamily="sans-serif" fontSize="14" fontWeight="bold" fill="#78350F" transform="rotate(-12 65 100)">999.9</text>
-                    </svg>
-                 </div>
-             )}
+             {/* No Background Image */}
 
             <div className="relative z-10 flex justify-between items-start mb-2 gap-2">
                <div className="text-sm font-bold text-gray-700 dark:text-gray-200 leading-tight flex items-center gap-1.5">
