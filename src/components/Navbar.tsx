@@ -128,10 +128,10 @@ function MobileNavChip({ href, icon, text, active }: { href: string; icon: React
     return (
         <Link
             href={href}
-            className={`flex flex-shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+            className={`flex flex-shrink-0 items-center gap-2 px-3 py-2 text-[13px] font-medium transition-colors rounded-lg ${
                  active
-                 ? 'bg-violet-600 text-white border-violet-600 shadow-sm'
-                 : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800'
+                 ? 'text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10'
+                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
         >
             {icon}
