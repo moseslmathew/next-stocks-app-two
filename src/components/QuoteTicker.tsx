@@ -52,7 +52,7 @@ export default function QuoteTicker() {
   if (!quote) return null;
 
   return (
-    <div className="mt-8 flex justify-end animate-fade-in w-full pb-8">
+    <div className="flex justify-end animate-fade-in w-full pb-8">
         <div className="max-w-lg w-full px-4 text-right">
              <div className="flex justify-end items-center gap-2 mb-3">
                 <button 
