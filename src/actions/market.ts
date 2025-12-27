@@ -91,6 +91,7 @@ export async function getStockDetails(symbol: string) {
       beta: summary?.beta,
       dividendYield: summary?.dividendYield,
       profitMargins: financial?.profitMargins,
+      roe: financial?.returnOnEquity,
       bookValue: stats?.bookValue,
       priceToBook: stats?.priceToBook,
       

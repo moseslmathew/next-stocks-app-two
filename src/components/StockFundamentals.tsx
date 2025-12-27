@@ -11,6 +11,7 @@ interface StockData {
     beta?: number;
     dividendYield?: number;
     profitMargins?: number;
+    roe?: number;
 }
 
 const METRIC_DEFINITIONS: Record<string, { title: string, definition: string, importance: string }> = {
@@ -43,6 +44,11 @@ const METRIC_DEFINITIONS: Record<string, { title: string, definition: string, im
         title: 'Profit Margin',
         definition: 'The percentage of revenue that remains as profit after all expenses are deducted.',
         importance: 'It measures how efficiently a company manages its expenses. Higher margins generally mean the company has a strong competitive advantage or "moat" and can weather economic downturns better.'
+    },
+    'ROE': {
+        title: 'Return on Equity (ROE)',
+        definition: 'A measure of financial performance calculated by dividing net income by shareholders\' equity.',
+        importance: 'It shows how effectively management is using a company’s assets to create profits. A higher ROE usually indicates a more efficient company.'
     }
 };
 
@@ -126,6 +132,11 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                         label="Profit Margin" 
                         value={formatPercent(stock.profitMargins)} 
                         icon={BarChart3}
+                    />
+                     <StatCard 
+                        label="ROE" 
+                        value={formatPercent(stock.roe)} 
+                        icon={Activity}
                     />
                 </div>
             </section>
