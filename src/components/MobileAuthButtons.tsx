@@ -24,8 +24,10 @@ const MobileAuthButtons = () => {
       } else {
         console.error("SignIn not complete", result);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Guest login failed", err);
+      const msg = err.errors?.[0]?.message || err.message || "Unknown error";
+      alert(`Guest Login Failed: ${msg}\n\nPlease ensure your demo credentials in src/lib/demo.ts are correct and the user exists in your Clerk dashboard.`);
     } finally {
       setIsLoadingGuest(false);
     }

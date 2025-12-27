@@ -43,8 +43,8 @@ const Navbar = () => {
             <div className="flex items-center gap-1 mr-4">
               {isSignedIn && (
                 <>
-                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="Watchlist (India)" active={isActive('/watchlist/indian')} />
-                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="Watchlist (US)" active={isActive('/watchlist/us')} />
+                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="Watchlist (₹)" active={isActive('/watchlist/indian')} />
+                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="Watchlist ($)" active={isActive('/watchlist/us')} />
                 </>
               )}
               <NavLink href="/global-market" icon={<Globe size={16} />} text="Global Markets" active={isActive('/global-market')} />
@@ -95,8 +95,8 @@ const Navbar = () => {
                {/* Nav Items */}
                 {isSignedIn && (
                    <>
-                    <MobileNavChip href="/watchlist/indian" icon={<IndianRupee size={14} />} text="Watchlist (India)" active={isActive('/watchlist/indian')} />
-                    <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="Watchlist (US)" active={isActive('/watchlist/us')} />
+                    <MobileNavChip href="/watchlist/indian" icon={<IndianRupee size={14} />} text="Watchlist (₹)" active={isActive('/watchlist/indian')} />
+                    <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="Watchlist ($)" active={isActive('/watchlist/us')} />
                    </>
                 )}
                 <MobileNavChip href="/global-market" icon={<Globe size={14} />} text="Global Markets" active={isActive('/global-market')} />
