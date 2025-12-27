@@ -75,7 +75,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
             {label}
             <button 
                 onClick={() => setSelectedMetric(label)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                className="transition-opacity p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
                 title="Click for details"
             >
                 <HelpCircle size={12} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
