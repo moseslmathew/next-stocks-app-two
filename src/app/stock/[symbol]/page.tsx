@@ -41,7 +41,7 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
         <div className="pb-2">
            <div className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">Current Price</div>
            <div className="flex items-baseline gap-3">
-               <div className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
+               <div className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-800 dark:text-gray-100">
                    {formatCurrency(stock.price || 0, stock.currency || 'USD')}
                </div>
                <div className={`flex items-center gap-2 text-lg font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>

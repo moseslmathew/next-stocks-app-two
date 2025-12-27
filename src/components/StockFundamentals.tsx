@@ -99,7 +99,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                 <HelpCircle size={12} className="text-gray-400 dark:text-gray-500" />
             </button>
           </div>
-          <div className="text-lg font-semibold text-gray-900 dark:text-white truncate" title={String(value)}>
+          <div className="text-lg font-semibold text-gray-800 dark:text-gray-100 truncate" title={String(value)}>
             {value}
           </div>
           {subValue && (
