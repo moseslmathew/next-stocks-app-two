@@ -37,21 +37,22 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
       <div className="container mx-auto px-4 py-8 max-w-5xl space-y-8">
         
         {/* Price Section */}
-        <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8 pb-8 border-b border-gray-100 dark:border-gray-800">
-           <div>
-               <div className="text-sm text-gray-500 mb-1">Current Price</div>
-               <div className="text-5xl sm:text-6xl font-black tracking-tighter">
+        {/* Price Section */}
+        <div className="pb-2">
+           <div className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">Current Price</div>
+           <div className="flex items-baseline gap-3">
+               <div className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
                    {formatCurrency(stock.price || 0, stock.currency || 'USD')}
                </div>
-           </div>
-           <div className={`flex items-center gap-2 text-xl font-bold mb-2 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-               {isPositive ? <TrendingUp size={28} /> : <TrendingDown size={28} />}
-               <span>
-                 {isPositive ? '+' : ''}{(stock.change || 0).toFixed(2)}
-               </span>
-               <span className="bg-current/10 px-2 py-0.5 rounded-md text-lg">
-                 {(stock.changePercent || 0).toFixed(2)}%
-               </span>
+               <div className={`flex items-center gap-2 text-lg font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                   <span className="flex items-center gap-1">
+                        {isPositive ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+                        {isPositive ? '+' : ''}{(stock.change || 0).toFixed(2)}
+                   </span>
+                   <span className="bg-current/10 px-2 py-0.5 rounded-md text-sm font-bold">
+                     {(stock.changePercent || 0).toFixed(2)}%
+                   </span>
+               </div>
            </div>
         </div>
 
