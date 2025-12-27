@@ -52,7 +52,7 @@ export default function QuoteTicker() {
   if (!quote) return null;
 
   return (
-    <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8 w-full pb-8 animate-fade-in border-t border-gray-100 dark:border-gray-800/50 pt-8 mt-4">
+    <div className="flex flex-col md:flex-row items-start gap-4 md:gap-8 w-full pb-6 md:pb-8 animate-fade-in border-t border-gray-100 dark:border-gray-800/50 pt-4 md:pt-8 mt-2 md:mt-4">
         
         {/* Quote Section */}
         <div className="max-w-lg w-full text-left shrink-0">
