@@ -93,15 +93,15 @@ const Navbar = () => {
            <div className="flex items-center gap-3 p-2 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                
                {/* Nav Items */}
-               {isSignedIn && (
-                  <>
+                {isSignedIn && (
+                   <>
                     <MobileNavChip href="/watchlist/indian" icon={<IndianRupee size={14} />} text="Watchlist (India)" active={isActive('/watchlist/indian')} />
                     <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="Watchlist (US)" active={isActive('/watchlist/us')} />
-                  </>
-               )}
-               <MobileNavChip href="/global-market" icon={<Globe size={14} />} text="Global Markets" active={isActive('/global-market')} />
-               <MobileNavChip href="/ai-sentiment" icon={<Brain size={14} />} text="AI Sentiment" active={isActive('/ai-sentiment')} />
-               <MobileNavChip href="/news" icon={<Newspaper size={14} />} text="News" active={isActive('/news')} />
+                   </>
+                )}
+                <MobileNavChip href="/global-market" icon={<Globe size={14} />} text="Global Markets" active={isActive('/global-market')} />
+                <MobileNavChip href="/ai-sentiment" icon={<Brain size={14} />} text="AI Sentiment" active={isActive('/ai-sentiment')} />
+                <MobileNavChip href="/news" icon={<Newspaper size={14} />} text="News" active={isActive('/news')} />
            </div>
       </div>
     </nav>
