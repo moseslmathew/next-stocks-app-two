@@ -69,19 +69,7 @@ export default function QuoteTicker() {
                 </div>
             </div>
             
-            <div className={`relative transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'} overflow-hidden`}>
-
-                {/* Author Watermark Image */}
-                {AUTHOR_IMAGES[quote.author] && (
-                    <div className="absolute -right-4 -bottom-4 w-40 h-40 sm:w-56 sm:h-56 opacity-[0.08] dark:opacity-[0.15] pointer-events-none select-none grayscale mix-blend-multiply dark:mix-blend-screen z-0">
-                        <img 
-                            src={AUTHOR_IMAGES[quote.author]} 
-                            alt="" 
-                            className="w-full h-full object-cover object-top rounded-full blur-[1px]"
-                            style={{ maskImage: 'radial-gradient(circle, black 40%, transparent 70%)' }}
-                        />
-                    </div>
-                )}
+            <div className={`relative transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
 
                 <div className="relative z-10">
                 <blockquote className="text-lg sm:text-xl font-medium text-gray-800 dark:text-gray-200 leading-relaxed font-serif italic mb-2">
@@ -104,8 +92,21 @@ export default function QuoteTicker() {
                                 Know More
                             </button>
                         ) : (
-                            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-gray-100 dark:border-zinc-800 text-left w-full animate-in slide-in-from-top-2 fade-in duration-300 backdrop-blur-sm">
-                                <p>{quote.explanation}</p>
+                            <div className="relative overflow-hidden mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-900/50 p-4 rounded-lg border border-gray-100 dark:border-zinc-800 text-left w-full animate-in slide-in-from-top-2 fade-in duration-300">
+                                
+                                {/* Author Watermark Image */}
+                                {AUTHOR_IMAGES[quote.author] && (
+                                    <div className="absolute -right-2 -bottom-2 w-24 h-24 opacity-[0.15] dark:opacity-[0.25] pointer-events-none select-none grayscale mix-blend-multiply dark:mix-blend-screen">
+                                        <img 
+                                            src={AUTHOR_IMAGES[quote.author]} 
+                                            alt="" 
+                                            className="w-full h-full object-cover object-top rounded-full blur-[0.5px]"
+                                            style={{ maskImage: 'radial-gradient(circle, black 40%, transparent 80%)' }}
+                                        />
+                                    </div>
+                                )}
+
+                                <p className="relative z-10">{quote.explanation}</p>
                             </div>
                         )}
                     </div>
