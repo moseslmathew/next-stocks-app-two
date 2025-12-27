@@ -2,7 +2,10 @@ import { getMarketData } from '@/services/marketData';
 import { getScrapedGoldRate } from '@/actions/gold';
 import { TrendingUp, TrendingDown, Globe } from 'lucide-react';
 
+// ... (imports)
+
 const INDICES = [
+  // ... (other indices remain unchanged)
   { 
     symbol: '^NSEI', name: 'Nifty 50', region: 'IN', 
     badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 border-orange-200 dark:border-orange-800',
@@ -37,13 +40,13 @@ const INDICES = [
     symbol: 'GC=F', name: 'Gold', region: 'US',
     badgeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
     hoverBorder: 'group-hover:border-amber-200 dark:group-hover:border-amber-800',
-    cardBg: 'bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20'
+    isGold: true
   },
   { 
     symbol: 'KERALA_GOLD', name: 'Gold (8g) 22K', region: 'IN', type: 'derived',
     badgeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
     hoverBorder: 'group-hover:border-amber-200 dark:group-hover:border-amber-800',
-    cardBg: 'bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20'
+    isGold: true
   },
 ];
 
@@ -84,15 +87,27 @@ export default async function GlobalIndices() {
             isPositive = change >= 0;
         }
 
-        const cardBackground = index.cardBg || 'bg-white/60 dark:bg-gray-800/60';
-        const borderColor = index.cardBg ? 'border-amber-200/50 dark:border-amber-800/30' : 'border-gray-200 dark:border-gray-700';
+        const baseStyle = index.isGold 
+            ? 'bg-amber-50/40 dark:bg-amber-900/10 border-amber-200/50 dark:border-amber-700/30' 
+            : 'bg-white/60 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700';
 
         return (
           <div
             key={index.symbol}
-            className={`${cardBackground} backdrop-blur-md border ${borderColor} p-5 rounded-xl shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 group ${index.hoverBorder} flex flex-col justify-between h-full min-h-[110px]`}
+            className={`${baseStyle} backdrop-blur-md border p-5 rounded-xl shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 group ${index.hoverBorder} flex flex-col justify-between h-full min-h-[110px] relative overflow-hidden`}
           >
-            <div className="flex justify-between items-start mb-2 gap-2">
+             {/* Gold Background Image */}
+             {index.isGold && (
+                 <div className="absolute -right-6 -bottom-6 w-36 h-36 opacity-20 pointer-events-none mix-blend-multiply dark:mix-blend-screen rotate-12 transition-transform group-hover:scale-110 duration-700">
+                     <img 
+                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Gold_Bars.jpg/320px-Gold_Bars.jpg" 
+                        className="w-full h-full object-cover rounded-xl blur-[1px]" 
+                        alt="" 
+                     />
+                 </div>
+             )}
+
+            <div className="relative z-10 flex justify-between items-start mb-2 gap-2">
                <div className="text-sm font-bold text-gray-700 dark:text-gray-200 leading-tight flex items-center gap-1.5">
                 {index.symbol === 'GC=F' && <Globe size={14} className="stroke-[2.5px] text-blue-500/80 dark:text-blue-400" />}
                 {index.name}
@@ -103,7 +118,7 @@ export default async function GlobalIndices() {
                </div>
             </div>
             
-            <div className="text-lg font-black text-gray-900 dark:text-white tracking-tight">
+            <div className="relative z-10 text-lg font-black text-gray-900 dark:text-white tracking-tight">
                 {price ? (
                     index.symbol === 'GC=F' 
                     ? `$ ${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` 
