@@ -16,26 +16,25 @@ const AuthButtons = () => {
     
     setIsLoadingGuest(true);
     try {
-      // 1. Start the sign-in process with just the email
+      // 0. Ensure no existing flow interferes (optional but safe)
+      // 1. Start the sign-in process with just the email (trimmed)
       const { status: createStatus, supportedFirstFactors } = await signIn.create({
-        identifier: DEMO_CREDENTIALS.email,
+        identifier: DEMO_CREDENTIALS.email.trim(),
       });
 
       if (createStatus !== "needs_first_factor") {
-         // Should not happen for a password user, but handle edge cases (e.g. if already verified?)
          throw new Error(`Unexpected status after create: ${createStatus}`);
       }
 
-      // 2. Attempt the password strategy
       const passwordFactor = supportedFirstFactors?.find((factor: any) => factor.strategy === 'password') as any;
 
       if (!passwordFactor) {
-          throw new Error("Password login is not enabled for this user.");
+          throw new Error("Password login is not enabled for this user. Please enable 'Password' in Clerk Dashboard > User & Authentication.");
       }
 
       const { status, createdSessionId } = await signIn.attemptFirstFactor({
         strategy: 'password',
-        password: DEMO_CREDENTIALS.password,
+        password: DEMO_CREDENTIALS.password.trim(),
       });
 
       if (status === "complete") {
@@ -47,14 +46,19 @@ const AuthButtons = () => {
     } catch (err: any) {
       console.error("Guest login failed", err);
       // Clerk errors are often in err.errors array
-      const msg = err.errors?.[0]?.message || err.message || "Unknown error";
+      const error = err.errors?.[0];
+      const code = error?.code || "UNKNOWN_CODE";
+      const msg = error?.message || err.message || "Unknown error";
       const keyPrefix = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.slice(0, 8) || "UNKNOWN";
       
       alert(
-        `Guest Login Failed for ${DEMO_CREDENTIALS.email}:\n"${msg}"\n\n` +
-        `Potential Cause: Environment Mismatch.\n` +
-        `Your app is using Clerk Key starting with: ${keyPrefix}...\n` +
-        `Please verify this matches the API Keys in your Clerk Dashboard where the user '${DEMO_CREDENTIALS.email}' resides.`
+        `Guest Login Failed!\n` +
+        `Error Code: ${code}\n` +
+        `Message: "${msg}"\n\n` +
+        `Debug Info:\n` +
+        `- Email Attempted: '${DEMO_CREDENTIALS.email.trim()}'\n` +
+        `- API Key Prefix: ${keyPrefix}...\n\n` +
+        `If the code is 'form_identifier_not_found', the user definitely does not exist in the Clerk instance linked to this API Key.`
       );
     } finally {
       setIsLoadingGuest(false);
