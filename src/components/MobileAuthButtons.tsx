@@ -28,7 +28,7 @@ const MobileAuthButtons = () => {
     } catch (err: any) {
       console.error("Guest login failed", err);
       const msg = err.errors?.[0]?.message || err.message || "Unknown error";
-      alert(`Guest Login Failed: ${msg}\n\nPlease ensure your demo credentials in src/lib/demo.ts are correct and the user exists in your Clerk dashboard.`);
+      alert(`Guest Login Failed for ${DEMO_CREDENTIALS.email}:\n${msg}\n\nPlease ensure this user exists in your Clerk dashboard and has a password set.`);
     } finally {
       setIsLoadingGuest(false);
     }
