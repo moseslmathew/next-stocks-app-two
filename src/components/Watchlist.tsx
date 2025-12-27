@@ -274,8 +274,14 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   };
 
   // Multiple Watchlists State
-  const [watchlists, setWatchlists] = useState<{id: string, name: string}[]>([]);
+  const [watchlists, setWatchlists] = useState<{id: string, name: string, region: string}[]>([]);
   const [activeWatchlistId, setActiveWatchlistId] = useState<string | null>(null);
+  
+  const activeWatchlistRegion = useMemo(() => {
+      if (!activeWatchlistId) return filterRegion === 'ALL' ? 'IN' : filterRegion; 
+      return watchlists.find(w => w.id === activeWatchlistId)?.region || 'GLOBAL';
+  }, [watchlists, activeWatchlistId, filterRegion]);
+
   const [newListName, setNewListName] = useState('');
   const [isCreatingList, setIsCreatingList] = useState(false);
   const [editingListId, setEditingListId] = useState<string | null>(null);
@@ -1226,6 +1232,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                     </div>
                     <SearchComponent 
                         watchlistId={activeWatchlistId ?? undefined} 
+                        region={activeWatchlistRegion}
                         onAdd={() => fetchWatchlist(true)}
                     />
                 </div>

@@ -28,7 +28,7 @@ interface SearchResult {
 }
 
 // Separate component for search content to use Suspense
-function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: string, onAdd?: () => void }) {
+function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchlistId?: string, region?: string, onAdd?: () => void }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,9 +40,6 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
   
   // Use prop if available (Modal mode), otherwise fallback to URL (Search Page mode)
   const watchlistId = propWatchlistId || searchParams.get('watchlistId');
-
-  // Filter State
-  const [filter, setFilter] = useState<'ALL' | 'NSE' | 'BSE'>('ALL');
 
   // Track added symbols to show UI feedback
   const [addedSymbols, setAddedSymbols] = useState<Set<string>>(new Set());
@@ -73,7 +70,6 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Don't close if clicking filter buttons (which might be outside strict ref if design changes, but here they will be inside)
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -104,11 +100,6 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
         } finally {
              setIsAdding(false);
         }
-        // Keep search open? Or close it?
-        // Better UX: Keep current search query but maybe close dropdown if clicking?
-        // Actually, if we click a result, we might want to search for *another* one.
-        // So let's clear query to let user type new one, OR keep it open?
-        // Let's clear query to reset interaction.
         setQuery('');
         setIsOpen(false);
     } else {
@@ -119,11 +110,24 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
     }
   };
 
-  // Filter Logic
+  // Filter Logic based on Region
   const filteredResults = results.filter(r => {
-      if (filter === 'ALL') return true;
-      if (filter === 'NSE') return r.exchange === 'NSE' || r.exchange === 'NSI';
-      if (filter === 'BSE') return r.exchange === 'BSE' || r.exchange === 'BSI' || r.exchange === 'BOC'; // BOC sometimes used for BSE
+      const isIndian = ['NSE', 'NSI', 'BSE', 'BSI', 'BOC'].includes(r.exchange);
+      
+      if (region === 'IN') {
+          return isIndian;
+      } else if (region === 'GLOBAL') {
+          // Explicit Global: exclude India
+          return !isIndian;
+      } else if (watchlistId && !region) {
+          // If viewing a watchlist but regionProp missing (legacy), no filter
+          return true; 
+      } else if (watchlistId && region !== 'IN') {
+          // Fallback if region is something else? Treat as Global usually
+           return !isIndian;
+      }
+      
+      // Default: show everything
       return true; 
   });
 
@@ -132,15 +136,13 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
 
   useEffect(() => {
       setSelectedIndex(-1);
-  }, [results, filter]);
+  }, [results, region]);
 
   useEffect(() => {
       if (selectedIndex >= 0 && listRef.current) {
            const list = listRef.current;
            const item = list.children[selectedIndex] as HTMLElement;
            if (item) {
-                // block: 'nearest' is standard but manual calc is safer for custom scroll containers sometimes.
-                // ScrollIntoView is easier.
                 item.scrollIntoView({ block: 'nearest' });
            }
       }
@@ -152,7 +154,7 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
         <input
           type="text"
           className="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-none transition-all shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-400"
-          placeholder={watchlistId ? "Search to add to list..." : "Search stocks..."}
+          placeholder={watchlistId ? (region === 'IN' ? "Search NSE/BSE stocks..." : "Search US stocks...") : "Search stocks..."}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -192,25 +194,6 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
           </button>
         )}
       </div>
-      
-      {/* Filter Buttons */}
-      {watchlistId && (
-          <div className="flex gap-2 mt-2 px-1">
-              {(['ALL', 'NSE', 'BSE'] as const).map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setFilter(f)}
-                    className={`px-3 py-1 text-xs rounded-full border transition-colors ${
-                        filter === f 
-                        ? 'bg-blue-600 text-white border-blue-600' 
-                        : 'bg-white dark:bg-gray-900 text-gray-500 border-gray-200 dark:border-gray-800 hover:border-gray-300'
-                    }`}
-                  >
-                      {f === 'ALL' ? 'All' : f}
-                  </button>
-              ))}
-          </div>
-      )}
 
       {/* Adding Status */}
       {isAdding && (
@@ -261,10 +244,10 @@ function SearchContent({ watchlistId: propWatchlistId, onAdd }: { watchlistId?: 
   );
 }
 
-export default function Search({ watchlistId, onAdd }: { watchlistId?: string, onAdd?: () => void }) {
+export default function Search({ watchlistId, region, onAdd }: { watchlistId?: string, region?: string, onAdd?: () => void }) {
   return (
     <Suspense fallback={<div className="w-full h-10 bg-gray-100 dark:bg-gray-800 rounded-full animate-pulse" />}>
-      <SearchContent watchlistId={watchlistId} onAdd={onAdd} />
+      <SearchContent watchlistId={watchlistId} region={region} onAdd={onAdd} />
     </Suspense>
   );
 }
