@@ -12,6 +12,8 @@ interface StockData {
     dividendYield?: number;
     profitMargins?: number;
     roe?: number;
+    fiftyTwoWeekHigh?: number;
+    fiftyTwoWeekLow?: number;
 }
 
 const METRIC_DEFINITIONS: Record<string, { title: string, definition: string, importance: string }> = {
@@ -49,6 +51,11 @@ const METRIC_DEFINITIONS: Record<string, { title: string, definition: string, im
         title: 'Return on Equity (ROE)',
         definition: 'A measure of financial performance calculated by dividing net income by shareholders\' equity.',
         importance: 'It shows how effectively management is using a company’s assets to create profits. A higher ROE usually indicates a more efficient company.'
+    },
+    '52 Week Range': {
+        title: '52 Week Range',
+        definition: 'The lowest and highest price at which a stock has traded during the previous 52 weeks.',
+        importance: 'It gives investors a sense of the stock\'s volatility and current valuation relative to its recent history. Trading near the low might indicate value (or trouble), while trading near the high might indicate momentum (or overvaluation).'
     }
 };
 
@@ -147,6 +154,11 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                      <StatCard 
                         label="ROE" 
                         value={formatPercent(stock.roe)} 
+                        icon={Activity}
+                    />
+                    <StatCard 
+                        label="52 Week Range" 
+                        value={`${stock.fiftyTwoWeekLow?.toLocaleString() || '---'} - ${stock.fiftyTwoWeekHigh?.toLocaleString() || '---'}`}
                         icon={Activity}
                     />
                 </div>
