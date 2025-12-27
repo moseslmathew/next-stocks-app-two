@@ -151,9 +151,12 @@ function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchl
   return (
     <div className="relative w-full max-w-md group" ref={searchRef}>
       <div className="relative z-50">
+        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-violet-500 dark:text-violet-400 pointer-events-none">
+          <SearchIcon size={22} strokeWidth={2.5} />
+        </div>
         <input
           type="text"
-          className="w-full pl-11 pr-10 py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-2xl text-sm focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 focus:outline-none transition-all shadow-sm group-hover:shadow-md text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
+          className="w-full pl-14 pr-10 h-[56px] bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-full text-[17px] focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 focus:outline-none transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] focus:shadow-[0_4px_25px_rgba(124,58,237,0.1)] text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
           placeholder={watchlistId ? (region === 'IN' ? "Search NSE/BSE stocks..." : "Search US stocks...") : "Search stocks..."}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -177,20 +180,18 @@ function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchl
               if (results.length > 0) setIsOpen(true);
           }}
         />
-        <div className="absolute left-3.5 top-3 text-violet-500 dark:text-violet-400">
-          <SearchIcon size={18} />
-        </div>
+        
         {isLoading && (
-          <div className="absolute right-3.5 top-3 text-violet-500">
-            <Loader2 size={18} className="animate-spin" />
+          <div className="absolute right-5 top-1/2 -translate-y-1/2 text-violet-500">
+            <Loader2 size={20} className="animate-spin" />
           </div>
         )}
         {query && !isLoading && (
           <button 
              onClick={() => setQuery('')}
-             className="absolute right-3 top-2.5 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+             className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
           >
-             <X size={14} />
+             <X size={16} />
           </button>
         )}
       </div>
