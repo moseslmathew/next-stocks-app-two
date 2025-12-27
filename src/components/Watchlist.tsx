@@ -1266,18 +1266,17 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
         )}
         {/* Undo Toast */}
         {removedItem && (
-            <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-300 px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto">
-                <span className="text-sm">Deleted <span className="font-medium text-gray-900 dark:text-white">{removedItem.data.symbol}</span></span>
-                <div className="h-3 w-px bg-gray-300 dark:bg-gray-600"></div>
+            <div className="fixed bottom-20 sm:bottom-8 left-1/2 -translate-x-1/2 z-[60] bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-gray-400 px-4 py-2 rounded-full shadow-lg shadow-black/5 flex items-center gap-2 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto ring-1 ring-black/5">
+                <span className="text-xs sm:text-sm font-medium pl-1">Deleted <span className="text-gray-900 dark:text-gray-200">{removedItem.data.symbol}</span></span>
                 <button 
                     onClick={handleUndo}
-                    className="text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
+                    className="ml-2 text-xs sm:text-sm font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors px-2 py-0.5 rounded-md hover:bg-violet-50 dark:hover:bg-violet-900/20"
                 >
                     Undo
                 </button>
                 <button 
                     onClick={() => setRemovedItem(null)}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors ml-1"
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                     <X size={14} />
                 </button>
