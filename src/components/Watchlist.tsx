@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight, ChevronLeft, Pencil, Check, AlertTriangle } from 'lucide-react';
+import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight, ChevronLeft, Pencil, Check, AlertTriangle, Sparkles } from 'lucide-react';
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
 import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists, renameWatchlist } from '@/actions/watchlist';
@@ -1183,6 +1183,16 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                 </div>
                                             </a>
                                         ))}
+                                    </div>
+                                    
+                                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800/50">
+                                        <button
+                                            onClick={() => handleOpenNews(stock.shortName, stock.symbol)}
+                                            className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/40 rounded-lg transition-colors"
+                                        >
+                                            <Sparkles size={14} />
+                                            View News & AI Analysis
+                                        </button>
                                     </div>
                                 </div>
                             );

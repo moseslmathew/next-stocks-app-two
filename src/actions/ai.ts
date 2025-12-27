@@ -8,7 +8,7 @@ import { unstable_cache, revalidateTag } from 'next/cache';
 
 // Configuration for AI Provider
 // Options: 'google' | 'openai'
-const AI_PROVIDER: 'google' | 'openai' = 'google'; 
+const AI_PROVIDER: 'google' | 'openai' = 'openai'; 
 
 
 // Model Configuration
