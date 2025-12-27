@@ -95,8 +95,8 @@ const Navbar = () => {
                {/* Nav Items */}
                {isSignedIn && (
                   <>
-                    <MobileNavChip href="/watchlist/indian" icon={<IndianRupee size={14} />} text="India" active={isActive('/watchlist/indian')} />
-                    <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="US" active={isActive('/watchlist/us')} />
+                    <MobileNavChip href="/watchlist/indian" icon={<IndianRupee size={14} />} text="Watchlist (India)" active={isActive('/watchlist/indian')} />
+                    <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="Watchlist (US)" active={isActive('/watchlist/us')} />
                   </>
                )}
                <MobileNavChip href="/global-market" icon={<Globe size={14} />} text="Global" active={isActive('/global-market')} />
