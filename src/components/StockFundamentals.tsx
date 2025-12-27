@@ -86,24 +86,24 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
         return (num * 100).toFixed(2) + '%';
     };
 
-    const StatCard = ({ label, value, icon: Icon, subValue }: { label: string, value: string | number, icon?: any, subValue?: string }) => (
-        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-3 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative group">
-          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider relative">
-            {Icon && <Icon size={12} />}
+    const StatItem = ({ label, value, icon: Icon, subValue }: { label: string, value: string | number, icon?: any, subValue?: string }) => (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider">
+            {Icon && <Icon size={14} className="text-violet-500" />}
             <span className="truncate">{label}</span>
             <button 
                 onClick={() => setSelectedMetric(label)}
-                className="transition-opacity p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full flex-shrink-0"
+                className="opacity-50 hover:opacity-100 transition-opacity"
                 title="Click for details"
             >
-                <HelpCircle size={10} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
+                <HelpCircle size={12} className="text-gray-400 dark:text-gray-500" />
             </button>
           </div>
           <div className="text-lg font-bold text-gray-900 dark:text-white truncate" title={String(value)}>
             {value}
           </div>
           {subValue && (
-            <div className="text-[10px] text-gray-400 truncate">
+            <div className="text-xs text-gray-400 truncate">
                {subValue}
             </div>
           )}
@@ -114,49 +114,49 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
 
     return (
         <>
-            <section>
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Activity className="text-violet-600" />
+            <section className="bg-gray-50 dark:bg-gray-900/30 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
+                <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
+                    <Activity className="text-violet-600" size={20} />
                     Key Fundamentals
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <StatCard 
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4">
+                    <StatItem 
                         label="Market Cap" 
                         value={formatLargeNumber(stock.marketCap)} 
                         icon={PieChart}
                     />
-                     <StatCard 
+                     <StatItem 
                         label="P/E Ratio" 
                         value={stock.peRatio ? stock.peRatio.toFixed(2) : '---'} 
                         subValue={stock.forwardPE ? `Fwd P/E: ${stock.forwardPE.toFixed(2)}` : undefined}
                         icon={BarChart3}
                     />
-                    <StatCard 
+                    <StatItem 
                         label="EPS (TTM)" 
                         value={stock.eps ? stock.eps.toFixed(2) : '---'} 
                         icon={DollarSign}
                     />
-                    <StatCard 
+                    <StatItem 
                         label="Beta" 
                         value={stock.beta ? stock.beta.toFixed(2) : '---'} 
                         icon={Activity}
                     />
-                     <StatCard 
+                     <StatItem 
                         label="Div Yield" 
                         value={formatPercent(stock.dividendYield)} 
                         icon={PieChart}
                     />
-                     <StatCard 
+                     <StatItem 
                         label="Profit Margin" 
                         value={formatPercent(stock.profitMargins)} 
                         icon={BarChart3}
                     />
-                     <StatCard 
+                     <StatItem 
                         label="ROE" 
                         value={formatPercent(stock.roe)} 
                         icon={Activity}
                     />
-                    <StatCard 
+                    <StatItem 
                         label="52 Week Range" 
                         value={`${stock.fiftyTwoWeekLow?.toLocaleString() || '---'} - ${stock.fiftyTwoWeekHigh?.toLocaleString() || '---'}`}
                         icon={Activity}
