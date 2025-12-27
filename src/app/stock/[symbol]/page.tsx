@@ -62,17 +62,25 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
                 {/* Fundamentals Grid (Client Component) */}
                 <StockFundamentals stock={stock} />
 
-                <section className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 border border-gray-200 dark:border-gray-800">
-                    <h2 className="text-lg font-bold mb-4">Price Range (52 Week)</h2>
-                    <div className="relative pt-6 pb-2">
-                        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full w-full overflow-hidden">
-                            {/* We can calculate a marker position if needed, but for now just static range text is fine */}
-                             <div className="absolute top-0 left-0 text-sm font-semibold text-gray-500">
-                                Low: {stock.fiftyTwoWeekLow?.toLocaleString()}
-                             </div>
-                             <div className="absolute top-0 right-0 text-sm font-semibold text-gray-500">
-                                High: {stock.fiftyTwoWeekHigh?.toLocaleString()}
-                             </div>
+                <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center justify-between mb-3">
+                         <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">52 Week Range</h2>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <div className="text-sm font-bold whitespace-nowrap text-gray-900 dark:text-white">
+                           Low: {stock.fiftyTwoWeekLow?.toLocaleString()}
+                        </div>
+                        <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden relative">
+                             <div 
+                                className="absolute top-0 bottom-0 w-2 h-4 -mt-1 bg-black dark:bg-white rounded-full transition-all duration-500 shadow-md ring-2 ring-white dark:ring-gray-900"
+                                style={{
+                                    left: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`,
+                                    transform: 'translateX(-50%)'
+                                }}
+                             />
+                        </div>
+                        <div className="text-sm font-bold whitespace-nowrap text-gray-900 dark:text-white">
+                           High: {stock.fiftyTwoWeekHigh?.toLocaleString()}
                         </div>
                     </div>
                 </section>
