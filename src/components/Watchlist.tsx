@@ -991,7 +991,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                             <div className="mb-8">
                                 {!hideSectionTitles && (
                                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                        {title === 'Indian Markets' ? (
+                                        {title === 'Indian Stocks' ? (
                                             <>
                                                 <IndianRupee size={24} />
                                                 {title}
@@ -1121,8 +1121,8 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
                     return (
                         <>
-                            {(filterRegion === 'ALL' || filterRegion === 'IN') && renderSection('Indian Markets', indianStocks)}
-                            {(filterRegion === 'ALL' || filterRegion === 'GLOBAL') && renderSection('Global Markets', globalStocks)}
+                            {(filterRegion === 'ALL' || filterRegion === 'IN') && renderSection('Indian Stocks', indianStocks)}
+                            {(filterRegion === 'ALL' || filterRegion === 'GLOBAL') && renderSection('US Stocks', globalStocks)}
                         </>
                     );
                 })()}
