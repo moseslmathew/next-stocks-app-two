@@ -28,7 +28,7 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
           <BackButton />
           <div>
-            <h1 className="text-lg font-bold leading-tight">{stock.name}</h1>
+            <h1 className="text-lg font-semibold leading-tight">{stock.name}</h1>
             <div className="text-xs text-gray-500 font-mono">{stock.symbol}</div>
           </div>
         </div>
@@ -41,7 +41,7 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
         <div className="pb-2">
            <div className="text-xs text-gray-500 mb-1 font-medium uppercase tracking-wider">Current Price</div>
            <div className="flex items-baseline gap-3">
-               <div className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
+               <div className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900 dark:text-white">
                    {formatCurrency(stock.price || 0, stock.currency || 'USD')}
                </div>
                <div className={`flex items-center gap-2 text-lg font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
@@ -49,7 +49,7 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
                         {isPositive ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                         {isPositive ? '+' : ''}{(stock.change || 0).toFixed(2)}
                    </span>
-                   <span className="bg-current/10 px-2 py-0.5 rounded-md text-sm font-bold">
+                   <span className="bg-current/10 px-2 py-0.5 rounded-md text-sm font-semibold">
                      {(stock.changePercent || 0).toFixed(2)}%
                    </span>
                </div>
