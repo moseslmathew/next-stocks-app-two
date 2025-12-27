@@ -29,9 +29,10 @@ const INDICES = [
     hoverBorder: 'group-hover:border-indigo-200 dark:group-hover:border-indigo-800'
   },
   { 
-    symbol: '^N225', name: 'Nikkei 225', region: 'JP',
-    badgeColor: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300 border-rose-200 dark:border-rose-800',
-    hoverBorder: 'group-hover:border-rose-200 dark:group-hover:border-rose-800'
+    symbol: 'SI=F', name: 'Silver', region: 'US',
+    badgeColor: 'bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300 border-slate-200 dark:border-slate-800',
+    hoverBorder: 'group-hover:border-slate-200 dark:group-hover:border-slate-800',
+    isSilver: true
   },
   { 
     symbol: 'GC=F', name: 'Gold', region: 'US',
@@ -85,7 +86,9 @@ export default async function GlobalIndices() {
         }
 
         const baseStyle = index.isGold 
-            ? 'bg-amber-50/40 dark:bg-amber-900/10 border-amber-200/50 dark:border-amber-700/30' 
+            ? 'bg-amber-50/40 dark:bg-amber-900/10 border-amber-200/50 dark:border-amber-700/30'
+            : index.isSilver
+            ? 'bg-slate-50/40 dark:bg-slate-900/10 border-slate-200/50 dark:border-slate-700/30'
             : 'bg-white/60 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700';
 
         return (
@@ -97,7 +100,7 @@ export default async function GlobalIndices() {
 
             <div className="relative z-10 flex justify-between items-start mb-2 gap-2">
                <div className="text-sm font-bold text-gray-700 dark:text-gray-200 leading-tight flex items-center gap-1.5">
-                {index.symbol === 'GC=F' && <Globe size={14} className="stroke-[2.5px] text-blue-500/80 dark:text-blue-400" />}
+                {(index.symbol === 'GC=F' || index.symbol === 'SI=F') && <Globe size={14} className="stroke-[2.5px] text-blue-500/80 dark:text-blue-400" />}
                 {index.name}
                </div>
                <div className={`text-xs font-bold flex items-center gap-1 whitespace-nowrap shrink-0 mt-0.5 ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -108,7 +111,7 @@ export default async function GlobalIndices() {
             
             <div className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight">
                 {price ? (
-                    index.symbol === 'GC=F' 
+                    (index.symbol === 'GC=F' || index.symbol === 'SI=F') 
                     ? `$ ${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}` 
                     : index.symbol === 'KERALA_GOLD'
                     ? `₹ ${price.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
