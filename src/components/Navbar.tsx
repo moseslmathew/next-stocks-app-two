@@ -44,8 +44,8 @@ const Navbar = () => {
               {isSignedIn && (
                 <>
                 <>
-                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="India" active={isActive('/watchlist/indian')} />
-                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="US" active={isActive('/watchlist/us')} />
+                  <NavLink href="/watchlist/indian" icon={<IndianRupee size={16} />} text="Watchlist (₹)" active={isActive('/watchlist/indian')} />
+                  <NavLink href="/watchlist/us" icon={<DollarSign size={16} />} text="Watchlist ($)" active={isActive('/watchlist/us')} />
                 </>
                 </>
               )}
@@ -98,8 +98,8 @@ const Navbar = () => {
                 {isSignedIn && (
                    <>
                    <>
-                    <MobileNavChip href="/watchlist/indian" icon={<IndianRupee size={14} />} text="India" active={isActive('/watchlist/indian')} />
-                    <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="US" active={isActive('/watchlist/us')} />
+                    <MobileNavChip href="/watchlist/indian" icon={<IndianRupee size={14} />} text="Watchlist (₹)" active={isActive('/watchlist/indian')} />
+                    <MobileNavChip href="/watchlist/us" icon={<DollarSign size={14} />} text="Watchlist ($)" active={isActive('/watchlist/us')} />
                    </>
                    </>
                 )}
