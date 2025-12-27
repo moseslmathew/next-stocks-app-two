@@ -250,3 +250,14 @@ export const INVESTING_QUOTES = [
     explanation: "Markets repeat because emotions repeat. Understanding psychology prevents mistakes. History is the best teacher."
   }
 ];
+
+export const AUTHOR_IMAGES: Record<string, string> = {
+  "Warren Buffett": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Warren_Buffett_KU_Visit.jpg/320px-Warren_Buffett_KU_Visit.jpg",
+  "Benjamin Graham": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Benjamin_Graham_1950.jpg",
+  "Charlie Munger": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Charlie_Munger_cropped.jpg/320px-Charlie_Munger_cropped.jpg",
+  "Peter Lynch": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Peter_Lynch_1994.jpg/320px-Peter_Lynch_1994.jpg", 
+  "John C. Bogle": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/John_C._Bogle.jpg/320px-John_C._Bogle.jpg",
+  "John Bogle": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/John_C._Bogle.jpg/320px-John_C._Bogle.jpg",
+  "Sir John Templeton": "https://upload.wikimedia.org/wikipedia/commons/6/6f/John_Templeton_1999.jpg",
+  "George Soros": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/George_Soros_-_Festival_of_Economics_2012.jpg/320px-George_Soros_-_Festival_of_Economics_2012.jpg"
+};
