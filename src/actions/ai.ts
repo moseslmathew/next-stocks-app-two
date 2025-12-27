@@ -209,6 +209,7 @@ import { INVESTING_QUOTES } from '@/data/quotes';
 export interface InvestingQuote {
   text: string;
   author: string;
+  explanation?: string;
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -227,6 +228,7 @@ async function fetchInvestingQuote(): Promise<AIResult<InvestingQuote>> {
         data: { 
             text: quote.text, 
             author: quote.author,
+            explanation: quote.explanation,
             model: 'static-curated-list' 
         } 
     };

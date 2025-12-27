@@ -5,12 +5,14 @@ import { Quote, Sparkles, RefreshCw } from 'lucide-react';
 import { getInvestingQuote, refreshInvestingQuote } from '@/actions/ai';
 
 export default function QuoteTicker() {
-  const [quote, setQuote] = useState<{ text: string, author: string } | null>(null);
+  const [quote, setQuote] = useState<{ text: string, author: string, explanation?: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
 
   const fetchQuote = async () => {
     try {
       setLoading(true);
+      setShowExplanation(false); // Reset explanation
       const result = await getInvestingQuote();
       if (result.success && result.data) {
         setQuote(result.data);
@@ -25,6 +27,7 @@ export default function QuoteTicker() {
   const handleNext = async () => {
       try {
           setLoading(true);
+          setShowExplanation(false);
           await refreshInvestingQuote();
           // Small delay to let revalidation propagate if needed, though usually instant for next.js tags
           await new Promise(r => setTimeout(r, 200)); 
@@ -70,11 +73,28 @@ export default function QuoteTicker() {
                     "{quote.text}"
                 </blockquote>
                 
-                <div className="flex items-center justify-end gap-2 opacity-60">
+                <div className="flex items-center justify-end gap-2 opacity-60 mb-2">
                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                         — {quote.author}
                     </span>
                 </div>
+
+                {quote.explanation && (
+                    <div className="flex flex-col items-end gap-2">
+                        {!showExplanation ? (
+                            <button 
+                                onClick={() => setShowExplanation(true)}
+                                className="text-[10px] font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors border-b border-dashed border-violet-300 dark:border-violet-700 pb-0.5"
+                            >
+                                Know More
+                            </button>
+                        ) : (
+                            <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-gray-100 dark:border-zinc-800 text-left w-full animate-in slide-in-from-top-2 fade-in duration-300">
+                                <p>{quote.explanation}</p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     </div>
