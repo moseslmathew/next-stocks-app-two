@@ -93,9 +93,9 @@ export default async function GlobalIndices() {
           >
              {/* Gold Background Image */}
              {index.isGold && (
-                 <div className="absolute -right-2 -bottom-4 w-28 h-28 opacity-50 dark:opacity-40 pointer-events-none rotate-12 transition-transform group-hover:scale-110 duration-700">
+                 <div className="absolute -right-2 -bottom-4 w-28 h-28 opacity-60 dark:opacity-50 pointer-events-none rotate-12 transition-transform group-hover:scale-110 duration-700">
                      <img 
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Gold_Bars.jpg/320px-Gold_Bars.jpg" 
+                        src="https://images.unsplash.com/photo-1610375460993-a43dfe83d84f?auto=format&fit=crop&w=300&q=80" 
                         className="w-full h-full object-cover rounded-xl shadow-sm" 
                         alt="" 
                      />
