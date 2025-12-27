@@ -1,7 +1,7 @@
 import { getStockDetails } from '@/actions/market';
-import Link from 'next/link';
 import StockFundamentals from '@/components/StockFundamentals';
-import { ArrowLeft, Globe, Building2, Users, TrendingUp, TrendingDown, DollarSign, Activity, PieChart, BarChart3, HelpCircle } from 'lucide-react';
+import BackButton from '@/components/BackButton';
+import { Globe, Building2, Users, TrendingUp, TrendingDown } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { formatCurrency } from '@/utils/currency';
 
@@ -21,54 +21,12 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
 
   const isPositive = (stock.change || 0) >= 0;
 
-  const formatLargeNumber = (num?: number) => {
-    if (!num) return '---';
-    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
-    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
-    return num.toLocaleString();
-  };
-
-  const formatPercent = (num?: number) => {
-    if (num === undefined || num === null) return '---';
-    return (num * 100).toFixed(2) + '%';
-  };
-
-  const StatCard = ({ label, value, icon: Icon, subValue, helpText }: { label: string, value: string | number, icon?: any, subValue?: string, helpText?: string }) => (
-    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative group">
-      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider relative">
-        {Icon && <Icon size={14} />}
-        {label}
-        {helpText && (
-            <div className="relative group/help cursor-help">
-                <HelpCircle size={12} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors" />
-                {/* Tooltip */}
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 bg-gray-900 dark:bg-gray-800 text-white text-[10px] normal-case tracking-normal rounded-lg opacity-0 invisible group-hover/help:opacity-100 group-hover/help:visible transition-all duration-200 z-50 pointer-events-none shadow-xl border border-gray-700/50">
-                    {helpText}
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
-                </div>
-            </div>
-        )}
-      </div>
-      <div className="text-xl font-bold text-gray-900 dark:text-white">
-        {value}
-      </div>
-      {subValue && (
-        <div className="text-xs text-gray-400">
-           {subValue}
-        </div>
-      )}
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white pb-20">
       {/* Header / Nav */}
       <div className="sticky top-0 z-30 bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Link href="/" className="p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-            <ArrowLeft size={20} />
-          </Link>
+          <BackButton />
           <div>
             <h1 className="text-lg font-bold leading-tight">{stock.name}</h1>
             <div className="text-xs text-gray-500 font-mono">{stock.symbol}</div>
