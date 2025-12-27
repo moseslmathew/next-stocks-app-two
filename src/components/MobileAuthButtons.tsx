@@ -28,7 +28,14 @@ const MobileAuthButtons = () => {
     } catch (err: any) {
       console.error("Guest login failed", err);
       const msg = err.errors?.[0]?.message || err.message || "Unknown error";
-      alert(`Guest Login Failed for ${DEMO_CREDENTIALS.email}:\n${msg}\n\nPlease ensure this user exists in your Clerk dashboard and has a password set.`);
+      const keyPrefix = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.slice(0, 8) || "UNKNOWN";
+        
+      alert(
+        `Guest Login Failed for ${DEMO_CREDENTIALS.email}:\n"${msg}"\n\n` +
+        `Potential Cause: Environment Mismatch.\n` +
+        `Your app is using Clerk Key starting with: ${keyPrefix}...\n` +
+        `Please verify this matches the API Keys in your Clerk Dashboard where the user '${DEMO_CREDENTIALS.email}' resides.`
+      );
     } finally {
       setIsLoadingGuest(false);
     }
