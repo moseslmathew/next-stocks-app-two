@@ -29,12 +29,6 @@ const INDICES = [
     hoverBorder: 'group-hover:border-indigo-200 dark:group-hover:border-indigo-800'
   },
   { 
-    symbol: 'SI=F', name: 'Silver', region: 'US',
-    badgeColor: 'bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300 border-slate-200 dark:border-slate-800',
-    hoverBorder: 'group-hover:border-slate-200 dark:group-hover:border-slate-800',
-    isSilver: true
-  },
-  { 
     symbol: 'GC=F', name: 'Gold', region: 'US',
     badgeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
     hoverBorder: 'group-hover:border-amber-200 dark:group-hover:border-amber-800',
@@ -45,6 +39,12 @@ const INDICES = [
     badgeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
     hoverBorder: 'group-hover:border-amber-200 dark:group-hover:border-amber-800',
     isGold: true
+  },
+  { 
+    symbol: 'SI=F', name: 'Silver', region: 'US',
+    badgeColor: 'bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300 border-slate-200 dark:border-slate-800',
+    hoverBorder: 'group-hover:border-slate-200 dark:group-hover:border-slate-800',
+    isSilver: true
   },
 ];
 
