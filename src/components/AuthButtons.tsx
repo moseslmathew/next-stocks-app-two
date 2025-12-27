@@ -4,15 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { SignInButton, SignedIn, SignedOut, UserButton, useSignIn } from '@clerk/nextjs';
 import { useSearchParams } from 'next/navigation';
 import { Loader2, UserCircle } from 'lucide-react';
+import { DEMO_CREDENTIALS } from '@/lib/demo';
 
 const AuthButtons = () => {
   const { signIn, setActive, isLoaded } = useSignIn();
   const searchParams = useSearchParams();
   const [isLoadingGuest, setIsLoadingGuest] = useState(false);
-
-  // DEMO CREDENTIALS - PLEASE UPDATE THESE
-  const DEMO_EMAIL = 'demo@example.com';
-  const DEMO_PASSWORD = 'password';
 
   const handleGuestLogin = async () => {
     if (!isLoaded) return;
@@ -20,8 +17,8 @@ const AuthButtons = () => {
     setIsLoadingGuest(true);
     try {
       const result = await signIn.create({
-        identifier: DEMO_EMAIL,
-        password: DEMO_PASSWORD,
+        identifier: DEMO_CREDENTIALS.email,
+        password: DEMO_CREDENTIALS.password,
       });
 
       if (result.status === "complete") {

@@ -1,11 +1,38 @@
 'use client';
 
-import React from 'react';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import React, { useState } from 'react';
+import { SignInButton, SignedIn, SignedOut, UserButton, useSignIn } from '@clerk/nextjs';
+import { Loader2, UserCircle } from 'lucide-react';
+import { DEMO_CREDENTIALS } from '@/lib/demo';
 
 const MobileAuthButtons = () => {
+  const { signIn, setActive, isLoaded } = useSignIn();
+  const [isLoadingGuest, setIsLoadingGuest] = useState(false);
+
+  const handleGuestLogin = async () => {
+    if (!isLoaded) return;
+    
+    setIsLoadingGuest(true);
+    try {
+      const result = await signIn.create({
+        identifier: DEMO_CREDENTIALS.email,
+        password: DEMO_CREDENTIALS.password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+      } else {
+        console.error("SignIn not complete", result);
+      }
+    } catch (err) {
+      console.error("Guest login failed", err);
+    } finally {
+      setIsLoadingGuest(false);
+    }
+  };
+
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-2">
         <SignedIn>
             <UserButton afterSignOutUrl="/" 
             appearance={{
@@ -16,6 +43,14 @@ const MobileAuthButtons = () => {
             />
         </SignedIn>
         <SignedOut>
+            <button 
+                onClick={handleGuestLogin}
+                disabled={isLoadingGuest}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-violet-50 dark:bg-violet-900/10 text-violet-600 dark:text-violet-300 text-xs font-medium border border-violet-100 dark:border-violet-800"
+            >
+                {isLoadingGuest ? <Loader2 size={14} className="animate-spin" /> : <UserCircle size={14} />}
+                Guest
+            </button>
             <SignInButton mode="modal">
             <button className="px-3 py-1.5 rounded-full bg-violet-600 text-white text-xs font-medium">
                 Sign In
