@@ -1267,7 +1267,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                 <span className="text-xs sm:text-sm font-medium pl-1">Deleted <span className="text-gray-900 dark:text-gray-200">{removedItem.data.symbol}</span></span>
                 <button 
                     onClick={handleUndo}
-                    className="ml-2 text-xs sm:text-sm font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors px-2 py-0.5 rounded-md hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                    className="ml-2 text-xs sm:text-sm font-bold text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/30 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors px-3 py-1 rounded-lg"
                 >
                     Undo
                 </button>
