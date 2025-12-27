@@ -87,23 +87,23 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
     };
 
     const StatCard = ({ label, value, icon: Icon, subValue }: { label: string, value: string | number, icon?: any, subValue?: string }) => (
-        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative group">
-          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-xs font-medium uppercase tracking-wider relative">
-            {Icon && <Icon size={14} />}
-            {label}
+        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-3 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative group">
+          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-[10px] sm:text-xs font-medium uppercase tracking-wider relative">
+            {Icon && <Icon size={12} />}
+            <span className="truncate">{label}</span>
             <button 
                 onClick={() => setSelectedMetric(label)}
-                className="transition-opacity p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                className="transition-opacity p-0.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full flex-shrink-0"
                 title="Click for details"
             >
-                <HelpCircle size={12} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
+                <HelpCircle size={10} className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300" />
             </button>
           </div>
-          <div className="text-xl font-bold text-gray-900 dark:text-white">
+          <div className="text-lg font-bold text-gray-900 dark:text-white truncate" title={String(value)}>
             {value}
           </div>
           {subValue && (
-            <div className="text-xs text-gray-400">
+            <div className="text-[10px] text-gray-400 truncate">
                {subValue}
             </div>
           )}
