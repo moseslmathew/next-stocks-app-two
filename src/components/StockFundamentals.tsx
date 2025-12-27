@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Activity, PieChart, BarChart3, DollarSign, HelpCircle, X, Info } from 'lucide-react';
 
 interface StockData {
+    price?: number;
     marketCap?: number;
     peRatio?: number;
     forwardPE?: number;
@@ -126,11 +127,30 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                         <StatItem label="EPS (TTM)" value={stock.eps ? stock.eps.toFixed(2) : '---'} />
                         <StatItem label="Beta" value={stock.beta ? stock.beta.toFixed(2) : '---'} />
                     </div>
-                    <div className="space-y-0">
+                    <div className="space-y-0 text-left">
                         <StatItem label="Div Yield" value={formatPercent(stock.dividendYield)} />
                         <StatItem label="Profit Margin" value={formatPercent(stock.profitMargins)} />
                         <StatItem label="ROE" value={formatPercent(stock.roe)} />
-                        <StatItem label="52 Week Range" value={`${stock.fiftyTwoWeekLow?.toLocaleString() || '---'} - ${stock.fiftyTwoWeekHigh?.toLocaleString() || '---'}`} />
+                    </div>
+                </div>
+
+                {/* 52 Week Range Bar */}
+                <div className="mt-6 pt-4 border-t border-dashed border-gray-200 dark:border-gray-800">
+                    <div className="flex items-center justify-between mb-2">
+                         <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">52 Week Range</div>
+                    </div>
+                    <div className="relative h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                        <div 
+                           className="absolute top-0 bottom-0 w-2 h-full bg-gray-900 dark:bg-gray-100 rounded-full transition-all duration-500 shadow-sm"
+                           style={{
+                               left: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`,
+                               transform: 'translateX(-50%)' 
+                           }}
+                        />
+                    </div>
+                    <div className="flex justify-between mt-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                        <span>Low: {stock.fiftyTwoWeekLow?.toLocaleString()}</span>
+                        <span>High: {stock.fiftyTwoWeekHigh?.toLocaleString()}</span>
                     </div>
                 </div>
             </section>
