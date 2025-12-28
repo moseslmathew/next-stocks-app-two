@@ -165,23 +165,23 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
         {children}
 
         <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-left text-sm table-fixed">
         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
           <tr>
-            <th className="px-4 sm:px-6 py-3 w-[40%]">Company</th>
-            <th className="px-4 sm:px-6 py-3 w-[25%]">Price</th>
-            <th className="px-4 sm:px-6 py-3 w-[35%]">
+            <th className="px-3 sm:px-6 py-3 w-[45%] sm:w-[40%]">Company</th>
+            <th className="px-2 sm:px-6 py-3 w-[25%] whitespace-nowrap">Price</th>
+            <th className="px-3 sm:px-6 py-3 w-[30%] sm:w-[35%]">
                 <div className="flex items-center justify-end">
-                    <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-xs">
+                    <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
                         <button
                             onClick={() => setTrendRange('1d')}
-                            className={`px-2 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                            className={`px-1.5 sm:px-2 py-0.5 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                         >
                             1D
                         </button>
                         <button
                             onClick={() => setTrendRange('52w')}
-                            className={`px-2 py-0.5 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                            className={`px-1.5 sm:px-2 py-0.5 rounded-md transition-all ${trendRange === '52w' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                         >
                             52W
                         </button>
@@ -198,16 +198,16 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
 
             return (
               <tr key={data.symbol} className="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
-                <td className="px-4 sm:px-6 py-4 align-middle">
-                  <div className="flex items-center">
-                    <div className="min-w-0">
-                        <div className="font-medium text-xs sm:text-sm text-gray-900 dark:text-white whitespace-normal leading-tight">{data.shortName}</div>
+                <td className="px-3 sm:px-6 py-3 align-middle">
+                  <div className="flex items-center overflow-hidden">
+                    <div className="min-w-0 pr-1">
+                        <div className="font-medium text-xs sm:text-sm text-gray-900 dark:text-white truncate" title={data.shortName}>{data.shortName}</div>
                         <div className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize truncate mt-0.5">{(data.shortName || data.symbol).toLowerCase()}</div>
                     </div>
                   </div>
                 </td>
-                <td className="px-4 sm:px-6 py-4 align-middle">
-                    <div className="flex flex-col items-start">
+                <td className="px-2 sm:px-6 py-3 align-middle">
+                    <div className="flex flex-col items-start whitespace-nowrap">
                         <div className="font-mono text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
                            {formatCurrency(data.regularMarketPrice, data.currency)}
                         </div>
@@ -216,16 +216,16 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
                         </div>
                     </div>
                 </td>
-                <td className="px-4 sm:px-6 py-4 align-middle cursor-pointer" onClick={() => setSelectedStock(data)} title="Click to view chart">
+                <td className="px-3 sm:px-6 py-3 align-middle cursor-pointer" onClick={() => setSelectedStock(data)} title="Click to view chart">
                     <div className="flex justify-end">
                         <Sparkline 
                             data={data.sparkline} 
                             timestamps={data.timestamps}
                             previousClose={previousClose}
                             isIndian={isIndian}
-                            width={120} 
-                            height={40} 
-                            className="w-20 sm:w-32"
+                            width={100} 
+                            height={35} 
+                            className="w-20 sm:w-28"
                             color={trendRange === '1d' ? (isPositive ? '#16a34a' : '#dc2626') : undefined} 
                         />
                     </div>
