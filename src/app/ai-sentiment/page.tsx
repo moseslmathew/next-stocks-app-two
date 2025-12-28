@@ -38,18 +38,16 @@ export default async function AISentimentPage() {
       <div className="max-w-6xl mx-auto">
         
         {/* Compact Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div>
+        <div className="mb-6">
+            <div className="flex items-center gap-3">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                     Market Sentiment Outlook
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    AI prediction for the next trading session.
-                </p>
+                <RefreshPredictionButton minimal />
             </div>
-            <div className="shrink-0">
-                <RefreshPredictionButton />
-            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                AI prediction for the next trading session.
+            </p>
         </div>
 
         {/* Content Area */}

@@ -5,7 +5,11 @@ import { useTransition } from 'react';
 import { refreshMarketPrediction } from '@/actions/ai';
 import { useRouter } from 'next/navigation';
 
-export default function RefreshPredictionButton() {
+interface RefreshPredictionButtonProps {
+    minimal?: boolean;
+}
+
+export default function RefreshPredictionButton({ minimal = false }: RefreshPredictionButtonProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -15,6 +19,19 @@ export default function RefreshPredictionButton() {
       router.refresh();
     });
   };
+
+  if (minimal) {
+      return (
+        <button
+          onClick={handleRefresh}
+          disabled={isPending}
+          className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400 hover:text-violet-600 dark:text-gray-500 dark:hover:text-violet-400 transition-all disabled:opacity-50"
+          title="Refresh Analysis"
+        >
+          <RefreshCw size={18} className={`${isPending ? 'animate-spin' : ''}`} />
+        </button>
+      );
+  }
 
   return (
     <button
