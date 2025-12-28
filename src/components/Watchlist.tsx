@@ -14,6 +14,7 @@ import Sparkline from '@/components/Sparkline';
 import { SparklineBar } from '@/components/SparklineBar';
 import { ChartModal } from '@/components/ChartModal';
 import { NewsModal } from '@/components/NewsModal';
+import MarketIndicesTicker from '@/components/MarketIndicesTicker';
 import { formatCurrency } from '@/utils/currency';
 import { useUser } from '@clerk/nextjs';
 

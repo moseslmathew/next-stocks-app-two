@@ -14,8 +14,24 @@ export default function SentimentView({ prediction, error, isQuotaExceeded }: Se
   let sentimentColor = 'text-gray-500';
   let sentimentBg = 'bg-gray-100 dark:bg-gray-800';
   let sentimentIcon = <Minus className="w-8 h-8" />;
+  let effectiveScore = 50;
 
   if (prediction) {
+    effectiveScore = prediction.score;
+
+    // Self-healing Score Logic:
+    // Enforce alignment between Sentiment Text and Score representation
+    if (prediction.sentiment === 'Bearish' && effectiveScore >= 50) {
+        // If Bearish but score is high, it likely means "Confidence", so we map it to bearish range (0-50)
+        // e.g. 60 -> 40, 70 -> 30, 80 -> 20.
+        effectiveScore = Math.max(10, 100 - effectiveScore);
+        if (effectiveScore >= 50) effectiveScore = 45; // Hard fallback
+    } else if (prediction.sentiment === 'Bullish' && effectiveScore <= 50) {
+         // If Bullish but score is low, map it to bullish range (50-100)
+         effectiveScore = Math.min(90, 100 - effectiveScore);
+         if (effectiveScore <= 50) effectiveScore = 55; // Hard fallback
+    }
+
     // Logic based on explicit sentiment text first, then fallback to score
     const isBullish = prediction.sentiment === 'Bullish';
     const isBearish = prediction.sentiment === 'Bearish';
@@ -105,7 +121,7 @@ export default function SentimentView({ prediction, error, isQuotaExceeded }: Se
                             {/* Active Bar */}
                             <div 
                                 className="h-full bg-gradient-to-r from-red-500 via-amber-400 to-green-500 transition-all duration-1000 ease-out relative"
-                                style={{ width: `${prediction.score}%` }}
+                                style={{ width: `${effectiveScore}%` }}
                             >
                                 <div className="absolute right-0 top-0 bottom-0 w-px bg-white/60 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
                             </div>
@@ -114,7 +130,7 @@ export default function SentimentView({ prediction, error, isQuotaExceeded }: Se
                         <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-50 dark:border-gray-800">
                                 <span className="text-xs font-medium text-gray-400">Confidence Score</span>
                                 <span className="font-mono text-sm font-bold text-gray-700 dark:text-gray-300">
-                                {prediction.score}<span className="text-gray-300 dark:text-gray-600">/100</span>
+                                {effectiveScore}<span className="text-gray-300 dark:text-gray-600">/100</span>
                                 </span>
                         </div>
                     </div>
