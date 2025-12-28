@@ -15,7 +15,11 @@ const SYMBOL_NAMES: Record<string, string> = {
     '^CNXIT': 'NIFTY IT'
 };
 
-export default function MarketIndicesTicker() {
+interface MarketIndicesTickerProps {
+    mode?: 'cards' | 'ticker';
+}
+
+export default function MarketIndicesTicker({ mode = 'cards' }: MarketIndicesTickerProps) {
     const [indices, setIndices] = useState<MarketData[]>([]);
     const [loading, setLoading] = useState(true);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -45,6 +49,49 @@ export default function MarketIndicesTicker() {
                 {[1, 2, 3, 4].map(i => (
                     <div key={i} className="h-full w-28 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
                 ))}
+            </div>
+        );
+    }
+
+    if (!loading && indices.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-12 w-full bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800 border-dashed">
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <span className="w-2 h-2 rounded-full bg-red-400"/>
+                    Market Data Unavailable
+                    <button onClick={fetchData} className="ml-2 hover:text-violet-500 underline">Retry</button>
+                </div>
+            </div>
+        );
+    }
+
+    if (mode === 'ticker') {
+        return (
+            <div className="w-full overflow-hidden">
+                <div 
+                    ref={scrollRef}
+                    className="flex items-center gap-6 sm:gap-8 overflow-x-auto no-scrollbar whitespace-nowrap py-2"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                    {indices.map((index) => {
+                         const isPositive = index.regularMarketChange >= 0;
+                         const colorClass = isPositive ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500';
+                         
+                         return (
+                            <div key={index.symbol} className="flex items-baseline gap-2 text-xs sm:text-sm shrink-0">
+                                <span className="font-bold text-gray-700 dark:text-gray-200 uppercase tracking-tight">
+                                     {SYMBOL_NAMES[index.symbol] || index.shortName}
+                                </span>
+                                <span className="font-medium text-gray-500 dark:text-gray-400 font-mono">
+                                     {index.regularMarketPrice.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 })}
+                                </span>
+                                <span className={`font-mono font-medium ${colorClass}`}>
+                                    {index.regularMarketChange > 0 ? '+' : ''}{index.regularMarketChange.toFixed(2)} ({Math.abs(index.regularMarketChangePercent).toFixed(2)}%)
+                                </span>
+                            </div>
+                         );
+                    })}
+                </div>
             </div>
         );
     }

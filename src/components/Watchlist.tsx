@@ -1158,6 +1158,10 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
           </div>
         )}
 
+        {/* Top Market Indices Section */}
+        <div className="mb-6 w-full border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-black pb-2">
+             <MarketIndicesTicker mode="ticker" />
+        </div>
         {/* Watchlist Briefing Section */}
         {watchlistData.length > 0 && (
             <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8">
