@@ -5,16 +5,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { unstable_cache, revalidateTag } from 'next/cache';
-
-// Configuration for AI Provider
-// Options: 'google' | 'openai'
-const AI_PROVIDER: 'google' | 'openai' = 'openai'; 
-
-
-// Model Configuration
-const GOOGLE_MODEL = 'models/gemini-3-flash-preview';
-const OPENAI_MODEL = 'gpt-4o-mini';
-
+import { AI_PROVIDER, GOOGLE_MODEL, OPENAI_MODEL } from '@/lib/ai-config';
 
 // Helper to get the active model
 function getActiveModel() {
