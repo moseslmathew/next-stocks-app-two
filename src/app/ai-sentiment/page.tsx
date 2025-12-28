@@ -36,26 +36,7 @@ export default async function AISentimentPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black pt-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
-        {/* Helper Header - Always Visible */}
-        {/* Helper Header - Compact */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
-            <div>
-                 <div className="flex items-center gap-2 mb-2">
-                    <Brain size={14} className="text-violet-600 dark:text-violet-400" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">Tensor AI Analysis</span>
-                </div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                    Market Sentiment Outlook
-                </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-xl">
-                    AI prediction for the next trading session based on real-time data & news.
-                </p>
-            </div>
-            <div className="shrink-0">
-                <RefreshPredictionButton />
-            </div>
-        </div>
-
+        
         {/* Content Area */}
         {prediction ? (
             <div className="animate-fade-in">
