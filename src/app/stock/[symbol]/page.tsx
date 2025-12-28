@@ -112,7 +112,11 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
                              <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Year Listed</div>
                              <div className="font-medium flex items-center gap-2">
                                  <Calendar size={16} className="text-orange-500" />
-                                 {new Date(Number(stock.listingDate) * 1000).getFullYear()}
+                                 {(() => {
+                                     const dateVal = Number(stock.listingDate);
+                                     const timestamp = dateVal < 10000000000 ? dateVal * 1000 : dateVal;
+                                     return new Date(timestamp).getFullYear();
+                                 })()}
                              </div>
                          </div>
                     )}
