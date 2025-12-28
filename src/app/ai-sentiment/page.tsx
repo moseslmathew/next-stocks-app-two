@@ -55,43 +55,53 @@ export default async function AISentimentPage() {
             <div className="animate-fade-in">
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
                     {/* Main Score Card */}
-                    <div className="lg:col-span-2 bg-white dark:bg-gray-900 rounded-2xl p-8 border border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none flex flex-col items-center justify-center text-center relative overflow-hidden group hover:border-violet-200 dark:hover:border-violet-900/50 transition-colors duration-300">
-                        <div className={`absolute top-0 left-0 w-full h-1.5 ${sentimentColor.replace('text-', 'bg-')}`} />
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-50/50 dark:to-gray-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="lg:col-span-2 relative overflow-hidden bg-white dark:bg-gray-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/40 dark:shadow-none flex flex-col justify-between group">
                         
-                        <div className={`relative z-10 p-5 rounded-full ${sentimentBg} ${sentimentColor} mb-6 ring-1 ring-inset ring-black/5 dark:ring-white/5`}>
-                            {sentimentIcon}
-                        </div>
-                        
-                        <h2 className="relative z-10 text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
-                            Market Signal
-                        </h2>
-                        <div className={`relative z-10 text-5xl sm:text-6xl font-black ${sentimentColor} mb-6 tracking-tight`}>
-                            {prediction.sentiment}
-                        </div>
-                        
-                        {/* Custom Meter */}
-                        <div className="relative z-10 w-full max-w-[240px]">
-                            <div className="flex justify-between text-[10px] font-bold uppercase text-gray-400 mb-2 tracking-wider">
-                                <span>Bear</span>
-                                <span>Neutral</span>
-                                <span>Bull</span>
-                            </div>
-                            <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner ring-1 ring-black/5 dark:ring-white/5 relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-amber-400 to-green-500 opacity-20 dark:opacity-30" />
-                                <div 
-                                    className="absolute top-0 bottom-0 w-1.5 bg-white dark:bg-white rounded-full shadow-[0_0_10px_rgba(0,0,0,0.3)] transform -translate-x-1/2 transition-all duration-1000 cubic-bezier(0.4, 0, 0.2, 1)"
-                                    style={{ left: `${prediction.score}%` }}
-                                >
-                                    <div className={`absolute -top-1 -bottom-1 -left-1 -right-1 rounded-full ${sentimentColor.replace('text-', 'bg-')} opacity-50 blur-sm`} /> 
+                        {/* Ambient Background Glow */}
+                        <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-10 dark:opacity-20 transition-colors duration-500 ${sentimentColor.replace('text-', 'bg-')}`} />
+
+                        <div className="relative z-10 flex flex-col h-full justify-between">
+                            <div className="flex items-start justify-between mb-8">
+                                <div>
+                                    <h2 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1">
+                                        Market Signal
+                                    </h2>
+                                    <div className={`text-4xl sm:text-5xl font-black tracking-tight ${sentimentColor} drop-shadow-sm`}>
+                                        {prediction.sentiment}
+                                    </div>
                                 </div>
-                                <div 
-                                    className="h-full transition-all duration-1000 ease-out bg-gradient-to-r from-red-500 via-amber-500 to-green-500 opacity-80"
-                                    style={{ width: `${prediction.score}%` }}
-                                />
+                                <div className={`flex items-center justify-center w-14 h-14 rounded-2xl ${sentimentBg} ${sentimentColor} shadow-sm ring-1 ring-inset ring-black/5 dark:ring-white/5`}>
+                                    {sentimentIcon}
+                                </div>
                             </div>
-                            <div className="text-center mt-3 font-mono text-xs font-medium text-gray-400">
-                                Score: <span className={sentimentColor}>{prediction.score}</span>/100
+                            
+                            {/* Modern Gauge/Meter */}
+                            <div className="mt-auto">
+                                <div className="flex justify-between text-[10px] font-bold uppercase text-gray-400 dark:text-gray-500 mb-3 tracking-wider">
+                                    <span>Bearish</span>
+                                    <span>Neutral</span>
+                                    <span>Bullish</span>
+                                </div>
+                                
+                                <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded-full relative overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
+                                    {/* Gradient Track */}
+                                    <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-red-500 via-amber-400 to-green-500" />
+                                    
+                                    {/* Active Bar */}
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-red-500 via-amber-400 to-green-500 transition-all duration-1000 ease-out relative"
+                                        style={{ width: `${prediction.score}%` }}
+                                    >
+                                        <div className="absolute right-0 top-0 bottom-0 w-px bg-white/60 shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+                                    </div>
+                                </div>
+                                
+                                <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-50 dark:border-gray-800">
+                                     <span className="text-xs font-medium text-gray-400">Confidence Score</span>
+                                     <span className="font-mono text-sm font-bold text-gray-700 dark:text-gray-300">
+                                        {prediction.score}<span className="text-gray-300 dark:text-gray-600">/100</span>
+                                     </span>
+                                </div>
                             </div>
                         </div>
                     </div>
