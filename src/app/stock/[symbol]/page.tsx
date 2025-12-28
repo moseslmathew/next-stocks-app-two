@@ -50,7 +50,7 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
                         {isPositive ? '+' : ''}{(stock.change || 0).toFixed(2)}
                    </span>
                    <span className="bg-current/10 px-2 py-0.5 rounded-md text-sm font-semibold">
-                     {(stock.changePercent || 0).toFixed(2)}%
+                     {((stock.changePercent || 0) * 100).toFixed(2)}%
                    </span>
                </div>
            </div>
