@@ -16,11 +16,15 @@ export default function SentimentView({ prediction, error, isQuotaExceeded }: Se
   let sentimentIcon = <Minus className="w-8 h-8" />;
 
   if (prediction) {
-    if (prediction.score > 60) {
+    // Logic based on explicit sentiment text first, then fallback to score
+    const isBullish = prediction.sentiment === 'Bullish';
+    const isBearish = prediction.sentiment === 'Bearish';
+
+    if (isBullish) {
         sentimentColor = 'text-green-600 dark:text-green-400';
         sentimentBg = 'bg-green-50 dark:bg-green-900/20';
         sentimentIcon = <TrendingUp className="w-8 h-8" />;
-    } else if (prediction.score < 40) {
+    } else if (isBearish) {
         sentimentColor = 'text-red-600 dark:text-red-400';
         sentimentBg = 'bg-red-50 dark:bg-red-900/20';
         sentimentIcon = <TrendingDown className="w-8 h-8" />;

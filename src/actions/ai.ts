@@ -8,12 +8,12 @@ import { unstable_cache, revalidateTag } from 'next/cache';
 
 // Configuration for AI Provider
 // Options: 'google' | 'openai'
-const AI_PROVIDER: 'google' | 'openai' = 'google'; 
+const AI_PROVIDER: 'google' | 'openai' = 'openai'; 
 
 
 // Model Configuration
 const GOOGLE_MODEL = 'models/gemini-3-flash-preview';
-const OPENAI_MODEL = 'gpt-4o';
+const OPENAI_MODEL = 'gpt-4o-mini';
 
 
 // Helper to get the active model
