@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
+import MenuBar from "@/components/MenuBar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,9 +35,10 @@ export default function RootLayout({
           suppressHydrationWarning
         >
           <Navbar />
-          <main className="pt-16 w-full">
+          <main className="pt-16 pb-20 md:pb-0 w-full">
               {children}
           </main>
+          <MenuBar />
           <SpeedInsights />
         </body>
       </html>

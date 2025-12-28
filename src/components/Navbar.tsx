@@ -89,25 +89,6 @@ const Navbar = () => {
           </div>
         </div>
       </div>
-
-      {/* Mobile Sub-Navigation (Scrollable) */}
-      <div className="md:hidden bg-white/50 dark:bg-gray-950/50 backdrop-blur-md">
-           <div className="flex items-center gap-3 p-2 px-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-               
-               {/* Nav Items */}
-                {isSignedIn && (
-                   <>
-                   <>
-                    <MobileNavChip href="/watchlist/indian" icon={<span className="hidden"/>} text="Watchlist (₹)" active={isActive('/watchlist/indian')} />
-                    <MobileNavChip href="/watchlist/us" icon={<span className="hidden"/>} text="Watchlist ($)" active={isActive('/watchlist/us')} />
-                   </>
-                   </>
-                )}
-                <MobileNavChip href="/global-market" icon={<Globe size={14} />} text="Global Markets" active={isActive('/global-market')} />
-                <MobileNavChip href="/ai-sentiment" icon={<Brain size={14} />} text="AI Sentiment" active={isActive('/ai-sentiment')} />
-                <MobileNavChip href="/news" icon={<Newspaper size={14} />} text="News" active={isActive('/news')} />
-           </div>
-      </div>
     </nav>
   );
 };
@@ -120,22 +101,6 @@ function NavLink({ href, icon, text, active }: { href: string; icon: React.React
                 active 
                 ? 'bg-violet-50 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400' 
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
-            }`}
-        >
-            {icon}
-            <span>{text}</span>
-        </Link>
-    );
-}
-
-function MobileNavChip({ href, icon, text, active }: { href: string; icon: React.ReactNode; text: string; active: boolean }) {
-    return (
-        <Link
-            href={href}
-            className={`flex flex-shrink-0 items-center gap-2 px-3 py-2 text-[13px] font-medium transition-colors rounded-lg ${
-                 active
-                 ? 'text-violet-700 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10'
-                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
             }`}
         >
             {icon}
