@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { TrendingUp, Newspaper, Globe, Menu, IndianRupee, DollarSign, Search as SearchIcon, ScatterChart, Brain, X } from 'lucide-react';
 import Search from './Search';
+import MarketIndicesTicker from './MarketIndicesTicker';
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
@@ -33,8 +34,13 @@ const Navbar = () => {
             </span>
           </Link>
           
-          {/* Search Bar - Desktop Centered */}
-          <div className="hidden md:block flex-1 max-w-md mx-4">
+          {/* Market Indices Ticker */}
+          <div className="hidden md:flex flex-1 mx-4 overflow-hidden max-w-4xl">
+              <MarketIndicesTicker />
+          </div>
+          
+          {/* Search Bar - Visible on Large Screens */}
+          <div className="hidden lg:block w-72">
               <Search />
           </div>
 
