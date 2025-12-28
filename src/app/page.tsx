@@ -29,9 +29,7 @@ export default function Home() {
                 <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
                     Evaluate Stocks with <span className="text-violet-600 dark:text-violet-400">AI Insights</span>
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-                    Make smarter investment decisions using our advanced AI analysis tools.
-                </p>
+
                  <div className="mt-6 flex justify-center gap-3">
                     <SignedOut>
                         <SignInButton mode="modal">
