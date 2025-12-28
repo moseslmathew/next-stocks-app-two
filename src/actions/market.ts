@@ -65,7 +65,8 @@ export async function getStockDetails(symbol: string) {
         'summaryDetail',
         'defaultKeyStatistics',
         'assetProfile',
-        'financialData'
+        'financialData',
+        'quoteType'
       ]
     });
 
@@ -74,6 +75,7 @@ export async function getStockDetails(symbol: string) {
     const stats = result.defaultKeyStatistics;
     const profile = result.assetProfile;
     const financial = result.financialData;
+    const quoteType = result.quoteType;
 
     return {
       symbol: symbol,
@@ -105,7 +107,7 @@ export async function getStockDetails(symbol: string) {
       description: profile?.longBusinessSummary,
       website: profile?.website,
       employees: profile?.fullTimeEmployees,
-      listingDate: stats?.firstTradeDateEpochUtc,
+      listingDate: stats?.firstTradeDateEpochUtc || quoteType?.firstTradeDateEpochUtc,
     };
   } catch (error) {
     console.error(`Failed to fetch details for ${symbol}:`, error);
