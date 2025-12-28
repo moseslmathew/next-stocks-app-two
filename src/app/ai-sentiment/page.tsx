@@ -37,18 +37,23 @@ export default async function AISentimentPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-black pt-24 pb-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Helper Header - Always Visible */}
-        <div className="mb-12 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-sm font-medium mb-4">
-                <Brain size={16} />
-                <span>Tensor AI Analysis</span>
+        {/* Helper Header - Compact */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-6">
+            <div>
+                 <div className="flex items-center gap-2 mb-2">
+                    <Brain size={14} className="text-violet-600 dark:text-violet-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">Tensor AI Analysis</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                    Market Sentiment Outlook
+                </h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-xl">
+                    AI prediction for the next trading session based on real-time data & news.
+                </p>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
-                Market Sentiment Outlook
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
-                AI prediction for the next trading session based on real-time data & news.
-            </p>
-            <RefreshPredictionButton />
+            <div className="shrink-0">
+                <RefreshPredictionButton />
+            </div>
         </div>
 
         {/* Content Area */}
