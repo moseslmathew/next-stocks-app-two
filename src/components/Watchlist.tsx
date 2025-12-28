@@ -475,12 +475,13 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   const fetchWatchlist = async (includeHistory = true) => {
     if (!activeWatchlistId) return;
 
-    // Only show loading on initial fetch
+    // Only show loading on initial fetch if we don't handle it externally
     if (watchlistData.length === 0 && includeHistory) setIsLoadingData(true);
     try {
       const data = await getWatchlist(activeWatchlistId, trendRange, includeHistory);
       
-      if (includeHistory) {
+      // Allow population if it's a full history fetch OR if we have no data yet (Fast Init)
+      if (includeHistory || watchlistData.length === 0) {
           // Full replace
           setWatchlistData(data);
       } else {
@@ -529,8 +530,17 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
              prevTrendRange.current = trendRange;
         }
 
-        // Fetch new data
-        fetchWatchlist(true).finally(() => {
+        // Progressive Loading Strategy:
+        // 1. Fetch Prices & Meta IMMEDIATELY (Fast, no charts)
+        fetchWatchlist(false).then(() => {
+             // If this was a fresh load, show the table now (charts will be blank/loading)
+             if (isListSwitch) setIsLoadingData(false);
+             
+             // 2. Fetch History/Charts (Slower)
+             return fetchWatchlist(true);
+        }).finally(() => {
+             // Ensure loading states are cleared match final state
+             setIsLoadingData(false);
              setIsSwitchingRange(false);
         });
     }
