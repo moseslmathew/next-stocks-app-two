@@ -1,9 +1,10 @@
-'use client';
-
+import { AIAnalysisModal } from './AIAnalysisModal';
 import { useState, useEffect } from 'react';
-import { Activity, PieChart, BarChart3, DollarSign, HelpCircle, X, Info } from 'lucide-react';
+import { Activity, PieChart, BarChart3, DollarSign, HelpCircle, X, Info, Sparkles } from 'lucide-react';
 
 interface StockData {
+    symbol?: string;
+    name?: string;
     price?: number;
     marketCap?: number;
     peRatio?: number;
@@ -62,9 +63,10 @@ const METRIC_DEFINITIONS: Record<string, { title: string, definition: string, im
 
 export default function StockFundamentals({ stock }: { stock: StockData }) {
     const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+    const [isAIModalOpen, setIsAIModalOpen] = useState(false);
 
     useEffect(() => {
-        if (selectedMetric) {
+        if (selectedMetric || isAIModalOpen) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
@@ -72,7 +74,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [selectedMetric]);
+    }, [selectedMetric, isAIModalOpen]);
 
     const formatLargeNumber = (num?: number) => {
         if (!num) return '---';
@@ -117,9 +119,18 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
     return (
         <>
             <section className="py-2">
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
-                    FUNDAMENTALS
-                </h2>
+                <div className="flex items-center gap-3 mb-4">
+                    <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wide">
+                        FUNDAMENTALS
+                    </h2>
+                    <button 
+                        onClick={() => setIsAIModalOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-[10px] font-bold hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors border border-violet-200 dark:border-violet-800"
+                    >
+                        <Sparkles size={12} />
+                        AI Analysis
+                    </button>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2">
                     <div className="space-y-0"> 
                         <StatItem label="Market Cap" value={formatLargeNumber(stock.marketCap)} />
@@ -169,6 +180,14 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                     </div>
                 </div>
             </section>
+
+            {/* AI Analysis Modal */}
+            <AIAnalysisModal 
+                stockSymbol={stock.symbol || '---'} 
+                stockName={stock.name || 'Stock'} 
+                isOpen={isAIModalOpen}
+                onClose={() => setIsAIModalOpen(false)}
+            />
 
             {/* Modal */}
             {selectedMetric && metricInfo && (
