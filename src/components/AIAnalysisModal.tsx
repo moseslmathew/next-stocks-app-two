@@ -3,17 +3,83 @@
 import { useState } from 'react';
 import { Sparkles, X, BrainCircuit, AlertCircle } from 'lucide-react';
 
+interface StockData {
+    price?: number;
+    marketCap?: number;
+    peRatio?: number;
+    eps?: number;
+    beta?: number;
+    dividendYield?: number;
+    profitMargins?: number;
+    fiftyTwoWeekHigh?: number;
+    fiftyTwoWeekLow?: number;
+}
+
 interface AIAnalysisModalProps {
   stockSymbol: string;
   stockName: string;
+  stockData: StockData;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function AIAnalysisModal({ stockSymbol, stockName, isOpen, onClose }: AIAnalysisModalProps) {
-  const [analysis, setAnalysis] = useState<string | null>(null);
+export function AIAnalysisModal({ stockSymbol, stockName, stockData, isOpen, onClose }: AIAnalysisModalProps) {
+  const [analysisItems, setAnalysisItems] = useState<{ title: string; content: string; type: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const generateAnalysis = () => {
+       const items = [];
+       
+       // Valuation
+       if (stockData.peRatio) {
+           if (stockData.peRatio < 0) {
+              items.push({ title: 'Valuation', content: 'The company currently has negative earnings (P/E < 0), indicating it is not profitable at the moment.', type: 'warning' });
+           } else if (stockData.peRatio > 30) {
+              items.push({ title: 'Valuation', content: `A P/E ratio of ${stockData.peRatio.toFixed(2)} suggests the stock is trading at a premium, implying high growth expectations.`, type: 'neutral' });
+           } else {
+              items.push({ title: 'Valuation', content: `The P/E ratio of ${stockData.peRatio.toFixed(2)} appears reasonable for the current market conditions.`, type: 'success' });
+           }
+       } else {
+           items.push({ title: 'Valuation', content: 'P/E ratio data is unavailable, making traditional valuation difficult.', type: 'neutral' });
+       }
+
+       // Volatility
+       if (stockData.beta) {
+            if (stockData.beta > 1.2) {
+                items.push({ title: 'Volatility', content: `With a Beta of ${stockData.beta.toFixed(2)}, this stock is significantly more volatile than the market.`, type: 'warning' });
+            } else if (stockData.beta < 0.8) {
+                items.push({ title: 'Volatility', content: `A Beta of ${stockData.beta.toFixed(2)} indicates this stock is less volatile and more stable than the broader market.`, type: 'success' });
+            } else {
+                items.push({ title: 'Volatility', content: `The stock moves generally in line with the market (Beta: ${stockData.beta.toFixed(2)}).`, type: 'neutral' });
+            }
+       }
+
+       // Dividend
+       if (stockData.dividendYield && stockData.dividendYield > 0) {
+           items.push({ title: 'Dividend', content: `The company pays a dividend with a yield of ${(stockData.dividendYield * 100).toFixed(2)}%, providing income to shareholders.`, type: 'success' });
+       } else {
+           items.push({ title: 'Dividend', content: 'This company does not currently pay a dividend, focusing reinvestment into growth or operations.', type: 'neutral' });
+       }
+
+       // Profitability
+       if (stockData.profitMargins) {
+           if (stockData.profitMargins > 0.2) {
+               items.push({ title: 'Profitability', content: `Strong profit margins of ${(stockData.profitMargins * 100).toFixed(2)}% demonstrate efficient operations.`, type: 'success' });
+           } else if (stockData.profitMargins < 0) {
+               items.push({ title: 'Profitability', content: `Negative profit margins (${(stockData.profitMargins * 100).toFixed(2)}%) indicate the company is operating at a loss.`, type: 'warning' });
+           } else {
+               items.push({ title: 'Profitability', content: `Profit margins are stable at ${(stockData.profitMargins * 100).toFixed(2)}%.`, type: 'neutral' });
+           }
+       } else {
+            // Fallback for profitability if margin missing but EPS exists
+            if (stockData.eps && stockData.eps < 0) {
+                 items.push({ title: 'Profitability', content: `Negative EPS (${stockData.eps.toFixed(2)}) indicates the company is not currently profitable.`, type: 'warning' });
+            }
+       }
+       
+       setAnalysisItems(items);
+  };
 
   // Function to fetch analysis (mocked for now, can be connected to real AI action later)
   const fetchAnalysis = async () => {
@@ -21,17 +87,8 @@ export function AIAnalysisModal({ stockSymbol, stockName, isOpen, onClose }: AIA
     setError(null);
     try {
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Mock Response
-        setAnalysis(`Based on the fundamental data for ${stockName} (${stockSymbol}), here is a brief AI assessment:
-
-1. **Valuation**: The P/E ratio suggests the stock is trading at a premium compared to its historical average.
-2. **Growth**: Revenue growth has been consistent, but profit margins are slightly compressing due to increased operational costs.
-3. **Volatility**: A Beta of 1.2 indicates higher volatility than the broader market, suitable for aggressive investors.
-4. **Dividend**: The yield is modest, but the payout ratio is sustainable.
-
-**Overall Sentiment**: Hold/Accumulate for long-term growth, but watch for short-term corrections.`);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        generateAnalysis();
     } catch (err) {
         setError('Failed to generate analysis. Please try again.');
     } finally {
@@ -40,7 +97,7 @@ export function AIAnalysisModal({ stockSymbol, stockName, isOpen, onClose }: AIA
   };
 
   // Trigger fetch when opened
-  if (isOpen && !analysis && !isLoading && !error) {
+  if (isOpen && analysisItems.length === 0 && !isLoading && !error) {
       fetchAnalysis();
   }
 
@@ -85,19 +142,14 @@ export function AIAnalysisModal({ stockSymbol, stockName, isOpen, onClose }: AIA
                              <div className="space-y-1">
                                  <h4 className="text-sm font-semibold text-violet-900 dark:text-violet-100">AI Summary</h4>
                                  <p className="text-sm text-violet-700 dark:text-violet-300 leading-relaxed">
-                                     Based on the fundamental data for <span className="font-semibold">{stockName}</span> ({stockSymbol}), the overall sentiment is <span className="font-bold">Cautiously Optimistic</span>.
+                                     Based on the fundamental data for <span className="font-semibold">{stockName}</span> ({stockSymbol}), we have generated the following insights.
                                  </p>
                              </div>
                          </div>
                     </div>
 
                     <div className="grid gap-3">
-                        {[
-                            { title: 'Valuation', content: 'The P/E ratio suggests the stock is trading at a premium compared to its historical average.', type: 'neutral' },
-                            { title: 'Growth', content: 'Revenue growth has been consistent, but profit margins are slightly compressing due to increased operational costs.', type: 'warning' },
-                            { title: 'Volatility', content: 'A Beta of 1.2 indicates higher volatility than the broader market, suitable for aggressive investors.', type: 'info' },
-                            { title: 'Dividend', content: 'The yield is modest, but the payout ratio is sustainable.', type: 'success' }
-                        ].map((item, idx) => (
+                        {analysisItems.map((item, idx) => (
                             <div key={idx} className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800/50">
                                 <div className={`w-1 self-stretch rounded-full shrink-0 ${
                                     item.type === 'success' ? 'bg-green-500' : 
@@ -114,7 +166,7 @@ export function AIAnalysisModal({ stockSymbol, stockName, isOpen, onClose }: AIA
 
                     <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                         <p className="text-[10px] text-gray-400 text-center uppercase tracking-wide font-medium">
-                            Disclaimer: AI-generated analysis. Not financial advice.
+                            Disclaimer: AI-generated analysis based on available data. Not financial advice.
                         </p>
                     </div>
                 </div>

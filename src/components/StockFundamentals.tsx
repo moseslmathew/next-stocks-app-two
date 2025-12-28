@@ -187,6 +187,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
             <AIAnalysisModal 
                 stockSymbol={stock.symbol || '---'} 
                 stockName={stock.name || 'Stock'} 
+                stockData={stock}
                 isOpen={isAIModalOpen}
                 onClose={() => setIsAIModalOpen(false)}
             />
