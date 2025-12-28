@@ -19,8 +19,8 @@ export default async function GlobalMarketPage() {
       getScrapedGoldRate()
   ]);
   
-  const indianData = allMarketData.filter(d => indianSymbols.includes(d.symbol));
-  const globalData = allMarketData.filter(d => globalSymbols.includes(d.symbol));
+  const indicesSymbols = [...indianSymbols, ...globalSymbols];
+  const indicesData = allMarketData.filter(d => indicesSymbols.includes(d.symbol));
   
   // Filter out USDINR from the table list, pass it separately to the component logic
   const commodityTableData = allMarketData.filter(d => commoditySymbols.includes(d.symbol) && d.symbol !== 'USDINR=X');
@@ -66,29 +66,19 @@ export default async function GlobalMarketPage() {
       <div className="space-y-12">
         <section>
             <LiveMarketTable 
-                initialData={indianData} 
-                symbols={indianSymbols} 
+                initialData={indicesData} 
+                symbols={indicesSymbols} 
                 title={
                     <div className="flex items-center gap-3">
-                        <img 
-                            src="https://flagcdn.com/w40/in.png" 
-                            alt="India"
-                            className="w-6 h-4 rounded shadow-sm object-cover"
-                        />
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Indian Indices</h2>
-                    </div>
-                }
-            />
-        </section>
-
-        <section>
-            <LiveMarketTable 
-                initialData={globalData} 
-                symbols={globalSymbols}
-                title={
-                    <div className="flex items-center gap-3">
-                        <Globe className="w-5 h-5 text-gray-500" />
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">International Markets</h2>
+                        <div className="flex items-center gap-2">
+                             <img 
+                                src="https://flagcdn.com/w40/in.png" 
+                                alt="India"
+                                className="w-5 h-3.5 rounded shadow-sm object-cover"
+                            />
+                            <Globe className="w-5 h-5 text-gray-500" />
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Global Market Indices</h2>
                     </div>
                 }
             />
