@@ -34,7 +34,7 @@ export default async function AISentimentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-black pt-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Helper Header - Always Visible */}
         {/* Helper Header - Compact */}
