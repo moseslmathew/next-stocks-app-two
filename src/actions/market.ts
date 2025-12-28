@@ -105,6 +105,7 @@ export async function getStockDetails(symbol: string) {
       description: profile?.longBusinessSummary,
       website: profile?.website,
       employees: profile?.fullTimeEmployees,
+      listingDate: stats?.firstTradeDateEpochUtc,
     };
   } catch (error) {
     console.error(`Failed to fetch details for ${symbol}:`, error);

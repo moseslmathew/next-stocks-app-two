@@ -1,7 +1,7 @@
 import { getStockDetails } from '@/actions/market';
 import StockFundamentals from '@/components/StockFundamentals';
 import BackButton from '@/components/BackButton';
-import { Globe, Building2, Users, TrendingUp, TrendingDown } from 'lucide-react';
+import { Globe, Building2, Users, TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { formatCurrency } from '@/utils/currency';
 
@@ -97,7 +97,7 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
                         </div>
                     )}
 
-                     {stock.employees && (
+                    {stock.employees && (
                         <div>
                             <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Employees</div>
                             <div className="font-medium flex items-center gap-2">
@@ -105,6 +105,16 @@ export default async function StockDetailsPage({ params }: { params: Promise<{ s
                                 {stock.employees.toLocaleString()}
                             </div>
                         </div>
+                    )}
+
+                    {stock.listingDate && (
+                         <div>
+                             <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Year Listed</div>
+                             <div className="font-medium flex items-center gap-2">
+                                 <Calendar size={16} className="text-orange-500" />
+                                 {new Date(Number(stock.listingDate) * 1000).getFullYear()}
+                             </div>
+                         </div>
                     )}
 
                     {stock.website && (
