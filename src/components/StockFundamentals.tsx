@@ -149,36 +149,36 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
 
                 {/* 52 Week Range Bar */}
                 <div className="mt-8 pt-6 border-t border-dashed border-gray-200 dark:border-gray-800">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-4">
                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">52 Week Range</span>
                     </div>
                     
-                    <div className="flex items-center gap-4 text-xs font-semibold text-gray-900 dark:text-gray-100">
-                        <span>{stock.fiftyTwoWeekLow?.toLocaleString()}</span>
-                        <div className="relative h-2 bg-gray-100 dark:bg-gray-800 rounded-full flex-1 overflow-visible">
-                            {/* Filled portion (using overflow visible wrapper parent might clip, but let's try clean fill first) 
-                                Actually, standard range sliders are usually contained. I'll use overflow-hidden on container for fill, 
-                                but I need marker to stick out if I want the "halo" effect.
-                                A simple filled bar is cleaner.
-                            */}
-                             <div className="absolute inset-0 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-violet-500 dark:bg-violet-400 transition-all duration-500"
-                                    style={{
-                                        width: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`
-                                    }}
-                                />
-                             </div>
-                            {/* Marker - positioned absolutely on top */}
+                    <div className="flex items-center gap-6">
+                        <span className="text-base font-bold text-gray-900 dark:text-white tabular-nums">{stock.fiftyTwoWeekLow?.toLocaleString()}</span>
+                        
+                        <div className="relative h-3 bg-gray-100 dark:bg-gray-800 rounded-full flex-1">
+                             {/* Background track */}
+                             <div className="absolute inset-0 rounded-full bg-gray-100 dark:bg-gray-800" />
+                             
+                             {/* Filled track to current price */}
+                             <div 
+                                className="absolute top-0 left-0 h-full bg-violet-500 dark:bg-violet-500 rounded-l-full rounded-r-full"
+                                style={{
+                                    width: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`
+                                }}
+                             />
+                             
+                            {/* Thumb/Marker */}
                             <div 
-                                className="absolute top-1/2 w-4 h-4 bg-white dark:bg-gray-900 border-4 border-violet-600 dark:border-violet-400 rounded-full shadow-sm z-10 transition-all duration-500"
+                                className="absolute top-1/2 w-5 h-5 bg-white border-[4px] border-violet-500 dark:border-violet-500 rounded-full shadow-sm z-10 transition-all duration-500"
                                 style={{
                                     left: `${Math.min(Math.max(((stock.price || 0) - (stock.fiftyTwoWeekLow || 0)) / ((stock.fiftyTwoWeekHigh || 0) - (stock.fiftyTwoWeekLow || 0)) * 100, 0), 100)}%`,
                                     transform: 'translate(-50%, -50%)' 
                                 }}
                             />
                         </div>
-                        <span>{stock.fiftyTwoWeekHigh?.toLocaleString()}</span>
+                        
+                        <span className="text-base font-bold text-gray-900 dark:text-white tabular-nums">{stock.fiftyTwoWeekHigh?.toLocaleString()}</span>
                     </div>
                 </div>
             </section>
