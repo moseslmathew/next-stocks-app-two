@@ -1,6 +1,6 @@
 import { getMarketPrediction } from '@/actions/ai';
 import RefreshPredictionButton from '@/components/RefreshPredictionButton';
-import { Brain, TrendingUp, TrendingDown, Minus, Activity, AlertCircle } from 'lucide-react';
+import { Brain, TrendingUp, TrendingDown, Minus, Activity, AlertCircle, CalendarClock, Landmark } from 'lucide-react';
 
 export const metadata = {
   title: 'AI Market Sentiment - Tensor Terminal',
@@ -153,6 +153,36 @@ export default async function AISentimentPage() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                </div>
+
+                {/* New Strategic Context Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 animate-fade-in" style={{ animationDelay: '300ms' }}>
+                    
+                    {/* Seasonality Card */}
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-lg shadow-amber-500/5 hover:border-amber-200 dark:hover:border-amber-900/30 transition-colors">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
+                                <CalendarClock size={20} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">Historical Seasonality</h3>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                            {prediction.seasonality || "Historical seasonal trend analysis is currently unavailable. Please regenerate the analysis."}
+                        </p>
+                    </div>
+
+                    {/* Macro Policy Card */}
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-lg shadow-emerald-500/5 hover:border-emerald-200 dark:hover:border-emerald-900/30 transition-colors">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
+                                <Landmark size={20} />
+                            </div>
+                            <h3 className="font-bold text-gray-900 dark:text-white">Central Bank & Macro Policy</h3>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                             {prediction.centralBankAnalysis || "Macro-economic policy analysis is currently unavailable. Please regenerate the analysis."}
+                        </p>
                     </div>
                 </div>
 

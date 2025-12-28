@@ -43,6 +43,8 @@ export interface MarketPrediction {
   score: number;
   outlook: string;
   factors: string[];
+  seasonality: string;
+  centralBankAnalysis: string;
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -144,11 +146,18 @@ async function fetchMarketPrediction(): Promise<AIResult<MarketPrediction>> {
       Recent News Headlines (Last 30 Days):
       ${headlines.map(h => `- ${h}`).join('\n')}
 
+      Current Date: ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+
       Based on this data, provide:
       1. Overall Sentiment (Bullish/Bearish/Neutral)
       2. Confidence Score (0-100, where 0 is Crash/Deep Bearish, 50 is Neutral, 100 is Rocket/Strong Bullish).
       3. A concise Outlook paragraph explaining the prediction (max 3 sentences).
       4. Key Factors influencing this prediction (max 3 bullet points).
+      5. Seasonality Insight:
+         - Provide a brief analysis of how the market typically behaves during this specific month/season historically (e.g., "December is historically bullish due to FII inflows..."). 
+         - Mention volume trends if relevant.
+      6. Central Bank/Macro Policy Impact:
+         - Analyze any recent or upcoming Fed/RBI policies, interest rate decisions, or macro events (inflation data) that are impacting the market right now.
     `;
 
     const { object, usage } = await generateObject({
@@ -158,6 +167,8 @@ async function fetchMarketPrediction(): Promise<AIResult<MarketPrediction>> {
         score: z.number().min(0).max(100),
         outlook: z.string(),
         factors: z.array(z.string()),
+        seasonality: z.string(),
+        centralBankAnalysis: z.string(),
       }),
       prompt: prompt,
       maxRetries: 0,
