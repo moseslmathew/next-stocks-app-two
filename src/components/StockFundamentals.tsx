@@ -1,3 +1,5 @@
+'use client';
+
 import { AIAnalysisModal } from './AIAnalysisModal';
 import { useState, useEffect } from 'react';
 import { Activity, PieChart, BarChart3, DollarSign, HelpCircle, X, Info, Sparkles } from 'lucide-react';
