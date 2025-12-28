@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Quote, Sparkles, RefreshCw } from 'lucide-react';
 import { getInvestingQuote, refreshInvestingQuote } from '@/actions/ai';
 import { AUTHOR_IMAGES } from '@/data/quotes';
@@ -9,6 +9,7 @@ export default function QuoteTicker() {
   const [quote, setQuote] = useState<{ text: string, author: string, explanation?: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const explanationRef = useRef<HTMLDivElement>(null);
 
   const fetchQuote = async () => {
     try {
@@ -48,6 +49,15 @@ export default function QuoteTicker() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Auto-scroll to explanation when opened
+  useEffect(() => {
+      if (showExplanation && explanationRef.current) {
+          setTimeout(() => {
+              explanationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 100);
+      }
+  }, [showExplanation]);
 
   if (!quote) return null;
 
@@ -109,7 +119,7 @@ export default function QuoteTicker() {
 
         {/* Explanation Section (Side-by-Side) */}
         {quote.explanation && showExplanation && (
-            <div className="flex-1 w-full animate-in slide-in-from-right-4 fade-in duration-500">
+            <div ref={explanationRef} className="flex-1 w-full animate-in slide-in-from-right-4 fade-in duration-500">
                  <div className="relative overflow-hidden h-full text-sm text-gray-700 dark:text-gray-300 bg-gradient-to-br from-violet-50/50 via-white/50 to-white/20 dark:from-zinc-900/80 dark:to-zinc-900/40 backdrop-blur-xl p-6 rounded-2xl border border-white/60 dark:border-white/10 shadow-lg shadow-violet-500/5 dark:shadow-black/20 text-left w-full group ring-1 ring-white/50 dark:ring-white/5 hover:ring-violet-200 dark:hover:ring-violet-800/30 transition-shadow">
                     
                     {/* Glass Reflection Gradients */}
