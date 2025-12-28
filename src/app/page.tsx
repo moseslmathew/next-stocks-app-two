@@ -16,15 +16,16 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
       {/* Hero Section */}
-      <section className="relative pt-28 md:pt-20 pb-12 lg:pb-24 overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative pt-20 md:pt-24 pb-8 lg:pb-16 overflow-hidden">
          {/* Background Effects */}
          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-100 via-transparent to-transparent dark:from-violet-900/40 opacity-50"></div>
          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-100 via-transparent to-transparent dark:from-indigo-900/40 opacity-50"></div>
          
-         <div className="max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-32 relative z-10 w-full">
+         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
             <div className="text-center max-w-4xl mx-auto">
-                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-3 leading-tight">
+                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white mb-2 leading-tight">
                     Smart Research. <br className="sm:hidden" />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">
                         Better Decisions.
@@ -32,7 +33,7 @@ export default function Home() {
                 </h1>
 
 
-                <div className="flex justify-center gap-4 mb-8">
+                <div className="flex justify-center gap-4 mb-6">
                     <SignedOut>
                         <SignInButton mode="modal">
                             <button className="inline-flex items-center justify-center gap-2 px-6 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-sm transition-all shadow-lg shadow-violet-600/25 hover:scale-105">
@@ -51,13 +52,15 @@ export default function Home() {
             </div>
 
             {/* Global Indices Ticker */}
-            <div className="mt-4 lg:mt-8">
+            <div className="mt-2 lg:mt-6">
                 <Suspense fallback={<div className="h-24 w-full max-w-4xl mx-auto bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl animate-pulse" />}>
                      <GlobalIndices />
                 </Suspense>
             </div>
             
-            <QuoteTicker />
+            <div className="mt-6">
+                <QuoteTicker />
+            </div>
          </div>
       </section>
 
