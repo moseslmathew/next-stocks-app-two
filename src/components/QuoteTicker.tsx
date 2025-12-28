@@ -54,7 +54,7 @@ export default function QuoteTicker() {
   useEffect(() => {
       if (showExplanation && explanationRef.current) {
           setTimeout(() => {
-              explanationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              explanationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }, 100);
       }
   }, [showExplanation]);
