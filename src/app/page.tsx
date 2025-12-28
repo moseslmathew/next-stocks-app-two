@@ -24,32 +24,7 @@ export default function Home() {
          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-100 via-transparent to-transparent dark:from-indigo-900/40 opacity-50"></div>
          
          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-            <div className="max-w-5xl mx-auto flex flex-row items-center justify-between sm:justify-center gap-2 sm:gap-6 mb-4">
-                <h1 className="text-sm xs:text-base sm:text-4xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight text-left sm:text-center truncate">
-                    Smart Research.
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 ml-1">
-                        Better Decisions.
-                    </span>
-                </h1>
-
-                <div className="shrink-0">
-                    <SignedOut>
-                        <SignInButton mode="modal">
-                            <button className="inline-flex items-center justify-center px-3 py-1.5 sm:px-6 sm:py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs sm:text-sm transition-all shadow-lg shadow-violet-600/25 hover:scale-105 whitespace-nowrap">
-                                Sign in
-                                <ArrowRight size={14} className="ml-1" />
-                            </button>
-                        </SignInButton>
-                    </SignedOut>
-                    <SignedIn>
-                        <Link href="/watchlist/indian" className="inline-flex items-center justify-center px-3 py-1.5 sm:px-6 sm:py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-xs sm:text-sm transition-all shadow-lg shadow-violet-600/25 hover:scale-105 whitespace-nowrap">
-                            Dashboard
-                            <ArrowRight size={14} className="ml-1" />
-                        </Link>
-                    </SignedIn>
-                </div>
-            </div>
-
+            
             {/* Global Indices Ticker */}
             <div className="mt-2 lg:mt-6">
                 <Suspense fallback={<div className="h-24 w-full max-w-4xl mx-auto bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl animate-pulse" />}>
