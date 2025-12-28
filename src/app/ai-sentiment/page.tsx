@@ -37,17 +37,23 @@ export default async function AISentimentPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-black pt-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         
-        {/* Compact Page Header */}
-        <div className="mb-6">
-            <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                    Market Sentiment Outlook
-                </h1>
-                <RefreshPredictionButton minimal />
+        {/* Modern Compact Header */}
+        <div className="mb-8">
+            <div className="flex flex-col items-start gap-1">
+                 <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800 text-violet-700 dark:text-violet-300 text-[10px] font-bold tracking-wider uppercase mb-2">
+                    <Brain size={10} />
+                    <span>Tensor Core</span>
+                </div>
+                <div className="flex items-center gap-3">
+                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-none">
+                        Market <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">Sentiment</span>
+                    </h1>
+                    <RefreshPredictionButton minimal />
+                </div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-2 max-w-lg">
+                    Predictive outlook for the next session based on real-time news & data.
+                </p>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                AI prediction for the next trading session.
-            </p>
         </div>
 
         {/* Content Area */}
