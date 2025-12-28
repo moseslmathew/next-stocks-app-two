@@ -25,6 +25,35 @@ export default function Home() {
          
          <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
             
+            <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-100/80 dark:bg-violet-900/30 border border-violet-200 dark:border-violet-700/50 text-violet-700 dark:text-violet-300 text-xs font-medium mb-4 backdrop-blur-sm">
+                    <Brain className="w-3 h-3" />
+                    <span>AI-Powered Analysis</span>
+                </div>
+                <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight leading-tight">
+                    Evaluate Stocks with <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">Intelligent Precision</span>
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
+                    Leverage our advanced AI models to analyze market trends and stock fundamentals, empowering you to make smarter, data-driven investment decisions.
+                </p>
+                 <div className="mt-6 flex justify-center gap-3">
+                    <SignedOut>
+                        <SignInButton mode="modal">
+                            <button className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-sm transition-all shadow-lg shadow-violet-600/25 hover:scale-105">
+                                Start Evaluating
+                                <ArrowRight size={15} />
+                            </button>
+                        </SignInButton>
+                    </SignedOut>
+                    <SignedIn>
+                         <Link href="/watchlist/indian" className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-sm transition-all shadow-lg shadow-violet-600/25 hover:scale-105">
+                            Go to Dashboard
+                            <ArrowRight size={15} />
+                        </Link>
+                    </SignedIn>
+                </div>
+            </div>
+
             {/* Global Indices Ticker */}
             <div className="mt-2 lg:mt-6">
                 <Suspense fallback={<div className="h-24 w-full max-w-4xl mx-auto bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl animate-pulse" />}>
