@@ -4,7 +4,7 @@ import { google } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateText, generateObject } from 'ai';
 import { z } from 'zod';
-import { unstable_cache, revalidatePath } from 'next/cache';
+import { unstable_cache, revalidatePath, revalidateTag } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { AI_PROVIDER, GOOGLE_MODEL, OPENAI_MODEL } from '@/lib/ai-config';
 
@@ -278,6 +278,6 @@ export const getInvestingQuote = unstable_cache(
 );
 
 export async function refreshInvestingQuote() {
-  revalidateTag('investing-quote', 'default');
+  revalidateTag('investing-quote');
   return { success: true };
 }
