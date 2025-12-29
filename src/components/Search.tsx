@@ -84,7 +84,7 @@ function SearchContent({ watchlistId: propWatchlistId, region, onAdd, onSelect }
                          };
                      }
                      return res;
-                 }).filter(r => r.marketData || true) as SearchResult[];
+                 }) as SearchResult[];
              } catch (e) {
                  console.warn("Failed to fetch quotes for search", e);
              }
