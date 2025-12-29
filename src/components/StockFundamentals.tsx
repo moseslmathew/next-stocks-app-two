@@ -123,32 +123,53 @@ const getScaleConfig = (maxVal: number, currency?: string) => {
 // Helper to check valid number (including 0 and negatives)
 const isValid = (val: any): val is number => val !== undefined && val !== null && !isNaN(val);
 
+// Type definition for the tabs
+type ChartMetric = 'revenue' | 'netIncome' | 'totalAssets' | 'totalLiabilities' | 'totalEquity';
+
+const CHART_TABS: { id: ChartMetric; label: string; source: 'income' | 'balance'; color: string }[] = [
+    { id: 'revenue', label: 'Revenue', source: 'income', color: '#3B82F6' },
+    { id: 'netIncome', label: 'Net Profit', source: 'income', color: '#10B981' },
+    { id: 'totalAssets', label: 'Assets', source: 'balance', color: '#3B82F6' },
+    { id: 'totalLiabilities', label: 'Liabilities', source: 'balance', color: '#EF4444' },
+    { id: 'totalEquity', label: 'Equity', source: 'balance', color: '#6366F1' },
+];
+
 export default function StockFundamentals({ stock }: { stock: StockData }) {
-    const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
     const [isAIModalOpen, setIsAIModalOpen] = useState(false);
-    
-    // New State for Statement Type and Period
-    const [statementType, setStatementType] = useState<'income' | 'balance'>('income');
-    const [period, setPeriod] = useState<'annual' | 'quarterly'>('quarterly'); // Default to quarterly
-    
+    const [selectedMetric, setSelectedMetric] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<ChartMetric>('revenue');
+    const [period, setPeriod] = useState<'annual' | 'quarterly'>('annual');
     const [showDetails, setShowDetails] = useState(false);
 
-    // Dynamic Data Selection
+    // Initial check for data validity
+    const hasFinancials = !!stock.financials;
+
+    // Helper to get current data based on active tab
+    const activeTabConfig = CHART_TABS.find(t => t.id === activeTab) || CHART_TABS[0];
+    
     const currentData = stock.financials 
-        ? (statementType === 'income' 
+        ? (activeTabConfig.source === 'income' 
             ? stock.financials.incomeStatement[period] 
             : stock.financials.balanceSheet[period])
         : [];
-        
-    const maxValue = currentData && currentData.length > 0 ? Math.max(...currentData.map((d: any) => 
-        statementType === 'income' ? Math.max(d.revenue || 0, Math.abs(d.netIncome || 0)) : Math.max(d.totalAssets || 0, d.totalEquity || 0)
-    )) : 0;
+
+    // Calculate max value for scaling based on the ACTIVE metric only
+    const maxValue = currentData.reduce((max, item) => Math.max(max, item[activeTab] || 0), 0);
 
     const { unit, divisor, label: unitLabel } = getScaleConfig(maxValue, stock.currency);
 
-    const formatScaled = (val: number) => {
+    const formatScaled = (val: number, compact: boolean = false) => {
         if (!val && val !== 0) return '-';
-        return (val / divisor).toLocaleString(undefined, { maximumFractionDigits: 2 });
+        const scaled = val / divisor;
+        
+        if (compact) {
+            return new Intl.NumberFormat('en-US', {
+                notation: 'compact',
+                maximumFractionDigits: 1
+            }).format(scaled);
+        }
+        
+        return scaled.toLocaleString(undefined, { maximumFractionDigits: 2 });
     };
 
     useEffect(() => {
@@ -315,58 +336,65 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
             {/* NEW Financial Analysis Section */}
             {stock.financials && (
                 <section className="py-6 border-t border-gray-100 dark:border-gray-800">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                        <div className="flex flex-col">
-                            <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
-                                 <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
-                                Financial Analysis
-                            </h2>
-                            {unitLabel && (
-                                <span className="text-[10px] text-gray-400 font-medium ml-3 mt-0.5">
-                                    All values in {stock.currency === 'INR' ? 'INR' : 'USD'} {unitLabel} ({unit})
-                                </span>
-                            )}
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                             {/* Period Toggle (Quarterly / Annual) */}
-                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 flex">
+                    <div className="flex flex-col mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                             <div className="flex flex-col">
+                                <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
+                                     <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
+                                    Financial Analysis
+                                </h2>
+                                {unitLabel && (
+                                    <span className="text-[10px] text-gray-400 font-medium ml-3 mt-0.5">
+                                        All values in {stock.currency === 'INR' ? 'INR' : 'USD'} {unitLabel} ({unit})
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {/* Period (Quarterly / Annual) - Small Switch on the Right */}
+                            <div className="bg-gray-100 dark:bg-gray-800 p-0.5 rounded-lg flex items-center">
                                 <button
                                     onClick={() => setPeriod('quarterly')}
-                                    className={`px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-md ${period === 'quarterly' ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                                    className={`px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all ${period === 'quarterly' ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                                 >
                                     Quarterly
                                 </button>
                                 <button
                                     onClick={() => setPeriod('annual')}
-                                    className={`px-3 py-1 text-[10px] font-bold uppercase transition-all rounded-md ${period === 'annual' ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
+                                    className={`px-3 py-1 text-[10px] font-bold uppercase rounded-md transition-all ${period === 'annual' ? 'bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'}`}
                                 >
                                     Annual
                                 </button>
                             </div>
+                         </div>
 
-                            {/* Type Switcher (Income / Balance) */}
-                            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 border border-gray-200 dark:border-gray-700 font-medium">
+                        {/* Financial Metric Tabs */}
+                        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide mask-fade-right">
+                            {CHART_TABS.map(tab => (
                                 <button
-                                    onClick={() => setStatementType('income')}
-                                    className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-wide rounded-md transition-all ${statementType === 'income' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm ring-1 ring-black/5 dark:ring-white/5' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`whitespace-nowrap px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wide rounded-full transition-all border ${
+                                        activeTab === tab.id 
+                                        ? '' // Active styles applied inline below to use dynamic color
+                                        : 'bg-white dark:bg-zinc-800 text-gray-500 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700'
+                                    }`}
+                                    style={activeTab === tab.id ? { 
+                                        backgroundColor: `${tab.color}15`, 
+                                        color: tab.color, 
+                                        borderColor: `${tab.color}40`,
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                                    } : {}}
                                 >
-                                    Income
+                                    {tab.label}
                                 </button>
-                                <button
-                                    onClick={() => setStatementType('balance')}
-                                    className={`px-4 py-1.5 text-[11px] font-bold uppercase tracking-wide rounded-md transition-all ${statementType === 'balance' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm ring-1 ring-black/5 dark:ring-white/5' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-                                >
-                                    Balance
-                                </button>
-                            </div>
+                            ))}
                         </div>
                     </div>
 
                     <div className="h-[280px] mb-6 w-full bg-linear-to-b from-white to-gray-50 dark:from-zinc-900/50 dark:to-zinc-900/0 rounded-xl p-4 border border-gray-50 dark:border-zinc-800/50">
                         {(!currentData || currentData.length === 0) ? (
                              <div className="h-full flex items-center justify-center text-gray-400 text-sm font-medium">
-                                No financial data available for {period} {statementType}
+                                No financial data available for {period} {activeTabConfig.label}
                              </div>
                         ) : (
                         <ResponsiveContainer width="100%" height="100%">
@@ -394,56 +422,27 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                                         paddingTop: '20px',
                                         color: '#4B5563' 
                                     }} 
-                                    formatter={(value) => <span style={{ color: '#374151', marginLeft: '4px' }}>{value}</span>}
+                                    formatter={(value) => <span style={{ color: '#374151', marginLeft: '4px' }}>{activeTabConfig.label}</span>}
                                 />
-                                
-                                {statementType === 'income' ? (
-                                    <>
-                                        <Bar dataKey="revenue" name={`Revenue`} fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={32}>
-                                            <LabelList 
-                                                dataKey="revenue" 
-                                                position="top" 
-                                                formatter={(val: any) => formatScaled(val)} 
-                                                style={{ fontSize: '10px', fill: '#6B7280', fontWeight: 600 }}
-                                            />
-                                        </Bar>
-                                        <Bar dataKey="netIncome" name={`Net Income`} radius={[4, 4, 0, 0]} maxBarSize={32}>
-                                            {
-                                                ([...currentData].reverse().slice(-activeSliceCount(period))).map((entry: any, index: number) => (
-                                                    <Cell key={`cell-${index}`} fill={(entry.netIncome || 0) >= 0 ? '#10B981' : '#EF4444'} />
-                                                ))
-                                            }
-                                            <LabelList 
-                                                dataKey="netIncome" 
-                                                position="top" 
-                                                formatter={(val: any) => formatScaled(val)} 
-                                                style={{ fontSize: '10px', fill: '#6B7280', fontWeight: 600 }}
-                                            />
-                                        </Bar>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Bar dataKey="totalAssets" name={`Assets`} fill="#3B82F6" radius={[4, 4, 0, 0]} maxBarSize={28}>
-                                            <LabelList 
-                                                dataKey="totalAssets" 
-                                                position="top" 
-                                                formatter={(val: any) => formatScaled(val)} 
-                                                style={{ fontSize: '9px', fill: '#6B7280', fontWeight: 600 }}
-                                            />
-                                        </Bar>
-                                        <Bar dataKey="totalLiabilities" name={`Liabilities`} fill="#F43F5E" radius={[4, 4, 0, 0]} maxBarSize={28}>
-                                             {/* Label Removed for cleanliness */}
-                                        </Bar>
-                                        <Bar dataKey="totalEquity" name={`Equity`} fill="#6366F1" radius={[4, 4, 0, 0]} maxBarSize={28}>
-                                             <LabelList 
-                                                dataKey="totalEquity" 
-                                                position="top" 
-                                                formatter={(val: any) => formatScaled(val)} 
-                                                style={{ fontSize: '9px', fill: '#6B7280', fontWeight: 600 }}
-                                            />
-                                        </Bar>
-                                    </>
-                                )}
+                                <Bar 
+                                    dataKey={activeTab} 
+                                    name={activeTabConfig.label} 
+                                    fill={activeTabConfig.color} 
+                                    radius={[4, 4, 0, 0]} 
+                                    maxBarSize={40}
+                                >
+                                    {
+                                        activeTab === 'netIncome' && ([...currentData].reverse().slice(-activeSliceCount(period))).map((entry: any, index: number) => (
+                                                <Cell key={`cell-${index}`} fill={(entry.netIncome || 0) >= 0 ? '#10B981' : '#EF4444'} />
+                                            ))
+                                    }
+                                    <LabelList 
+                                        dataKey={activeTab} 
+                                        position="top" 
+                                        formatter={(val: any) => formatScaled(val, true)} 
+                                        style={{ fontSize: '10px', fill: '#6B7280', fontWeight: 600 }}
+                                    />
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                         )}
@@ -455,9 +454,9 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                             className="group flex items-center gap-2 px-6 py-2 rounded-full bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-xs font-bold text-gray-600 dark:text-gray-300 transition-all border border-gray-200 dark:border-zinc-700 shadow-sm hover:shadow-md"
                         >
                             {showDetails ? (
-                                <>Hide Data Table <ChevronUp size={14} className="group-hover:-translate-y-0.5 transition-transform text-gray-400" /></>
+                                <>Hide {activeTabConfig.source === 'income' ? 'Income' : 'Balance Sheet'} Data <ChevronUp size={14} className="group-hover:-translate-y-0.5 transition-transform text-gray-400" /></>
                             ) : (
-                                <>View Data Table <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform text-gray-400" /></>
+                                <>View {activeTabConfig.source === 'income' ? 'Income' : 'Balance Sheet'} Data <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform text-gray-400" /></>
                             )}
                         </button>
                     </div>
@@ -468,7 +467,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                                 <thead>
                                     <tr className="text-gray-400 dark:text-gray-500 border-b border-gray-100 dark:border-zinc-800/50">
                                         <th className="text-left py-3 px-4 font-semibold">Period</th>
-                                        {statementType === 'income' ? (
+                                        {activeTabConfig.source === 'income' ? (
                                             <>
                                                 <th className="py-3 px-2 font-semibold">Revenue <span className="text-[9px] opacity-70">({unit})</span></th>
                                                 <th className="py-3 px-2 font-semibold">Net Income <span className="text-[9px] opacity-70">({unit})</span></th>
@@ -486,7 +485,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50 dark:divide-zinc-800/30">
-                                    {statementType === 'income' ? (
+                                    {activeTabConfig.source === 'income' ? (
                                         (currentData as IncomeStatementItem[]).length > 0 ? (
                                             (currentData as IncomeStatementItem[]).slice(0, 5).map((item, i) => (
                                                 <tr key={i} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors group">
