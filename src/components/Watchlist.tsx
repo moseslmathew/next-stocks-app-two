@@ -406,6 +406,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                     <div className={`col-start-1 row-start-1 w-full transition-all duration-500 ease-in-out ${mobileViewMode === 'performance' ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-90 rotate-2 pointer-events-none absolute inset-0'}`}>
                         <PerformanceContent 
+                            data={data}
                             onUpdateTarget={onUpdateTarget}
                             onUpdateAdded={onUpdateAdded}
                             onSetupTracking={onSetupTracking}
@@ -1433,7 +1434,6 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         onUpdateTarget={handleUpdateTarget}
                                                         onUpdateAdded={handleUpdateAdded}
                                                         onSetupTracking={setTrackModalData}
-                                                        onNavigate={() => setIsNavigating(true)}
                                                         onNavigate={() => setIsNavigating(true)}
                                                         mobileViewMode={mobileViewMode}
                                                         onRemovePosition={(s) => setRemovePositionConfirmation({ isOpen: true, symbol: s })}
