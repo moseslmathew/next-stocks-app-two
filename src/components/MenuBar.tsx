@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
-import { TrendingUp, Newspaper, Globe, Brain, BarChart3 } from 'lucide-react';
+import { TrendingUp, Newspaper, Globe, Brain, BarChart3, Sparkles } from 'lucide-react';
 
 const MenuBar = () => {
   const pathname = usePathname();
@@ -21,8 +21,18 @@ const MenuBar = () => {
                 <MobileNavChip href="/watchlist/us" icon={<span className="text-lg font-bold">$</span>} text="Watchlist" active={isActive('/watchlist/us')} />
                </>
             )}
-            <MobileNavChip href="/global-market" icon={<BarChart3 size={20} />} text="Global" active={isActive('/global-market')} />
-            <MobileNavChip href="/ai-sentiment" icon={<Brain size={20} />} text="AI" active={isActive('/ai-sentiment')} />
+            <MobileNavChip href="/global-market" icon={<BarChart3 size={20} />} text="Markets" active={isActive('/global-market')} />
+            <MobileNavChip 
+                href="/ai-sentiment" 
+                icon={
+                    <div className="relative flex items-center justify-center w-6 h-6">
+                        <span className="font-black text-[15px] leading-none tracking-tighter">AI</span>
+                        <Sparkles size={10} className="absolute -top-1 -right-1.5 opacity-80" strokeWidth={2.5}/>
+                    </div>
+                } 
+                text="Market Sentiment" 
+                active={isActive('/ai-sentiment')} 
+            />
             <MobileNavChip href="/news" icon={<Newspaper size={20} />} text="News" active={isActive('/news')} />
        </div>
     </div>

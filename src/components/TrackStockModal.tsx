@@ -11,6 +11,7 @@ interface TrackStockModalProps {
   initialEntryPrice?: number;
   initialTargetPrice?: number;
   onSave: (entryPrice: number, targetPrice: number) => Promise<void>;
+  onRemove?: () => void;
   currency: string;
 }
 
@@ -22,6 +23,7 @@ export function TrackStockModal({
     initialEntryPrice, 
     initialTargetPrice, 
     onSave,
+    onRemove,
     currency 
 }: TrackStockModalProps) {
   const [entryPrice, setEntryPrice] = useState<string>('');
@@ -121,6 +123,16 @@ export function TrackStockModal({
                             </>
                         )}
                     </button>
+
+                    {initialEntryPrice && onRemove && (
+                        <button
+                            type="button"
+                            onClick={onRemove}
+                            className="w-full mt-3 py-3 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                            <span className="text-xs font-bold uppercase tracking-wider">Stop Tracking</span>
+                        </button>
+                    )}
                 </div>
             </form>
         </div>

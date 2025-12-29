@@ -137,7 +137,7 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
             regularMarketPrice: quote.regularMarketPrice ?? 0,
             regularMarketChange: quote.regularMarketChange ?? 0,
             regularMarketChangePercent: quote.regularMarketChangePercent ?? 0,
-            shortName: quote.shortName ?? quote.symbol,
+            shortName: quote.symbol === 'GC=F' ? 'Gold Futures' : (quote.symbol === 'SI=F' ? 'Silver Futures' : (quote.shortName ?? quote.symbol)),
             regularMarketDayHigh: quote.regularMarketDayHigh ?? 0,
             regularMarketDayLow: quote.regularMarketDayLow ?? 0,
             fiftyTwoWeekHigh: quote.fiftyTwoWeekHigh ?? 0,

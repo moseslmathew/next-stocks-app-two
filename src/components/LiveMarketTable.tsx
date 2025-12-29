@@ -6,7 +6,7 @@ import { getWatchlistData } from '@/actions/market';
 import { useRefreshRate } from '@/hooks/useRefreshRate';
 import { formatCurrency } from '@/utils/currency';
 import Sparkline from '@/components/Sparkline';
-import { ArrowUp, ArrowDown, RefreshCcw } from 'lucide-react';
+import { ArrowUp, ArrowDown, RefreshCcw, Globe } from 'lucide-react';
 import { ChartModal } from '@/components/ChartModal';
 import { createPusherClient } from '@/lib/pusher';
 
@@ -168,9 +168,9 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
       <table className="w-full text-left text-sm table-fixed">
         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
           <tr>
-            <th className="px-3 sm:px-6 py-3 w-[45%] sm:w-[40%]">Company</th>
-            <th className="px-2 sm:px-6 py-3 w-[25%] whitespace-nowrap">Price</th>
-            <th className="px-3 sm:px-6 py-3 w-[30%] sm:w-[35%]">
+            <th className="px-3 sm:px-6 py-3 w-[40%] sm:w-[40%]">Company</th>
+            <th className="px-1 sm:px-6 py-3 w-[35%] whitespace-nowrap">Price</th>
+            <th className="px-0 sm:px-6 py-3 w-[25%] sm:w-[35%]">
                 <div className="flex items-center justify-end">
                     <div className="flex bg-gray-200 dark:bg-gray-800 rounded-lg p-0.5 text-[10px] sm:text-xs">
                         <button
@@ -194,6 +194,10 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
           {marketData.map((data) => {
             const isPositive = data.regularMarketChange >= 0;
             const previousClose = data.regularMarketPrice - data.regularMarketChange;
+            // Native boolean check if needed, or rely on passed props/context. 
+            // For flags, we previously decided to remove them, so no specific 'isIndian' check needed for UI decoration here.
+            // But we need 'isIndian' for the Sparkline logic if it differs (checking market hours etc).
+            // The previous logic used symbols to determine this.
             const isIndian = data.symbol.includes('^NSE') || data.symbol.includes('^BSE') || data.symbol === 'USDINR=X';
 
             return (
@@ -206,7 +210,7 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
                     </div>
                   </div>
                 </td>
-                <td className="px-2 sm:px-6 py-3 align-middle">
+                <td className="px-1 sm:px-6 py-3 align-middle">
                     <div className="flex flex-col items-start whitespace-nowrap">
                         <div className="font-mono text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100">
                            {formatCurrency(data.regularMarketPrice, data.currency)}
@@ -216,8 +220,8 @@ export default function LiveMarketTable({ initialData, symbols, title, children 
                         </div>
                     </div>
                 </td>
-                <td className="px-3 sm:px-6 py-3 align-middle cursor-pointer" onClick={() => setSelectedStock(data)} title="Click to view chart">
-                    <div className="flex justify-end">
+                <td className="px-0 sm:px-6 py-3 align-middle cursor-pointer" onClick={() => setSelectedStock(data)} title="Click to view chart">
+                    <div className="flex justify-end pr-2 sm:pr-0">
                         <Sparkline 
                             data={data.sparkline} 
                             timestamps={data.timestamps}

@@ -136,7 +136,7 @@ interface TrendContentProps {
 const TrendContent = ({ data, isLoadingChart, sparklineColor, trendRange, onClick }: TrendContentProps) => {
     return (
         <div 
-            className="cursor-pointer hover:opacity-80 transition-opacity flex justify-end sm:justify-start h-[35px] items-center"
+            className="cursor-pointer hover:opacity-80 transition-opacity flex justify-center sm:justify-start h-[35px] items-center"
             onClick={onClick}
         >
             {isLoadingChart ? (
@@ -163,73 +163,143 @@ interface PerformanceContentProps {
     onUpdateAdded: (symbol: string, price: number | null) => void;
     onSetupTracking: (data: MarketData) => void;
     onRemovePosition: (symbol: string) => void;
+    compact?: boolean; // Added compact prop
 }
 
-const PerformanceContent = ({ data, onUpdateTarget, onUpdateAdded, onSetupTracking, onRemovePosition }: PerformanceContentProps) => {
-    return (
-        <div className="w-full">
-            {data.addedPrice ? (
-                <div className="flex flex-col items-end sm:items-start justify-center h-auto py-1 group/perf relative w-full min-h-[50px]">
-                    
-                    {/* Line 1: Entry Price + Edit Action */}
-                    <div 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onSetupTracking(data);
-                        }}
-                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 sm:-ml-2 sm:px-2 py-1 rounded-lg transition-colors group/edit w-fit"
-                        title="Edit Entry Price"
-                    >
-                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-                            {formatCurrency(data.addedPrice, data.currency)}
-                         </span>
-                         {data.targetPrice && (
-                            <span className="text-xs font-normal text-gray-400 ml-1 flex items-center gap-0.5">
-                                ({formatCurrency(data.targetPrice, data.currency)} <Crosshair size={10} />)
-                            </span>
-                         )}
-                         <Pencil size={14} className="text-gray-400 group-hover/edit:text-violet-500 opacity-60 group-hover/edit:opacity-100 transition-all ml-1" />
-                    </div>
-
-                    {/* Line 2: ROI % + Remove Action */}
-                     <div className="flex items-center gap-3 sm:pl-0.5">
-                        {(() => {
-                            const roi = ((data.regularMarketPrice - data.addedPrice!) / data.addedPrice!) * 100;
-                            const isProfit = roi >= 0;
-                            return (
-                                <span className={`text-xs font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
-                                    {isProfit ? '+' : ''}{roi.toFixed(2)}%
-                                </span>
-                            );
-                        })()}
-
-                         {/* Remove Button - Always visible but subtle */}
-                         <button 
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                e.stopPropagation();
-                                onRemovePosition(data.symbol);
-                            }}
-                            className="p-1 rounded-full text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
-                            title="Remove Position"
-                        >
-                            <X size={16} strokeWidth={2.5} />
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <button 
+const PerformanceContent = ({ 
+    data, 
+    onUpdateTarget, 
+    onUpdateAdded, 
+    onSetupTracking, 
+    onRemovePosition,
+    compact = false 
+}: PerformanceContentProps) => {
+    // Simplified Performance Logic: Entry -> Target
+    // If no position or no target, show Add button
+    if (!data.addedPrice || !data.targetPrice) {
+        return (
+            <div className="w-full flex justify-center">
+                 <button 
                     onClick={(e) => {
                         e.stopPropagation();
                         onSetupTracking(data);
                     }}
-                    className="h-7 w-auto px-4 bg-violet-50 dark:bg-violet-900/20 rounded-full flex items-center justify-center border border-dashed border-violet-200 dark:border-violet-800 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors group/btn opacity-70 hover:opacity-100"
+                    className={`h-6 w-auto px-4 bg-transparent border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center hover:border-violet-400 dark:hover:border-violet-600 hover:text-violet-600 dark:hover:text-violet-400 transition-all group/btn opacity-70 hover:opacity-100 mx-auto sm:mx-0 ${compact ? 'h-5 px-2 ml-auto' : ''}`}
                 >
-                    <span className="text-xs text-violet-600 dark:text-violet-300 font-semibold flex items-center gap-1.5">
-                        <Plus size={14} className="group-hover/btn:scale-110 transition-transform"/> Add
+                    <span className={`${compact ? 'text-[9px]' : 'text-[10px]'} text-gray-500 dark:text-gray-400 group-hover/btn:text-violet-600 dark:group-hover/btn:text-violet-400 font-medium flex items-center gap-1`}>
+                        <Plus size={compact ? 10 : 12} className="group-hover/btn:scale-110 transition-transform"/> {compact ? 'Add' : 'Setup'}
                     </span>
                 </button>
-            )}
+            </div>
+        );
+    }
+
+    // Logic: Slider goes from Entry (0%) to Target (100%)
+    const entry = data.addedPrice;
+    const target = data.targetPrice;
+    const current = data.regularMarketPrice;
+
+    // Calculate percent progress towards target
+    // If target > entry (Long): moves Right. 
+    // If target < entry (Short): moves Right (magnitude based). 
+    // Assuming Long for standard UI:
+    const totalRange = target - entry;
+    const progress = current - entry;
+    // Cap at 0% and 100% for visual bounds
+    const percent = totalRange === 0 ? 0 : Math.max(0, Math.min(100, (progress / totalRange) * 100));
+    
+    // Determine color based on relation to Entry
+    const isProfit = current >= entry;
+    const isHit = current >= target;
+
+    return (
+        <div className="w-full">
+            {/* Mobile View: Compact ROI */}
+            <div className="sm:hidden w-full flex justify-center">
+                 <div 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onSetupTracking(data);
+                    }}
+                    className={`flex flex-col items-center justify-center h-auto py-1 w-full min-h-[50px] cursor-pointer rounded-lg transition-colors px-1`}
+                >
+                     <span className="text-[11px] font-bold text-gray-900 dark:text-gray-100">
+                        {formatCurrency(entry, data.currency)}
+                     </span>
+                     <span className={`font-bold text-[11px] mt-0.5 ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                        {isProfit ? '+' : ''}{((progress / entry) * 100).toFixed(2)}%
+                    </span>
+                </div>
+            </div>
+
+            {/* Desktop View: Entry -> Target Slider with Left Extension for Loss */}
+            <div 
+                className="hidden sm:block w-[90%] mx-auto cursor-pointer hover:opacity-80 transition-opacity group/slider relative h-8 mt-4 select-none"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onSetupTracking(data);
+                }}
+            >
+                 {/* Layout:
+                    - Total Width: 100%
+                    - Left Zone (Loss Zone): 0% to 20%
+                    - Main Track (Entry to Target): 20% to 100%
+                 */}
+                 
+                 {/* Labels */}
+                 <div className="absolute top-[-18px] w-full text-xs text-gray-500 dark:text-gray-400 font-medium tabular-nums select-none pointer-events-none">
+                    <span className="absolute left-[20%] -translate-x-1/2">{formatCurrency(entry, data.currency).replace(data.currency, '').trim()}</span>
+                    <span className="absolute right-0 translate-x-[50%]">{formatCurrency(target, data.currency).replace(data.currency, '').trim()}</span>
+                 </div>
+
+                 {/* Main Track (Entry -> Target) */}
+                 <div className="absolute left-[20%] right-0 top-1/2 -translate-y-1/2 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full">
+                     {/* Green Fill for Profit */}
+                     {isProfit && (
+                         <div 
+                            className="absolute left-0 top-0 bottom-0 bg-green-500 rounded-l-full"
+                            style={{ width: `${percent}%` }}
+                         />
+                     )}
+                 </div>
+
+                 {/* Loss Extension (Dotted Line) */}
+                 {!isProfit && (
+                     <>
+                        <div 
+                            className="absolute top-1/2 -translate-y-1/2 h-0 border-t-2 border-dotted border-red-500"
+                            style={{ 
+                                left: `${Math.max(0, 20 - ((entry - current) / (target - entry) * 80))}%`, // Scale loss relative to target range, clamped at 0%
+                                right: '80%' // Ends at Entry (20% from left, so 80% from right is correct logic? No. 'right' is distance from right edge. 100-20 = 80%. )
+                            }} 
+                        />
+                        {/* Start Point (Entry) Marker logic for clarity? No, the track start implies entry. */}
+                     </>
+                 )}
+
+                 {/* Marker: Arrow */}
+                 <div 
+                    className="absolute top-1/2 -translate-y-1/2 z-10 transition-all duration-500"
+                    style={{ 
+                        // If Profit: 20% + (percent of 80%)
+                        // If Loss: 20% - (percent of 80% deviation)
+                       left: isProfit 
+                            ? `${20 + (percent * 0.8)}%` 
+                            : `${Math.max(0, 20 - (((entry - current) / totalRange) * 80))}%`
+                    }}
+                 >
+                     {/* Down Arrow Marker */}
+                     <div className={`w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] -translate-y-[2px] ${isProfit ? 'border-t-green-500' : 'border-t-red-500'}`} />
+                     
+                     {/* Current Price Tooltip on Hover */}
+                     <div className={`absolute top-3 left-1/2 -translate-x-1/2 text-[9px] font-bold opacity-0 group-hover/slider:opacity-100 transition-opacity ${isProfit ? 'bg-green-600' : 'bg-red-600'} text-white px-1.5 py-0.5 rounded whitespace-nowrap pointer-events-none shadow-sm`}>
+                         {formatCurrency(current, data.currency)}
+                     </div>
+
+                     {isHit && <div className="absolute top-0 left-1/2 -translate-x-1/2 -mt-1 w-3 h-3 rounded-full animate-ping bg-green-500 opacity-40"></div>}
+                 </div>
+
+            </div>
         </div>
     );
 };
@@ -343,7 +413,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 router.push(`/stock/${data.symbol}`);
             }}
         >
-            <td className="px-2 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[32%] bg-white dark:bg-black relative z-10 overflow-visible">
+            <td className="px-2 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-1/3 sm:w-[32%] bg-white dark:bg-black relative z-10 overflow-visible">
                 {/* Background for Swipe Action */}
                 {swipeX > 10 && (
                     <div 
@@ -369,19 +439,18 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-1 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[18%] bg-white dark:bg-black relative z-10">
+            <td className="px-1 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-1/3 sm:w-[23%] bg-white dark:bg-black relative z-10">
                 <div className="flex flex-col items-center sm:items-start">
                     <div className="font-mono text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
                         {formatCurrency(data.regularMarketPrice, data.currency)}
                     </div>
-
                     <div className={`text-[10px] sm:text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                     </div>
                 </div>
             </td>
             <td
-                className="px-0 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%] bg-white dark:bg-black relative z-10"
+                className="px-0 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-1/3 sm:w-[15%] bg-white dark:bg-black relative z-10"
                 onClick={(e) => {
                      e.stopPropagation();
                      onSelect(data);
@@ -390,29 +459,33 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 onTouchEnd={(e) => e.stopPropagation()}
                 style={{ touchAction: 'manipulation' }}
             >
-                {/* Mobile: Grid Stack for Soft Switching */}
-                <div className="sm:hidden grid grid-cols-1 grid-rows-1 items-center w-full min-h-[40px]">
-                    <div className={`col-start-1 row-start-1 w-full transition-all duration-500 ease-in-out ${mobileViewMode === 'trend' ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-90 -rotate-2 pointer-events-none absolute inset-0'}`}>
-                         <TrendContent 
-                            data={data}
-                            isLoadingChart={isLoadingChart}
-                            sparklineColor={sparklineColor}
-                            trendRange={trendRange}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onSelect(data);
-                            }}
-                        />
-                    </div>
-                    <div className={`col-start-1 row-start-1 w-full transition-all duration-500 ease-in-out ${mobileViewMode === 'performance' ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-90 rotate-2 pointer-events-none absolute inset-0'}`}>
-                        <PerformanceContent 
-                            data={data}
-                            onUpdateTarget={onUpdateTarget}
-                            onUpdateAdded={onUpdateAdded}
-                            onSetupTracking={onSetupTracking}
-                            onRemovePosition={onRemovePosition}
-                        />
-                    </div>
+                {/* Mobile: Toggled View (Trend OR Performance) */}
+                <div className="sm:hidden w-full h-[40px] flex items-center justify-end">
+                     {mobileViewMode === 'trend' ? (
+                        <div className="w-full h-[30px]">
+                            <TrendContent 
+                                data={data}
+                                isLoadingChart={isLoadingChart}
+                                sparklineColor={sparklineColor}
+                                trendRange={trendRange}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onSelect(data);
+                                }}
+                            />
+                        </div>
+                     ) : (
+                        <div className="w-full">
+                            <PerformanceContent 
+                                data={data}
+                                onUpdateTarget={onUpdateTarget}
+                                onUpdateAdded={onUpdateAdded}
+                                onSetupTracking={onSetupTracking}
+                                onRemovePosition={onRemovePosition}
+                                compact={false}
+                            />
+                        </div>
+                     )}
                 </div>
 
                 {/* Desktop: Always Trend */}
@@ -1357,19 +1430,19 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                     <table className="w-full text-left text-sm sm:text-base table-fixed">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm">
                                             <tr>
-                                                <th className="px-4 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[35%] sm:w-[32%]" onClick={() => handleSort('symbol')}>
+                                                <th className="px-4 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-1/3 sm:w-[32%]" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1 pl-2">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-1 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[30%] sm:w-[18%] text-center sm:text-left" onClick={() => handleSort('price')}>
+                                                <th className="px-1 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-1/3 sm:w-[23%] text-center sm:text-left" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center justify-center sm:justify-start gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-0 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-[35%] sm:w-[20%] text-right sm:text-left align-middle">
+                                                <th className="px-0 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-1/3 sm:w-[15%] text-right sm:text-left align-middle">
                                                      <div className="flex flex-row items-center justify-end sm:justify-start">
                                                          {/* Micro-range selector (Desktop) */}
                                                          <div className="hidden sm:flex bg-gray-100 dark:bg-gray-800/50 rounded-lg p-0.5 text-xs sm:text-sm origin-right sm:origin-left">
@@ -1404,8 +1477,10 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         </div>
                                                      </div>
                                                 </th>
-                                                <th className="hidden sm:table-cell px-6 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-left sm:w-[25%]">
-                                                    <PerformanceHeader />
+                                                <th className="hidden sm:table-cell px-6 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-center sm:w-[25%]">
+                                                    <div className="flex justify-center">
+                                                        <PerformanceHeader />
+                                                    </div>
                                                 </th>
                                                 <th className="hidden sm:table-cell px-2 py-3 font-medium text-gray-500 dark:text-gray-400 text-center sm:w-[5%]">
                                                     
@@ -1578,6 +1653,12 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             initialTargetPrice={trackModalData?.targetPrice ?? undefined}
             currency={trackModalData?.currency || 'USD'}
             onSave={handleSaveTracking}
+            onRemove={() => {
+                if(trackModalData) {
+                    handleUpdateAdded(trackModalData.symbol, null);
+                    setTrackModalData(null);
+                }
+            }}
         />
 
         {/* Delete Confirmation Modal */}
