@@ -20,27 +20,22 @@ const Navbar = () => {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md">
+    <nav className="fixed top-0 w-full z-50 bg-white/70 dark:bg-gray-950/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           
           {/* Logo Section - Hide on mobile when search is open */}
           <Link href="/" className={`flex items-center gap-2 group flex-shrink-0 ${isMobileSearchOpen ? 'hidden md:flex' : 'flex'}`}>
-             <div className="relative p-1.5 md:p-2 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-lg md:rounded-xl shadow-lg shadow-violet-500/30 group-hover:shadow-violet-500/50 group-hover:scale-105 transition-all duration-300 ring-1 ring-white/20">
-                <ScatterChart className="w-4 h-4 md:w-5 md:h-5 text-white" strokeWidth={2.5} />
+             <div className="relative p-1.5 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-lg shadow-lg shadow-violet-500/20 group-hover:shadow-violet-500/40 group-hover:scale-105 transition-all duration-300 ring-1 ring-white/10">
+                <ScatterChart className="w-4 h-4 text-white" strokeWidth={2.5} />
              </div>
-            <span className="text-base md:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-950 to-indigo-900 dark:from-white dark:to-indigo-200 tracking-tight whitespace-nowrap">
+            <span className="text-sm md:text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-950 to-indigo-900 dark:from-white dark:to-indigo-200 tracking-tight whitespace-nowrap">
               Tensor Terminal
             </span>
           </Link>
           
-          {/* Market Indices Ticker */}
-          <div className="hidden md:flex flex-1 mx-4 overflow-hidden max-w-4xl">
-              <MarketIndicesTicker />
-          </div>
-          
           {/* Search Bar - Visible on Large Screens */}
-          <div className="hidden lg:block w-72">
+          <div className="hidden lg:block w-64">
               <Search />
           </div>
 
@@ -72,7 +67,7 @@ const Navbar = () => {
               {isMobileSearchOpen ? (
                   <div className="flex w-full items-center gap-2 animate-in fade-in slide-in-from-right-5 duration-200">
                       <div className="flex-1">
-                          <Search />
+                          <Search onSelect={() => setIsMobileSearchOpen(false)} />
                       </div>
                       <button 
                         onClick={() => setIsMobileSearchOpen(false)}

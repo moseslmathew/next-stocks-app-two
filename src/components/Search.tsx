@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search as SearchIcon, X, Loader2 } from 'lucide-react';
-import { searchStocks } from '@/actions/market';
+import { searchStocks, getBatchStockQuotes } from '@/actions/market';
 import { addToWatchlist } from '@/actions/watchlist';
 
 // Simple debounce implementation inside component to avoid extra file for now if not used elsewhere
@@ -25,10 +25,15 @@ interface SearchResult {
   name: string;
   exchange: string;
   type: string;
+  marketData?: {
+      price: number;
+      change: number;
+      changePercent: number;
+  }
 }
 
 // Separate component for search content to use Suspense
-function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchlistId?: string, region?: string, onAdd?: () => void }) {
+function SearchContent({ watchlistId: propWatchlistId, region, onAdd, onSelect }: { watchlistId?: string, region?: string, onAdd?: () => void, onSelect?: () => void }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,8 +60,37 @@ function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchl
 
       setIsLoading(true);
       try {
-        const data = await searchStocks(debouncedQuery);
-        setResults(data);
+        const basicResults = await searchStocks(debouncedQuery);
+        
+        // Only fetch quotes for top 5 to keep it reasonably fast
+        const topSymbols = basicResults.slice(0, 5).map(r => r.symbol);
+        
+        let enrichedResults: SearchResult[] = basicResults;
+        
+        if (topSymbols.length > 0) {
+             try {
+                 const quotes = await getBatchStockQuotes(topSymbols);
+                 // Merge quotes into results
+                 enrichedResults = basicResults.map(res => {
+                     const quote = quotes.find(q => q.symbol === res.symbol);
+                     if (quote) {
+                         return {
+                             ...res,
+                             marketData: {
+                                 price: quote.regularMarketPrice,
+                                 change: quote.regularMarketChange,
+                                 changePercent: quote.regularMarketChangePercent
+                             }
+                         };
+                     }
+                     return res;
+                 }).filter(r => r.marketData || true) as SearchResult[];
+             } catch (e) {
+                 console.warn("Failed to fetch quotes for search", e);
+             }
+        }
+
+        setResults(enrichedResults);
         setIsOpen(true);
       } catch (error) {
         console.error('Search error:', error);
@@ -103,16 +137,17 @@ function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchl
         setQuery('');
         setIsOpen(false);
     } else {
-        // Normal Mode: Navigate to Quote
-        setQuery('');
+        // Navigation Mode
+        setQuery(''); // Clear query
         setIsOpen(false);
-        router.push(`/quote/${symbol}`);
+        if (onSelect) onSelect(); // Notify parent
+        router.push(`/stock/${symbol}`);
     }
   };
 
   // Filter Logic based on Region
   const filteredResults = results.filter(r => {
-      const isIndian = ['NSE', 'NSI', 'BSE', 'BSI', 'BOC'].includes(r.exchange);
+      const isIndian = ['NSE', 'NSI', 'BSE', 'BSI', 'BOC'].includes(r.exchange) || r.symbol.endsWith('.NS') || r.symbol.endsWith('.BO');
       
       if (region === 'IN') {
           return isIndian;
@@ -151,13 +186,13 @@ function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchl
   return (
     <div className="relative w-full max-w-md group" ref={searchRef}>
       <div className="relative z-50">
-        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-violet-500 dark:text-violet-400 pointer-events-none">
-          <SearchIcon size={22} strokeWidth={2.5} />
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-violet-500 dark:text-violet-400 pointer-events-none">
+          <SearchIcon size={18} strokeWidth={2.5} />
         </div>
         <input
           type="text"
-          className="w-full pl-14 pr-10 h-[56px] bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 rounded-full text-[17px] focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 focus:outline-none transition-all shadow-[0_4px_20px_rgba(0,0,0,0.03)] focus:shadow-[0_4px_25px_rgba(124,58,237,0.1)] text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
-          placeholder={watchlistId ? (region === 'IN' ? "Search NSE/BSE stocks..." : "Search US stocks...") : "Search stocks..."}
+          className="w-full pl-10 pr-10 h-10 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-full text-sm focus:ring-1 focus:ring-violet-500/20 focus:border-violet-500 focus:outline-none transition-all shadow-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 font-medium"
+          placeholder={watchlistId ? (region === 'IN' ? "Search NSE/BSE..." : "Search US...") : "Search stocks..."}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -270,10 +305,10 @@ function SearchContent({ watchlistId: propWatchlistId, region, onAdd }: { watchl
   );
 }
 
-export default function Search({ watchlistId, region, onAdd }: { watchlistId?: string, region?: string, onAdd?: () => void }) {
+export default function Search({ watchlistId, region, onAdd, onSelect }: { watchlistId?: string, region?: string, onAdd?: () => void, onSelect?: () => void }) {
   return (
     <Suspense fallback={<div className="w-full h-10 bg-gray-100 dark:bg-gray-800 rounded-full animate-pulse" />}>
-      <SearchContent watchlistId={watchlistId} region={region} onAdd={onAdd} />
+      <SearchContent watchlistId={watchlistId} region={region} onAdd={onAdd} onSelect={onSelect} />
     </Suspense>
   );
 }

@@ -221,9 +221,16 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%] bg-white dark:bg-black relative z-10" onClick={(e) => {
-                 onSelect(data);
-            }}>
+            <td 
+                className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%] bg-white dark:bg-black relative z-10" 
+                onClick={(e) => {
+                     e.stopPropagation();
+                     onSelect(data);
+                }}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                style={{ touchAction: 'manipulation' }}
+            >
                 <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-end sm:justify-start">
                     {isLoadingChart ? (
                         <div className="animate-pulse bg-gray-200 dark:bg-gray-800 h-[35px] w-[90px] rounded" />
@@ -863,7 +870,12 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   }, [watchlistData, sortColumn, sortDirection]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+        {/* Top Market Indices Section */}
+        <div className="w-full mb-2">
+             <MarketIndicesTicker mode="cards" region={filterRegion === 'IN' ? 'IN' : filterRegion === 'GLOBAL' ? 'US' : 'ALL'} />
+        </div>
+        
         <div className="flex flex-col gap-2 mb-4">
             
 
@@ -1158,10 +1170,7 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
           </div>
         )}
 
-        {/* Top Market Indices Section */}
-        <div className="mb-6 w-full border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-black pb-2">
-             <MarketIndicesTicker mode="ticker" />
-        </div>
+
         {/* Watchlist Briefing Section */}
         {watchlistData.length > 0 && (
             <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8">

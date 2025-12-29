@@ -17,9 +17,10 @@ const SYMBOL_NAMES: Record<string, string> = {
 
 interface MarketIndicesTickerProps {
     mode?: 'cards' | 'ticker';
+    region?: 'IN' | 'US' | 'ALL';
 }
 
-export default function MarketIndicesTicker({ mode = 'cards' }: MarketIndicesTickerProps) {
+export default function MarketIndicesTicker({ mode = 'cards', region = 'ALL' }: MarketIndicesTickerProps) {
     const [indices, setIndices] = useState<MarketData[]>([]);
     const [loading, setLoading] = useState(true);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,16 @@ export default function MarketIndicesTicker({ mode = 'cards' }: MarketIndicesTic
         const interval = setInterval(fetchData, 5000); // Update every 5s
         return () => clearInterval(interval);
     }, []);
+
+    const filteredIndices = indices.filter(index => {
+        if (region === 'IN') {
+            return ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT'].includes(index.symbol);
+        }
+        if (region === 'US') {
+            return ['^GSPC', '^IXIC', 'GC=F'].includes(index.symbol);
+        }
+        return true;
+    });
 
     // Horizontal scroll capability is managed by CSS (overflow-x-auto)
     // We can add drag-to-scroll later if needed, but for now native touch/scroll is fine.
@@ -73,7 +84,7 @@ export default function MarketIndicesTicker({ mode = 'cards' }: MarketIndicesTic
                     className="flex items-center gap-6 sm:gap-8 overflow-x-auto no-scrollbar whitespace-nowrap py-2"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                    {indices.map((index) => {
+                    {filteredIndices.map((index) => {
                          const isPositive = index.regularMarketChange >= 0;
                          const colorClass = isPositive ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500';
                          
@@ -107,7 +118,7 @@ export default function MarketIndicesTicker({ mode = 'cards' }: MarketIndicesTic
                 className="flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth w-full select-none"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-                {indices.map((index) => {
+                {filteredIndices.map((index) => {
                     const isPositive = index.regularMarketChange >= 0;
                     const Icon = isPositive ? TrendingUp : TrendingDown;
                     const colorClass = isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
@@ -116,24 +127,25 @@ export default function MarketIndicesTicker({ mode = 'cards' }: MarketIndicesTic
                     return (
                         <div 
                             key={index.symbol}
-                            className={`flex flex-col justify-center min-w-[110px] px-3 py-1.5 rounded-lg border border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 hover:bg-white dark:hover:bg-gray-900 transition-colors cursor-default whitespace-nowrap`}
+                            className={`flex flex-col justify-between min-w-[160px] p-3 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 shadow-sm hover:shadow-md transition-all cursor-default`}
                         >
-                            <div className="flex items-center justify-between gap-2 mb-0.5">
-                                <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate mr-2" title={SYMBOL_NAMES[index.symbol] || index.shortName}>
                                     {SYMBOL_NAMES[index.symbol] || index.shortName}
                                 </span>
                                 {index.regularMarketChange !== 0 ? (
-                                     <Icon size={10} className={colorClass} />
+                                     <Icon size={14} className={colorClass} />
                                 ) : (
-                                     <Minus size={10} className="text-gray-400" />
+                                     <Minus size={14} className="text-gray-400" />
                                 )}
                             </div>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-sm font-bold text-gray-900 dark:text-gray-100 font-mono">
+                            
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 font-mono leading-none tracking-tight">
                                     {index.regularMarketPrice.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 })}
                                 </span>
-                                <span className={`text-[10px] font-medium font-mono ${colorClass}`}>
-                                    {isPositive ? '+' : ''}{index.regularMarketChangePercent.toFixed(2)}%
+                                <span className={`text-xs font-medium font-mono mt-1 ${colorClass}`}>
+                                    {isPositive ? '+' : ''}{index.regularMarketChange.toFixed(2)} ({Math.abs(index.regularMarketChangePercent).toFixed(2)}%)
                                 </span>
                             </div>
                         </div>

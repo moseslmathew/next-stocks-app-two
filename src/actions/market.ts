@@ -1,7 +1,7 @@
 'use server';
 
 import YahooFinance from 'yahoo-finance2';
-import { getMarketData } from '@/services/marketData';
+import { getMarketData, MarketData } from '@/services/marketData';
 
 const yahooFinance = new YahooFinance();
 
@@ -59,23 +59,91 @@ export async function getStockQuote(symbol: string) {
 }
 export async function getStockDetails(symbol: string) {
   try {
-    const result = await yahooFinance.quoteSummary(symbol, {
-      modules: [
-        'price',
-        'summaryDetail',
-        'defaultKeyStatistics',
-        'assetProfile',
-        'financialData',
-        'quoteType'
-      ]
-    });
+    // Fetch data in parallel
+    const [
+      quoteResult,
+      incomeAnnualResult,
+      incomeQuarterlyResult, 
+      balanceAnnualResult,
+      balanceQuarterlyResult
+    ] = await Promise.all([
+      yahooFinance.quoteSummary(symbol, { 
+        modules: [
+          'price', 
+          'summaryDetail', 
+          'defaultKeyStatistics', 
+          'assetProfile',
+          'financialData',
+          'quoteType'
+        ] 
+      }),
+      // Income Statement
+      // @ts-ignore
+      yahooFinance.fundamentalsTimeSeries(symbol, { period1: '2019-01-01', module: 'financials', type: 'annual' }, { validateResult: false }).catch(e => {
+        console.error(`Income Annual fetch failed for ${symbol}:`, e.message);
+        return [];
+      }),
+      // @ts-ignore
+      yahooFinance.fundamentalsTimeSeries(symbol, { period1: '2020-01-01', module: 'financials', type: 'quarterly' }, { validateResult: false }).catch(e => {
+        console.error(`Income Quarterly fetch failed for ${symbol}:`, e.message);
+        return [];
+      }),
+      
+      // Balance Sheet
+      // @ts-ignore
+      yahooFinance.fundamentalsTimeSeries(symbol, { period1: '2019-01-01', module: 'balance-sheet', type: 'annual' }, { validateResult: false }).catch(e => {
+        console.error(`Balance Annual fetch failed for ${symbol}:`, e.message);
+        return [];
+      }),
+      // @ts-ignore
+      yahooFinance.fundamentalsTimeSeries(symbol, { period1: '2020-01-01', module: 'balance-sheet', type: 'quarterly' }, { validateResult: false }).catch(e => {
+        console.error(`Balance Quarterly fetch failed for ${symbol}:`, e.message);
+        return [];
+      })
+    ]);
 
-    const price = result.price;
-    const summary = result.summaryDetail;
-    const stats = result.defaultKeyStatistics;
-    const profile = result.assetProfile;
-    const financial = result.financialData;
-    const quoteType = result.quoteType;
+    const price = quoteResult.price;
+    const summary = quoteResult.summaryDetail;
+    const stats = quoteResult.defaultKeyStatistics;
+    const profile = quoteResult.assetProfile;
+    const financial = quoteResult.financialData;
+    const quoteType = quoteResult.quoteType;
+    
+    // Helper to safely get value from multiple potential keys
+    const getValue = (obj: any, keys: string[]) => {
+        for (const key of keys) {
+            if (obj[key] !== undefined && obj[key] !== null) return obj[key];
+        }
+        return null;
+    };
+
+    // Filter and sort helper
+    const processSeries = (data: any[]) => {
+        return (data || [])
+            .filter(item => {
+                if (!item.date) return false;
+                const d = new Date(item.date);
+                // Filter out invalid dates or dates near epoch (Jan 1 1970) which indicate null data
+                return !isNaN(d.getTime()) && d.getFullYear() > 1980;
+            })
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    };
+
+    const mapIncome = (data: any[]) => processSeries(data).map(item => ({
+        date: item.date,
+        revenue: getValue(item, ['totalRevenue', 'operatingRevenue', 'revenue']),
+        netIncome: getValue(item, ['netIncome', 'netIncomeCommonStockholders', 'normalizedIncome']),
+        grossProfit: getValue(item, ['grossProfit', 'grossProfit']),
+        operatingIncome: getValue(item, ['operatingIncome', 'operatingProfit', 'pretaxIncome', 'EBIT'])
+    }));
+
+    const mapBalance = (data: any[]) => processSeries(data).map(item => ({
+        date: item.date,
+        totalAssets: getValue(item, ['totalAssets', 'assets']),
+        totalLiabilities: getValue(item, ['totalLiabilitiesNetMinorityInterest', 'totalLiabilities', 'liabilities']),
+        totalEquity: getValue(item, ['stockholdersEquity', 'totalEquityGrossMinorityInterest', 'equity', 'totalEquity', 'commonStockEquity']),
+        cash: getValue(item, ['cashAndCashEquivalents', 'cashEquivalents', 'cash', 'cashFinancial'])
+    }));
 
     return {
       symbol: symbol,
@@ -108,6 +176,19 @@ export async function getStockDetails(symbol: string) {
       website: profile?.website,
       employees: profile?.fullTimeEmployees,
       listingDate: stats?.firstTradeDateEpochUtc || quoteType?.firstTradeDateEpochUtc,
+
+      // Financials
+      // Financials
+      financials: {
+        incomeStatement: {
+            annual: mapIncome(incomeAnnualResult as any[]),
+            quarterly: mapIncome(incomeQuarterlyResult as any[])
+        },
+        balanceSheet: {
+            annual: mapBalance(balanceAnnualResult as any[]),
+            quarterly: mapBalance(balanceQuarterlyResult as any[])
+        }
+      }
     };
   } catch (error) {
     console.error(`Failed to fetch details for ${symbol}:`, error);

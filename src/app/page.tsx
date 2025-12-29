@@ -17,20 +17,20 @@ export default function Home() {
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
       {/* Hero Section */}
       {/* Hero Section */}
-      <section className="relative pt-4 md:pt-12 pb-8 lg:pb-16 overflow-hidden">
+      <section className="relative pt-2 md:pt-8 pb-4 lg:pb-8 overflow-hidden">
          {/* Background Effects */}
          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-100 via-transparent to-transparent dark:from-violet-900/40 opacity-50"></div>
          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-100 via-transparent to-transparent dark:from-indigo-900/40 opacity-50"></div>
          
-         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
             
             <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
-                <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 tracking-tight">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight">
                     Evaluate Stocks with <span className="text-violet-600 dark:text-violet-400">AI Insights</span>
                 </h1>
 
-                 <div className="mt-6 flex justify-center gap-3">
+                 <div className="mt-5 flex justify-center gap-3">
                     <SignedOut>
                         <SignInButton mode="modal">
                             <button className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-medium text-sm transition-all shadow-lg shadow-violet-600/25 hover:scale-105">

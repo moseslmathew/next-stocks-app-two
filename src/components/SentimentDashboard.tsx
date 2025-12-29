@@ -35,26 +35,26 @@ export default function SentimentDashboard({ indiaData, usData }: SentimentDashb
                     </div>
 
                     {/* Region Tabs */}
-                    <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                    <div className="flex p-1.5 bg-gray-100/80 dark:bg-zinc-800/80 rounded-full border border-gray-200/50 dark:border-zinc-700/50 backdrop-blur-sm">
                         <button
                             onClick={() => setRegion('INDIA')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
                                 region === 'INDIA' 
-                                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
-                                : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
+                                ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10' 
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                             }`}
                         >
-                            🇮🇳 India
+                            <span className="text-base">🇮🇳</span> India
                         </button>
                         <button
                             onClick={() => setRegion('US')}
-                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                             className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
                                 region === 'US' 
-                                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' 
-                                : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
+                                ? 'bg-white dark:bg-zinc-900 text-gray-900 dark:text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10' 
+                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                             }`}
                         >
-                            🇺🇸 US Market
+                             <span className="text-base">🇺🇸</span> US Market
                         </button>
                     </div>
                 </div>
