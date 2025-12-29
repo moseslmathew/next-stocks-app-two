@@ -105,19 +105,11 @@ const METRIC_DEFINITIONS: Record<string, { title: string, definition: string, im
 };
 
 // Helper to determine scale based on a maximum value
-const getScaleConfig = (maxVal: number, currency?: string) => {
-    const absVal = Math.abs(maxVal);
-    if (!currency || currency !== 'INR') {
-         if (absVal >= 1e12) return { unit: 'T', divisor: 1e12, label: 'Trillion' };
-         if (absVal >= 1e9) return { unit: 'B', divisor: 1e9, label: 'Billion' };
-         if (absVal >= 1e6) return { unit: 'M', divisor: 1e6, label: 'Million' };
-         return { unit: '', divisor: 1, label: '' };
-    } else {
-        // INR
-         if (absVal >= 1e7) return { unit: 'Cr', divisor: 1e7, label: 'Crores' };
-         if (absVal >= 1e5) return { unit: 'L', divisor: 1e5, label: 'Lakhs' };
-         return { unit: '', divisor: 1, label: '' };
-    }
+const getScaleConfig = (maxVal: number, currency = 'USD') => {
+    // Even for INR, we prioritize Billions/Trillions to save horizontal space as requested
+    if (maxVal >= 1e12) return { divisor: 1e12, unit: 'T', label: '(Trillions)' };
+    if (maxVal >= 1e9) return { divisor: 1e9, unit: 'B', label: '(Billions)' };
+    return { divisor: 1e6, unit: 'M', label: '(Millions)' };
 };
 
 // Helper to check valid number (including 0 and negatives)
@@ -429,7 +421,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                                     name={activeTabConfig.label} 
                                     fill={activeTabConfig.color} 
                                     radius={[4, 4, 0, 0]} 
-                                    maxBarSize={40}
+                                    maxBarSize={18}
                                 >
                                     {
                                         activeTab === 'netIncome' && ([...currentData].reverse().slice(-activeSliceCount(period))).map((entry: any, index: number) => (
@@ -463,23 +455,23 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
 
                     {showDetails && (
                         <div className="overflow-x-auto animate-in fade-in slide-in-from-top-4 duration-300 rounded-xl border border-gray-100 dark:border-zinc-800 p-1 mt-6 bg-white dark:bg-zinc-900/50 shadow-sm">
-                            <table className="w-full text-xs text-right border-collapse">
+                            <table className="w-full text-[10px] sm:text-xs text-right border-collapse">
                                 <thead>
-                                    <tr className="text-gray-400 dark:text-gray-500 border-b border-gray-100 dark:border-zinc-800/50">
-                                        <th className="text-left py-3 px-4 font-semibold">Period</th>
+                                    <tr className="text-gray-400 dark:text-gray-500 border-b border-gray-50 dark:border-zinc-800/50">
+                                        <th className="text-left py-3 px-4 font-bold text-gray-500 whitespace-nowrap">Period</th>
                                         {activeTabConfig.source === 'income' ? (
                                             <>
-                                                <th className="py-3 px-2 font-semibold">Revenue <span className="text-[9px] opacity-70">({unit})</span></th>
-                                                <th className="py-3 px-2 font-semibold">Net Income <span className="text-[9px] opacity-70">({unit})</span></th>
-                                                <th className="py-3 px-2 font-semibold">Op. Income <span className="text-[9px] opacity-70">({unit})</span></th>
-                                                <th className="py-3 px-4 font-semibold">Margin</th>
+                                                <th className="py-3 px-2 font-bold text-gray-500 whitespace-nowrap">Revenue <span className="text-[9px] font-normal opacity-70">({unit})</span></th>
+                                                <th className="py-3 px-2 font-bold text-gray-500 whitespace-nowrap">Net Income <span className="text-[9px] font-normal opacity-70">({unit})</span></th>
+                                                <th className="py-3 px-2 font-bold text-gray-500 whitespace-nowrap">Op. Income <span className="text-[9px] font-normal opacity-70">({unit})</span></th>
+                                                <th className="py-3 px-4 font-bold text-gray-500 whitespace-nowrap">Margin</th>
                                             </>
                                         ) : (
                                             <>
-                                                <th className="py-3 px-2 font-semibold">Assets <span className="text-[9px] opacity-70">({unit})</span></th>
-                                                <th className="py-3 px-2 font-semibold">Liabilities <span className="text-[9px] opacity-70">({unit})</span></th>
-                                                <th className="py-3 px-2 font-semibold">Equity <span className="text-[9px] opacity-70">({unit})</span></th>
-                                                <th className="py-3 px-4 font-semibold">Cash <span className="text-[9px] opacity-70">({unit})</span></th>
+                                                <th className="py-3 px-2 font-bold text-gray-500 whitespace-nowrap">Assets <span className="text-[9px] font-normal opacity-70">({unit})</span></th>
+                                                <th className="py-3 px-2 font-bold text-gray-500 whitespace-nowrap">Liabilities <span className="text-[9px] font-normal opacity-70">({unit})</span></th>
+                                                <th className="py-3 px-2 font-bold text-gray-500 whitespace-nowrap">Equity <span className="text-[9px] font-normal opacity-70">({unit})</span></th>
+                                                <th className="py-3 px-4 font-bold text-gray-500 whitespace-nowrap">Cash <span className="text-[9px] font-normal opacity-70">({unit})</span></th>
                                             </>
                                         )}
                                     </tr>
@@ -488,12 +480,14 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                                     {activeTabConfig.source === 'income' ? (
                                         (currentData as IncomeStatementItem[]).length > 0 ? (
                                             (currentData as IncomeStatementItem[]).slice(0, 5).map((item, i) => (
-                                                <tr key={i} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors group">
-                                                    <td className="text-left py-3 px-4 font-bold text-gray-700 dark:text-gray-200">{formatDate(item.date)}</td>
-                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium">{formatScaled(item.revenue)}</td>
-                                                    <td className={`py-3 px-2 font-bold ${item.netIncome >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{formatScaled(item.netIncome)}</td>
-                                                    <td className="py-3 px-2 text-gray-500 dark:text-gray-400">{item.operatingIncome ? formatScaled(item.operatingIncome) : '---'}</td>
-                                                    <td className="py-3 px-4 font-mono text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-zinc-800/20 rounded-r-lg">{item.revenue && item.netIncome ? ((item.netIncome / item.revenue) * 100).toFixed(1) + '%' : '-'}</td>
+                                                <tr key={i} className="hover:bg-blue-50/20 dark:hover:bg-blue-900/5 transition-colors group">
+                                                    <td className="text-left py-3 px-4 font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                                                        {formatDate(item.date)}
+                                                    </td>
+                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium tabular-nums">{formatScaled(item.revenue)}</td>
+                                                    <td className="py-3 px-2 font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatScaled(item.netIncome)}</td>
+                                                    <td className="py-3 px-2 text-gray-500 dark:text-gray-400 tabular-nums">{item.operatingIncome ? formatScaled(item.operatingIncome) : '---'}</td>
+                                                    <td className="py-3 px-4 font-mono text-gray-500 dark:text-gray-400 rounded-r-lg tabular-nums">{item.revenue && item.netIncome ? ((item.netIncome / item.revenue) * 100).toFixed(1) + '%' : '-'}</td>
                                                 </tr>
                                             ))
                                         ) : (
@@ -502,12 +496,14 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                                     ) : (
                                         (currentData as BalanceSheetItem[]).length > 0 ? (
                                             (currentData as BalanceSheetItem[]).slice(0, 5).map((item, i) => (
-                                                <tr key={i} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors">
-                                                    <td className="text-left py-3 px-4 font-bold text-gray-700 dark:text-gray-200">{formatDate(item.date)}</td>
-                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium">{formatScaled(item.totalAssets)}</td>
-                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium">{formatScaled(item.totalLiabilities)}</td>
-                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium">{formatScaled(item.totalEquity)}</td>
-                                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300 font-medium">{formatScaled(item.cash)}</td>
+                                                <tr key={i} className="hover:bg-blue-50/20 dark:hover:bg-blue-900/5 transition-colors">
+                                                    <td className="text-left py-3 px-4 font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                                                        {formatDate(item.date)}
+                                                    </td>
+                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium tabular-nums">{formatScaled(item.totalAssets)}</td>
+                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium tabular-nums">{formatScaled(item.totalLiabilities)}</td>
+                                                    <td className="py-3 px-2 text-gray-600 dark:text-gray-300 font-medium tabular-nums">{formatScaled(item.totalEquity)}</td>
+                                                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300 font-medium tabular-nums">{formatScaled(item.cash)}</td>
                                                 </tr>
                                             ))
                                         ) : (
