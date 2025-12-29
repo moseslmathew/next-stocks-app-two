@@ -278,6 +278,6 @@ export const getInvestingQuote = unstable_cache(
 );
 
 export async function refreshInvestingQuote() {
-  revalidateTag('investing-quote');
+  revalidatePath('/', 'layout');
   return { success: true };
 }
