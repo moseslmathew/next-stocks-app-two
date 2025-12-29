@@ -2,9 +2,10 @@
 
 import { google } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateObject } from 'ai';
+import { generateText, generateObject } from 'ai';
 import { z } from 'zod';
-import { unstable_cache, revalidateTag } from 'next/cache';
+import { unstable_cache, revalidatePath } from 'next/cache';
+import { notFound } from 'next/navigation';
 import { AI_PROVIDER, GOOGLE_MODEL, OPENAI_MODEL } from '@/lib/ai-config';
 
 // Helper to get the active model
@@ -48,6 +49,12 @@ export type AIResult<T> =
   | { success: true; data: T }
   | { success: false; error: string; isQuotaExceeded: boolean };
 
+const sentimentSchema = z.object({
+  sentiment: z.enum(['Bullish', 'Bearish', 'Neutral']),
+  score: z.number().min(0).max(100),
+  summary: z.string(),
+});
+
 // Used in src/components/NewsModal.tsx to analyze sentiment of specific stock news
 export async function analyzeSentiment(symbol: string, headlines: string[]): Promise<AIResult<SentimentResult>> {
   if (!headlines.length) {
@@ -66,11 +73,7 @@ export async function analyzeSentiment(symbol: string, headlines: string[]): Pro
 
     const { object, usage } = await generateObject({
       model: getActiveModel(), // Use configured model
-      schema: z.object({
-        sentiment: z.enum(['Bullish', 'Bearish', 'Neutral']),
-        score: z.number().min(0).max(100),
-        summary: z.string(),
-      }),
+      schema: sentimentSchema,
       prompt: prompt,
       maxRetries: 0,
     });
@@ -223,8 +226,7 @@ export const getMarketPrediction = getIndiaMarketPrediction;
 
 // Manual refresh action
 export async function refreshMarketPrediction() {
-  revalidateTag('market-prediction-india');
-  revalidateTag('market-prediction-us');
+  revalidatePath('/', 'layout');
   return { success: true };
 }
 
