@@ -147,7 +147,7 @@ export async function addToWatchlist(symbol: string, watchlistId?: string) {
       data: { 
         symbol,
         watchlistId: targetListId,
-        order: newOrder
+        order: newOrder,
       },
     });
     revalidatePath('/watchlist');
@@ -220,6 +220,59 @@ export async function reorderWatchlist(watchlistId: string, items: { symbol: str
     }
 }
 
+
+export async function updateTargetPrice(symbol: string, targetPrice: number | null, watchlistId?: string) {
+    const { userId } = await auth();
+    if (!userId) return { success: false, error: 'Unauthorized' };
+
+    try {
+        let targetListId = watchlistId;
+        if (!targetListId) {
+             const item = await prisma.watchlistItem.findFirst({
+                 where: { symbol, watchlist: { userId } }
+             });
+             if (item) targetListId = item.watchlistId;
+             else return { success: false, error: 'Item not found' };
+        }
+
+        await prisma.watchlistItem.update({
+            where: { watchlistId_symbol: { watchlistId: targetListId!, symbol } },
+            data: { targetPrice }
+        });
+        revalidatePath('/watchlist');
+        return { success: true };
+    } catch (error) {
+        console.error('Update target failed:', error);
+        return { success: false, error: 'Failed to update target' };
+    }
+}
+
+export async function updateAddedPrice(symbol: string, addedPrice: number | null, watchlistId?: string) {
+    const { userId } = await auth();
+    if (!userId) return { success: false, error: 'Unauthorized' };
+
+    try {
+        let targetListId = watchlistId;
+        if (!targetListId) {
+             const item = await prisma.watchlistItem.findFirst({
+                 where: { symbol, watchlist: { userId } }
+             });
+             if (item) targetListId = item.watchlistId;
+             else return { success: false, error: 'Item not found' };
+        }
+
+        await prisma.watchlistItem.update({
+            where: { watchlistId_symbol: { watchlistId: targetListId!, symbol } },
+            data: { addedPrice }
+        });
+        revalidatePath('/watchlist');
+        return { success: true };
+    } catch (error) {
+        console.error('Update added price failed:', error);
+        return { success: false, error: 'Failed to update added price: ' + (error instanceof Error ? error.message : String(error)) };
+    }
+}
+
 // Updated signature: Items by Watchlist ID
 export async function getWatchlist(watchlistId: string, range: '1d' | '7d' | '52w' = '1d', includeHistory = true) {
   const { userId } = await auth();
@@ -245,7 +298,10 @@ export async function getWatchlist(watchlistId: string, range: '1d' | '7d' | '52
         const item = itemsMap.get(data.symbol);
         return {
             ...data,
-            order: item ? item.order : 0
+            order: item ? item.order : 0,
+            addedPrice: item?.addedPrice,
+            targetPrice: item?.targetPrice,
+            addedAt: item?.createdAt ? item.createdAt.toISOString() : undefined
         };
     }).sort((a, b) => (a.order || 0) - (b.order || 0));
 

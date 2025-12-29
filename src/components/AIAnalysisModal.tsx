@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { Sparkles, X, BrainCircuit, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Sparkles, X, BrainCircuit, AlertCircle, Scale } from 'lucide-react';
+import { analyzeStockFundamentals } from '@/actions/ai';
 
 interface StockData {
     price?: number;
@@ -13,6 +14,8 @@ interface StockData {
     profitMargins?: number;
     fiftyTwoWeekHigh?: number;
     fiftyTwoWeekLow?: number;
+    financials?: any; // Allow full financials to be passed
+    currency?: string;
 }
 
 interface AIAnalysisModalProps {
@@ -25,70 +28,26 @@ interface AIAnalysisModalProps {
 
 export function AIAnalysisModal({ stockSymbol, stockName, stockData, isOpen, onClose }: AIAnalysisModalProps) {
   const [analysisItems, setAnalysisItems] = useState<{ title: string; content: string; type: string }[]>([]);
+  const [verdict, setVerdict] = useState<string | null>(null);
+  const [usage, setUsage] = useState<{ totalTokens: number } | undefined>(undefined);
+  const [model, setModel] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generateAnalysis = () => {
-       const items = [];
-       
-       // Valuation
-       if (stockData.peRatio) {
-           if (stockData.peRatio < 0) {
-              items.push({ title: 'Valuation', content: 'The company currently has negative earnings (P/E < 0), indicating it is not profitable at the moment.', type: 'warning' });
-           } else if (stockData.peRatio > 30) {
-              items.push({ title: 'Valuation', content: `A P/E ratio of ${stockData.peRatio.toFixed(2)} suggests the stock is trading at a premium, implying high growth expectations.`, type: 'neutral' });
-           } else {
-              items.push({ title: 'Valuation', content: `The P/E ratio of ${stockData.peRatio.toFixed(2)} appears reasonable for the current market conditions.`, type: 'success' });
-           }
-       } else {
-           items.push({ title: 'Valuation', content: 'P/E ratio data is unavailable, making traditional valuation difficult.', type: 'neutral' });
-       }
-
-       // Volatility
-       if (stockData.beta) {
-            if (stockData.beta > 1.2) {
-                items.push({ title: 'Volatility', content: `With a Beta of ${stockData.beta.toFixed(2)}, this stock is significantly more volatile than the market.`, type: 'warning' });
-            } else if (stockData.beta < 0.8) {
-                items.push({ title: 'Volatility', content: `A Beta of ${stockData.beta.toFixed(2)} indicates this stock is less volatile and more stable than the broader market.`, type: 'success' });
-            } else {
-                items.push({ title: 'Volatility', content: `The stock moves generally in line with the market (Beta: ${stockData.beta.toFixed(2)}).`, type: 'neutral' });
-            }
-       }
-
-       // Dividend
-       if (stockData.dividendYield && stockData.dividendYield > 0) {
-           items.push({ title: 'Dividend', content: `The company pays a dividend with a yield of ${(stockData.dividendYield * 100).toFixed(2)}%, providing income to shareholders.`, type: 'success' });
-       } else {
-           items.push({ title: 'Dividend', content: 'This company does not currently pay a dividend, focusing reinvestment into growth or operations.', type: 'neutral' });
-       }
-
-       // Profitability
-       if (stockData.profitMargins) {
-           if (stockData.profitMargins > 0.2) {
-               items.push({ title: 'Profitability', content: `Strong profit margins of ${(stockData.profitMargins * 100).toFixed(2)}% demonstrate efficient operations.`, type: 'success' });
-           } else if (stockData.profitMargins < 0) {
-               items.push({ title: 'Profitability', content: `Negative profit margins (${(stockData.profitMargins * 100).toFixed(2)}%) indicate the company is operating at a loss.`, type: 'warning' });
-           } else {
-               items.push({ title: 'Profitability', content: `Profit margins are stable at ${(stockData.profitMargins * 100).toFixed(2)}%.`, type: 'neutral' });
-           }
-       } else {
-            // Fallback for profitability if margin missing but EPS exists
-            if (stockData.eps && stockData.eps < 0) {
-                 items.push({ title: 'Profitability', content: `Negative EPS (${stockData.eps.toFixed(2)}) indicates the company is not currently profitable.`, type: 'warning' });
-            }
-       }
-       
-       setAnalysisItems(items);
-  };
-
-  // Function to fetch analysis (mocked for now, can be connected to real AI action later)
   const fetchAnalysis = async () => {
     setIsLoading(true);
     setError(null);
     try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        generateAnalysis();
+        const result = await analyzeStockFundamentals(stockSymbol, stockName, stockData);
+        
+        if (result.success) {
+            setAnalysisItems(result.data.insights);
+            setVerdict(result.data.verdict);
+            setUsage(result.data.usage);
+            setModel(result.data.model);
+        } else {
+            setError(result.error);
+        }
     } catch (err) {
         setError('Failed to generate analysis. Please try again.');
     } finally {
@@ -97,9 +56,11 @@ export function AIAnalysisModal({ stockSymbol, stockName, stockData, isOpen, onC
   };
 
   // Trigger fetch when opened
-  if (isOpen && analysisItems.length === 0 && !isLoading && !error) {
-      fetchAnalysis();
-  }
+  useEffect(() => {
+    if (isOpen && analysisItems.length === 0 && !isLoading && !error) {
+        fetchAnalysis();
+    }
+  }, [isOpen]); // Depend only on isOpen to trigger initially, internal checks prevent loops
 
   if (!isOpen) return null;
 
@@ -148,6 +109,18 @@ export function AIAnalysisModal({ stockSymbol, stockName, stockData, isOpen, onC
                          </div>
                     </div>
 
+                    {verdict && (
+                         <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                             <div className="flex items-center gap-2 mb-2 text-gray-900 dark:text-white font-bold">
+                                 <Scale size={18} className="text-violet-500" />
+                                 Final Verdict
+                             </div>
+                             <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                 {verdict}
+                             </p>
+                         </div>
+                    )}
+
                     <div className="grid gap-3">
                         {analysisItems.map((item, idx) => (
                             <div key={idx} className="flex gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800/50">
@@ -164,10 +137,14 @@ export function AIAnalysisModal({ stockSymbol, stockName, stockData, isOpen, onC
                         ))}
                     </div>
 
-                    <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
                         <p className="text-[10px] text-gray-400 text-center uppercase tracking-wide font-medium">
                             Disclaimer: AI-generated analysis based on available data. Not financial advice.
                         </p>
+                        <div className="flex items-center justify-center gap-3 text-[10px] text-gray-400 font-mono">
+                            {model && <span>Model: {model}</span>}
+                            {usage && <span>Tokens: {usage.totalTokens}</span>}
+                        </div>
                     </div>
                 </div>
             )}

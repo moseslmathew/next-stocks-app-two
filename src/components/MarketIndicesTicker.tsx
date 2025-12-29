@@ -12,7 +12,10 @@ const SYMBOL_NAMES: Record<string, string> = {
     '^GSPC': 'S&P 500',
     '^IXIC': 'NASDAQ',
     'GC=F': 'GOLD',
-    '^CNXIT': 'NIFTY IT'
+    '^CNXIT': 'NIFTY IT',
+    'ICICI500.NS': 'NIFTY 500',
+    'MOM100.NS': 'NIFTY MIDCAP 100',
+    '^INDIAVIX': 'INDIA VIX'
 };
 
 interface MarketIndicesTickerProps {
@@ -43,7 +46,7 @@ export default function MarketIndicesTicker({ mode = 'cards', region = 'ALL' }: 
 
     const filteredIndices = indices.filter(index => {
         if (region === 'IN') {
-            return ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT'].includes(index.symbol);
+            return ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', 'ICICI500.NS', 'MOM100.NS', '^INDIAVIX'].includes(index.symbol);
         }
         if (region === 'US') {
             return ['^GSPC', '^IXIC', 'GC=F'].includes(index.symbol);

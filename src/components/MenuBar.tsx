@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
-import { TrendingUp, Newspaper, Globe, Brain } from 'lucide-react';
+import { TrendingUp, Newspaper, Globe, Brain, BarChart3 } from 'lucide-react';
 
 const MenuBar = () => {
   const pathname = usePathname();
@@ -21,7 +21,7 @@ const MenuBar = () => {
                 <MobileNavChip href="/watchlist/us" icon={<span className="text-lg font-bold">$</span>} text="Watchlist" active={isActive('/watchlist/us')} />
                </>
             )}
-            <MobileNavChip href="/global-market" icon={<Globe size={20} />} text="Global" active={isActive('/global-market')} />
+            <MobileNavChip href="/global-market" icon={<BarChart3 size={20} />} text="Global" active={isActive('/global-market')} />
             <MobileNavChip href="/ai-sentiment" icon={<Brain size={20} />} text="AI" active={isActive('/ai-sentiment')} />
             <MobileNavChip href="/news" icon={<Newspaper size={20} />} text="News" active={isActive('/news')} />
        </div>

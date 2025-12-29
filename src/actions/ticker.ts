@@ -7,7 +7,9 @@ export async function getIndicesData() {
         '^NSEI',    // Nifty 50
         '^BSESN',   // Sensex
         '^NSEBANK', // Nifty Bank
-        // '^CNXIT',   // Nifty IT (Yahoo symbol might vary, let's try this or disable if fails)
+        'ICICI500.NS', // Nifty 500 Proxy
+        'MOM100.NS',   // Nifty Midcap 100 Proxy
+        '^INDIAVIX', // India VIX
         '^GSPC',    // S&P 500
         '^IXIC',    // Nasdaq
         'GC=F'      // Gold

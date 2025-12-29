@@ -25,6 +25,8 @@ model WatchlistItem {
   symbol      String
   order       Int       @default(0)
   createdAt   DateTime  @default(now())
+  addedPrice  Float?
+  targetPrice Float?
 
   @@unique([watchlistId, symbol])
 }

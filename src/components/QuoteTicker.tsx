@@ -65,7 +65,7 @@ export default function QuoteTicker() {
 
   return (
     <div className="w-full mt-4 px-2">
-        <div className="relative bg-white dark:bg-zinc-900 rounded-2xl p-6 md:p-8 border border-gray-100 dark:border-zinc-800 shadow-sm transition-all duration-500">
+        <div className="relative p-2 md:p-4 transition-all duration-500">
             
             <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
                 {/* Quote Content */}

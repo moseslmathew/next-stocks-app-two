@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import React from 'react';
-import { TrendingUp, Newspaper, Globe, Menu, IndianRupee, DollarSign, Search as SearchIcon, ScatterChart, Brain, X } from 'lucide-react';
+import { TrendingUp, Newspaper, Globe, Menu, IndianRupee, DollarSign, Search as SearchIcon, ScatterChart, Brain, X, BarChart3 } from 'lucide-react';
 import Search from './Search';
 import MarketIndicesTicker from './MarketIndicesTicker';
 import dynamic from 'next/dynamic';
@@ -50,7 +50,7 @@ const Navbar = () => {
                 </>
                 </>
               )}
-              <NavLink href="/global-market" icon={<Globe size={16} />} text="Global Markets" active={isActive('/global-market')} />
+              <NavLink href="/global-market" icon={<BarChart3 size={16} />} text="Global Markets" active={isActive('/global-market')} />
               <NavLink href="/ai-sentiment" icon={<Brain size={16} />} text="AI Sentiment" active={isActive('/ai-sentiment')} />
               <NavLink href="/news" icon={<Newspaper size={16} />} text="News" active={isActive('/news')} />
             </div>

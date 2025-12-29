@@ -281,3 +281,91 @@ export async function refreshInvestingQuote() {
   revalidatePath('/', 'layout');
   return { success: true };
 }
+
+// --- Stock Fundamental Analysis ---
+
+export interface FundamentalAnalysisResult {
+    insights: { title: string; content: string; type: 'success' | 'warning' | 'neutral' }[];
+    verdict: string;
+    usage?: {
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+    };
+    model?: string;
+}
+
+export async function analyzeStockFundamentals(symbol: string, name: string, stockData: any): Promise<AIResult<FundamentalAnalysisResult>> {
+    try {
+        const prompt = `
+            Act as a senior financial analyst. Analyze the fundamental data for ${name} (${symbol}).
+            
+            Financial Data Provided:
+            - Market Cap: ${stockData.marketCap}
+            - P/E Ratio: ${stockData.peRatio}
+            - Beta: ${stockData.beta}
+            - Dividend Yield: ${stockData.dividendYield}
+            - Profit Margins: ${stockData.profitMargins}
+            - EPS: ${stockData.eps}
+            
+            Detailed Financials (if available):
+            - Income Statement (Annual & Quarterly): Revenue, Net Income trends.
+            - Balance Sheet (Annual & Quarterly): Assets, Liabilities, Equity, Cash.
+            ${JSON.stringify(stockData.financials ? {
+                income_annual: stockData.financials.incomeStatement?.annual?.slice(0,3),
+                income_quarterly: stockData.financials.incomeStatement?.quarterly?.slice(0,3),
+                balance_annual: stockData.financials.balanceSheet?.annual?.slice(0,3),
+                balance_quarterly: stockData.financials.balanceSheet?.quarterly?.slice(0,3)
+            } : 'No detailed financials available')}
+
+            Please provide a structured analysis with the following:
+            1. **Valuation & Efficiency**: Analyze factors like P/E, EPS, to judge if it's over/undervalued.
+            2. **Growth Trend**: Comment on Revenue and Net Profit trends (Quarterly vs Annual). Are they growing?
+            3. **Financial Health (Balance Sheet Verdict)**: Analyze Assets vs Liabilities and Equity. Is the company solvent and stable?
+            4. **Volatility & Risk**: Comment on Beta and other risk factors.
+            5. **Final Verdict**: A concluding summary statement.
+
+            Output Format (JSON):
+            {
+                "insights": [
+                    { "title": "Valuation", "content": "...", "type": "success/warning/neutral" },
+                    { "title": "Growth Trend", "content": "...", "type": "success/warning/neutral" },
+                    { "title": "Balance Sheet Health", "content": "...", "type": "success/warning/neutral" },
+                    { "title": "Risk Profile", "content": "...", "type": "success/warning/neutral" }
+                ],
+                "verdict": "Your final summary verdict here..."
+            }
+            
+            Keep the content concise (max 2 sentences per insight). Use 'type' to indicate sentiment (success=good, warning=bad/risk, neutral=okay/mixed).
+        `;
+
+        const { object, usage } = await generateObject({
+            model: getActiveModel(),
+            schema: z.object({
+                insights: z.array(z.object({
+                    title: z.string(),
+                    content: z.string(),
+                    type: z.enum(['success', 'warning', 'neutral'])
+                })),
+                verdict: z.string()
+            }),
+            prompt: prompt,
+            maxRetries: 0
+        });
+
+        const usageAny = usage as any;
+        const usageInfo = usage ? {
+            promptTokens: usageAny.promptTokens || usageAny.promptTokenCount || 0,
+            completionTokens: usageAny.completionTokens || usageAny.completionTokenCount || usageAny.candidatesTokenCount || 0,
+            totalTokens: usage.totalTokens || usageAny.totalTokenCount || 0,
+        } : undefined;
+
+        const usedModel = (AI_PROVIDER === 'openai' ? OPENAI_MODEL : GOOGLE_MODEL).replace(/^models\//, '');
+
+        return { success: true, data: { ...object, usage: usageInfo, model: usedModel } };
+
+    } catch (error: any) {
+        console.error('Fundamental Analysis Failed:', error);
+        return { success: false, error: 'Failed to generate analysis', isQuotaExceeded: false };
+    }
+}

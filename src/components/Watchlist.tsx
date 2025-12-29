@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight, ChevronLeft, Pencil, Check, AlertTriangle, Sparkles } from 'lucide-react';
+import { Search as SearchIcon, Plus, Trash2, Loader2, GripVertical, ArrowUp, ArrowDown, Newspaper, X, IndianRupee, DollarSign, ChevronRight, ChevronLeft, Pencil, Check, AlertTriangle, Sparkles, Crosshair, CircleCheck, CircleDashed, Info } from 'lucide-react';
 import SearchComponent from '@/components/Search';
 import { searchStocks, getBatchStockQuotes } from '@/actions/market';
-import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists, renameWatchlist } from '@/actions/watchlist';
+import { addToWatchlist, removeFromWatchlist, getWatchlist, reorderWatchlist, createWatchlist, deleteWatchlist, getUserWatchlists, renameWatchlist, updateTargetPrice, updateAddedPrice } from '@/actions/watchlist';
 import { createPusherClient } from '@/lib/pusher';
 import { getStockNews, getBatchStockNews, NewsItem } from '@/actions/news';
 import MarketCard from '@/components/MarketCard';
@@ -15,6 +15,7 @@ import { SparklineBar } from '@/components/SparklineBar';
 import { ChartModal } from '@/components/ChartModal';
 import { NewsModal } from '@/components/NewsModal';
 import MarketIndicesTicker from '@/components/MarketIndicesTicker';
+import { TrackStockModal } from '@/components/TrackStockModal';
 import { formatCurrency } from '@/utils/currency';
 import { useUser } from '@clerk/nextjs';
 
@@ -66,6 +67,9 @@ interface MarketData {
   marketState?: string;
   quoteType?: string;
   exchange?: string;
+  addedPrice?: number | null;
+  targetPrice?: number | null;
+  addedAt?: string;
 }
 
 type SortColumn = 'custom' | 'symbol' | 'price' | 'change';
@@ -83,9 +87,159 @@ interface SortableRowProps {
     mobileActiveColumn: 'price' | 'trend' | 'range' | 'actions';
     onToggleColumn: () => void;
     isLoadingChart?: boolean;
+    onUpdateTarget: (symbol: string, price: number | null) => void;
+    onUpdateAdded: (symbol: string, price: number | null) => void;
+    onSetupTracking: (data: MarketData) => void;
+    onNavigate: () => void;
+}
+// Helper component for the header tooltip to manage its own state
+const PerformanceHeader = () => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div className="flex items-center gap-1.5 w-fit">
+            Performance
+            <div className="relative">
+                <button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="focus:outline-none"
+                >
+                    <Info size={14} className={`transition-colors ${isOpen ? 'text-violet-500' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`} />
+                </button>
+                {/* Tooltip */}
+                {isOpen && (
+                    <>
+                        <div className="fixed inset-0 z-[90]" onClick={() => setIsOpen(false)} />
+                        <div className="absolute right-0 sm:left-1/2 sm:-translate-x-1/2 top-full mt-2 w-56 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs p-3 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in-95 duration-200 z-[100] font-normal normal-case leading-relaxed text-left">
+                            <p className="mb-2 font-medium">Monitor your position's profitability.</p>
+                            <div className="space-y-1.5 opacity-90">
+                                <p><span className="font-semibold text-gray-900 dark:text-gray-100">Entry:</span> Price to track performance from.</p>
+                                <p><span className="font-semibold text-green-600 dark:text-green-400">ROI:</span> Real-time return on investment.</p>
+                                <p><span className="font-semibold text-violet-500">Target:</span> Optional sell goal (shown in brackets).</p>
+                            </div>
+                            <div className="absolute right-4 sm:left-1/2 sm:-translate-x-1/2 -top-1.5 w-3 h-3 bg-white dark:bg-gray-800 border-t border-l border-gray-100 dark:border-gray-700 rotate-45 transform"></div>
+                        </div>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
+interface TrendContentProps {
+    data: MarketData;
+    isLoadingChart?: boolean;
+    sparklineColor?: string;
+    trendRange: '1d' | '7d' | '52w';
+    onClick?: (e: React.MouseEvent) => void;
 }
 
-function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange, mobileActiveColumn, onToggleColumn, isLoadingChart }: SortableRowProps) {
+const TrendContent = ({ data, isLoadingChart, sparklineColor, trendRange, onClick }: TrendContentProps) => {
+    return (
+        <div 
+            className="cursor-pointer hover:opacity-80 transition-opacity flex justify-end sm:justify-start h-[35px] items-center"
+            onClick={onClick}
+        >
+            {isLoadingChart ? (
+                <div className="animate-pulse bg-gray-200 dark:bg-gray-800 h-[35px] w-[90px] rounded" />
+            ) : (
+                <Sparkline 
+                    data={data.sparkline} 
+                    previousClose={trendRange === '1d' ? data.regularMarketPrice - data.regularMarketChange : undefined}
+                    width={65} 
+                    height={35} 
+                    color={sparklineColor} 
+                    timestamps={data.timestamps}
+                    isIndian={data.symbol.endsWith('.NS') || data.symbol.endsWith('.BO') || data.symbol === '^NSEI' || data.symbol === '^BSESN'}
+                    marketState={data.marketState}
+                />
+            )}
+        </div>
+    );
+};
+
+interface PerformanceContentProps {
+    data: MarketData;
+    onUpdateTarget: (symbol: string, price: number | null) => void;
+    onUpdateAdded: (symbol: string, price: number | null) => void;
+    onSetupTracking: (data: MarketData) => void;
+    onRemovePosition: (symbol: string) => void;
+}
+
+const PerformanceContent = ({ data, onUpdateTarget, onUpdateAdded, onSetupTracking, onRemovePosition }: PerformanceContentProps) => {
+    return (
+        <div className="w-full">
+            {data.addedPrice ? (
+                <div className="flex flex-col items-end sm:items-start justify-center h-auto py-1 group/perf relative w-full min-h-[50px]">
+                    
+                    {/* Line 1: Entry Price + Edit Action */}
+                    <div 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onSetupTracking(data);
+                        }}
+                        className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 sm:-ml-2 sm:px-2 py-1 rounded-lg transition-colors group/edit w-fit"
+                        title="Edit Entry Price"
+                    >
+                         <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                            {formatCurrency(data.addedPrice, data.currency)}
+                         </span>
+                         {data.targetPrice && (
+                            <span className="text-xs font-normal text-gray-400 ml-1 flex items-center gap-0.5">
+                                ({formatCurrency(data.targetPrice, data.currency)} <Crosshair size={10} />)
+                            </span>
+                         )}
+                         <Pencil size={14} className="text-gray-400 group-hover/edit:text-violet-500 opacity-60 group-hover/edit:opacity-100 transition-all ml-1" />
+                    </div>
+
+                    {/* Line 2: ROI % + Remove Action */}
+                     <div className="flex items-center gap-3 sm:pl-0.5">
+                        {(() => {
+                            const roi = ((data.regularMarketPrice - data.addedPrice!) / data.addedPrice!) * 100;
+                            const isProfit = roi >= 0;
+                            return (
+                                <span className={`text-xs font-bold ${isProfit ? 'text-green-600' : 'text-red-600'}`}>
+                                    {isProfit ? '+' : ''}{roi.toFixed(2)}%
+                                </span>
+                            );
+                        })()}
+
+                         {/* Remove Button - Always visible but subtle */}
+                         <button 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.stopPropagation();
+                                onRemovePosition(data.symbol);
+                            }}
+                            className="p-1 rounded-full text-gray-300 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                            title="Remove Position"
+                        >
+                            <X size={16} strokeWidth={2.5} />
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onSetupTracking(data);
+                    }}
+                    className="h-7 w-auto px-4 bg-violet-50 dark:bg-violet-900/20 rounded-full flex items-center justify-center border border-dashed border-violet-200 dark:border-violet-800 hover:bg-violet-100 dark:hover:bg-violet-900/40 transition-colors group/btn opacity-70 hover:opacity-100"
+                >
+                    <span className="text-xs text-violet-600 dark:text-violet-300 font-semibold flex items-center gap-1.5">
+                        <Plus size={14} className="group-hover/btn:scale-110 transition-transform"/> Add
+                    </span>
+                </button>
+            )}
+        </div>
+    );
+};
+
+interface SortableRowPropsExt extends SortableRowProps {
+    mobileViewMode: 'trend' | 'performance';
+    onRemovePosition: (symbol: string) => void;
+}
+
+function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trendRange, mobileActiveColumn, onToggleColumn, isLoadingChart, onUpdateTarget, onUpdateAdded, onSetupTracking, onNavigate, mobileViewMode, onRemovePosition }: SortableRowPropsExt) {
     const {
         attributes,
         listeners,
@@ -143,6 +297,7 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
              
              // If no movement (tap), navigate
              if (!hasMoved.current && touchStart.current) {
+                 onNavigate();
                  router.push(`/stock/${data.symbol}`);
              }
         }
@@ -183,9 +338,12 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
-            onDoubleClick={() => router.push(`/stock/${data.symbol}`)}
+            onDoubleClick={() => {
+                onNavigate();
+                router.push(`/stock/${data.symbol}`);
+            }}
         >
-            <td className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[40%] bg-white dark:bg-black relative z-10 overflow-visible">
+            <td className="px-2 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[32%] bg-white dark:bg-black relative z-10 overflow-visible">
                 {/* Background for Swipe Action */}
                 {swipeX > 10 && (
                     <div 
@@ -211,18 +369,19 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                     </div>
                 </div>
             </td>
-            <td className="px-1 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[25%] bg-white dark:bg-black relative z-10">
+            <td className="px-1 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[30%] sm:w-[18%] bg-white dark:bg-black relative z-10">
                 <div className="flex flex-col items-center sm:items-start">
                     <div className="font-mono text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-100 text-center sm:text-left">
                         {formatCurrency(data.regularMarketPrice, data.currency)}
                     </div>
+
                     <div className={`text-[10px] sm:text-xs font-medium mt-0.5 text-center sm:text-left ${data.regularMarketChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {data.regularMarketChange >= 0 ? '+' : ''}{data.regularMarketChange.toFixed(2)} ({data.regularMarketChangePercent.toFixed(2)}%)
                     </div>
                 </div>
             </td>
-            <td 
-                className="px-2 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%] bg-white dark:bg-black relative z-10" 
+            <td
+                className="px-0 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle w-[35%] sm:w-[20%] bg-white dark:bg-black relative z-10"
                 onClick={(e) => {
                      e.stopPropagation();
                      onSelect(data);
@@ -231,42 +390,70 @@ function SortableRow({ data, onRemove, onSelect, onOpenNews, highLowRange, trend
                 onTouchEnd={(e) => e.stopPropagation()}
                 style={{ touchAction: 'manipulation' }}
             >
-                <div className="cursor-pointer hover:opacity-80 transition-opacity flex justify-end sm:justify-start">
-                    {isLoadingChart ? (
-                        <div className="animate-pulse bg-gray-200 dark:bg-gray-800 h-[35px] w-[90px] rounded" />
-                    ) : (
-                        <Sparkline 
-                           data={data.sparkline} 
-                        previousClose={trendRange === '1d' ? data.regularMarketPrice - data.regularMarketChange : undefined}
-                        width={65} 
-                        height={35} 
-                        color={sparklineColor} 
-                        timestamps={data.timestamps}
-                        isIndian={data.symbol.endsWith('.NS') || data.symbol.endsWith('.BO') || data.symbol === '^NSEI' || data.symbol === '^BSESN'}
-                        marketState={data.marketState}
+                {/* Mobile: Grid Stack for Soft Switching */}
+                <div className="sm:hidden grid grid-cols-1 grid-rows-1 items-center w-full min-h-[40px]">
+                    <div className={`col-start-1 row-start-1 w-full transition-all duration-500 ease-in-out ${mobileViewMode === 'trend' ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-90 -rotate-2 pointer-events-none absolute inset-0'}`}>
+                         <TrendContent 
+                            data={data}
+                            isLoadingChart={isLoadingChart}
+                            sparklineColor={sparklineColor}
+                            trendRange={trendRange}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSelect(data);
+                            }}
+                        />
+                    </div>
+                    <div className={`col-start-1 row-start-1 w-full transition-all duration-500 ease-in-out ${mobileViewMode === 'performance' ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-90 rotate-2 pointer-events-none absolute inset-0'}`}>
+                        <PerformanceContent 
+                            onUpdateTarget={onUpdateTarget}
+                            onUpdateAdded={onUpdateAdded}
+                            onSetupTracking={onSetupTracking}
+                            onRemovePosition={onRemovePosition}
+                        />
+                    </div>
+                </div>
+
+                {/* Desktop: Always Trend */}
+                <div className="hidden sm:block">
+                     <TrendContent 
+                        data={data}
+                        isLoadingChart={isLoadingChart}
+                        sparklineColor={sparklineColor}
+                        trendRange={trendRange}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onSelect(data);
+                        }}
                     />
-                    )}
                 </div>
             </td>
 
-            <td className="hidden sm:table-cell px-6 sm:px-6 py-4 text-center sm:text-right border-b border-gray-100 dark:border-gray-800 align-middle sm:w-[15%] bg-white dark:bg-black relative z-10">
-                <div className="flex items-center justify-center sm:justify-end gap-2">
-                    <button 
-                         onClick={() => onOpenNews(data.shortName, data.symbol)}
-                         className="p-2 text-[#2070b4] hover:bg-[#2070b4]/10 rounded-lg transition-colors"
-                         title="View News"
-                     >
-                         <Newspaper size={18} />
-                     </button>
-                    <button 
-                        onClick={() => onRemove(data.symbol)}
-                        className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                        title="Remove from Watchlist"
-                    >
-                        <Trash2 size={18} />
-                    </button>
-                </div>
+            <td 
+                className="hidden sm:table-cell px-4 sm:px-4 py-4 border-b border-gray-100 dark:border-gray-800 align-middle sm:w-[25%] bg-white dark:bg-black relative z-10"
+                onClick={(e) => e.stopPropagation()}
+            >
+               <PerformanceContent 
+                    data={data}
+                    onUpdateTarget={onUpdateTarget}
+                    onUpdateAdded={onUpdateAdded}
+                    onSetupTracking={onSetupTracking}
+                    onRemovePosition={onRemovePosition}
+               />
             </td>
+            <td className="hidden sm:table-cell px-2 py-4 border-b border-gray-100 dark:border-gray-800 align-middle sm:w-[5%] text-center bg-white dark:bg-black relative z-10">
+                <button 
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onRemove(data.symbol);
+                    }}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+                    title="Remove from watchlist"
+                >
+                    <Trash2 size={16} />
+                </button>
+            </td>
+
         </tr>
     );
 }
@@ -285,6 +472,8 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
   const [isSearching, setIsSearching] = useState(false);
   const [watchlistData, setWatchlistData] = useState<MarketData[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [mobileViewMode, setMobileViewMode] = useState<'trend' | 'performance'>('trend');
 
   const isIndianStock = (symbol: string) => 
       symbol.endsWith('.NS') || symbol.endsWith('.BO') || symbol === '^NSEI' || symbol === '^BSESN';
@@ -306,6 +495,9 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
       if (!activeWatchlistId) return filterRegion === 'ALL' ? 'IN' : filterRegion; 
       return watchlists.find(w => w.id === activeWatchlistId)?.region || 'GLOBAL';
   }, [watchlists, activeWatchlistId, filterRegion]);
+
+  // Track Modal State
+  const [trackModalData, setTrackModalData] = useState<MarketData | null>(null);
 
   const [newListName, setNewListName] = useState('');
   const [isCreatingList, setIsCreatingList] = useState(false);
@@ -457,6 +649,15 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
       } else {
           alert('Failed to create list: ' + result.error);
       }
+  };
+
+
+  const [removePositionConfirmation, setRemovePositionConfirmation] = useState<{ isOpen: boolean, symbol: string | null }>({ isOpen: false, symbol: null });
+
+  const confirmRemovePosition = () => {
+        if (!removePositionConfirmation.symbol) return;
+        handleUpdateAdded(removePositionConfirmation.symbol, null);
+        setRemovePositionConfirmation({ isOpen: false, symbol: null });
   };
 
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean, listId: string | null, listName: string }>({ isOpen: false, listId: null, listName: '' });
@@ -786,6 +987,54 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
         console.error('Undo failed', error);
         fetchWatchlist();
     }
+
+  };
+
+  const handleUpdateTarget = async (symbol: string, price: number | null) => {
+      // Optimistic update
+      setWatchlistData(prev => prev.map(item => 
+          item.symbol === symbol ? { ...item, targetPrice: price ?? undefined } : item
+      ));
+
+      const result = await updateTargetPrice(symbol, price, activeWatchlistId || undefined);
+      if (!result.success) {
+          // Revert on failure or just re-fetch
+          console.error(result.error);
+          fetchWatchlist(false); 
+      }
+  };
+
+  const handleUpdateAdded = async (symbol: string, price: number | null) => {
+      // Optimistic update
+      setWatchlistData(prev => prev.map(item => 
+          item.symbol === symbol ? { ...item, addedPrice: price ?? undefined } : item
+      ));
+
+      const result = await updateAddedPrice(symbol, price, activeWatchlistId || undefined);
+      if (!result.success) {
+          console.error(result.error);
+          fetchWatchlist(false);
+      }
+  };
+
+
+  const handleSaveTracking = async (entry: number, target: number) => {
+      if (!trackModalData) return;
+      
+      const symbol = trackModalData.symbol;
+      
+      // Optimistic update
+      setWatchlistData(prev => prev.map(item => 
+          item.symbol === symbol ? { ...item, addedPrice: entry, targetPrice: target } : item
+      ));
+      
+      // Parallel requests (simplified, ideally usage of Promise.all or single atomic backend action)
+      // Using existing individual updates
+      await updateAddedPrice(symbol, entry, activeWatchlistId || undefined);
+      await updateTargetPrice(symbol, target, activeWatchlistId || undefined);
+      
+      // Refresh to ensure sync
+      // fetchWatchlist(false);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -871,6 +1120,17 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
   return (
     <div className="space-y-4">
+        <style jsx global>{`
+            /* Hide scrollbar for Chrome, Safari and Opera */
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            /* Hide scrollbar for IE, Edge and Firefox */
+            .no-scrollbar {
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+        `}</style>
         {/* Top Market Indices Section */}
         <div className="w-full mb-2">
              <MarketIndicesTicker mode="cards" region={filterRegion === 'IN' ? 'IN' : filterRegion === 'GLOBAL' ? 'US' : 'ALL'} />
@@ -1091,27 +1351,27 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
 
                                         <div 
                                             ref={(el) => { tableRefs.current[title] = el; }}
-                                            className="w-full sm:rounded-xl sm:border sm:border-gray-200 sm:dark:border-gray-800 bg-white dark:bg-black overflow-x-hidden"
+                                            className="w-full sm:rounded-xl sm:border sm:border-gray-200 sm:dark:border-gray-800 bg-white dark:bg-black overflow-x-hidden no-scrollbar"
                                         >
                                     <table className="w-full text-left text-sm sm:text-base table-fixed">
                                         <thead className="bg-gray-50 dark:bg-gray-900/50 text-xs sm:text-sm">
                                             <tr>
-                                                <th className="px-4 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[35%] sm:w-[40%]" onClick={() => handleSort('symbol')}>
+                                                <th className="px-4 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[35%] sm:w-[32%]" onClick={() => handleSort('symbol')}>
                                                     <div className="flex items-center gap-1 pl-2">
                                                         Company
                                                         {sortColumn === 'symbol' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-1 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[30%] sm:w-[25%] text-center sm:text-left" onClick={() => handleSort('price')}>
+                                                <th className="px-1 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 cursor-pointer hover:text-gray-900 dark:hover:text-white w-[30%] sm:w-[18%] text-center sm:text-left" onClick={() => handleSort('price')}>
                                                      <div className="flex items-center justify-center sm:justify-start gap-1">
                                                         Price
                                                         {sortColumn === 'price' && (sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />)}
                                                     </div>
                                                 </th>
-                                                <th className="px-2 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 w-[35%] sm:w-[20%] text-right sm:text-left align-middle">
+                                                <th className="px-0 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 w-[35%] sm:w-[20%] text-right sm:text-left align-middle">
                                                      <div className="flex flex-row items-center justify-end sm:justify-start">
-                                                         {/* Micro-range selector */}
-                                                         <div className="flex bg-gray-100 dark:bg-gray-800/50 rounded-lg p-0.5 text-xs sm:text-sm origin-right sm:origin-left">
+                                                         {/* Micro-range selector (Desktop) */}
+                                                         <div className="hidden sm:flex bg-gray-100 dark:bg-gray-800/50 rounded-lg p-0.5 text-xs sm:text-sm origin-right sm:origin-left">
                                                              <button
                                                                  onClick={() => setTrendRange('1d')}
                                                                  className={`px-2 py-1 rounded-md transition-all ${trendRange === '1d' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
@@ -1125,10 +1385,32 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                                  52W
                                                              </button>
                                                         </div>
+                                                        
+                                                        {/* Mobile View Toggle */}
+                                                        <div className="sm:hidden flex items-center justify-end pr-2">
+                                                            <button 
+                                                                onClick={() => setMobileViewMode(prev => prev === 'trend' ? 'performance' : 'trend')}
+                                                                className="flex items-center gap-1.5 text-xs font-semibold bg-gray-100 dark:bg-gray-800/50 px-3 py-1.5 rounded-full transition-all active:scale-95"
+                                                            >
+                                                                <span className={mobileViewMode === 'trend' ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500'}>
+                                                                    Trend
+                                                                </span>
+                                                                <div className="h-3 w-px bg-gray-300 dark:bg-gray-700" />
+                                                                <span className={mobileViewMode === 'performance' ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500'}>
+                                                                    Perf
+                                                                </span>
+                                                            </button>
+                                                        </div>
                                                      </div>
                                                 </th>
+                                                <th className="hidden sm:table-cell px-6 sm:px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-left sm:w-[25%]">
+                                                    <PerformanceHeader />
+                                                </th>
+                                                <th className="hidden sm:table-cell px-2 py-3 font-medium text-gray-500 dark:text-gray-400 text-center sm:w-[5%]">
+                                                    
+                                                </th>
 
-                                                <th className="hidden sm:table-cell px-6 sm:px-6 py-3 font-medium text-gray-500 dark:text-gray-400 text-center sm:text-right sm:w-[15%]">Actions</th>
+
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white dark:bg-black">
@@ -1148,6 +1430,13 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                                         mobileActiveColumn={mobileActiveColumn}
                                                         onToggleColumn={cycleMobileColumn}
                                                         isLoadingChart={isSwitchingRange}
+                                                        onUpdateTarget={handleUpdateTarget}
+                                                        onUpdateAdded={handleUpdateAdded}
+                                                        onSetupTracking={setTrackModalData}
+                                                        onNavigate={() => setIsNavigating(true)}
+                                                        onNavigate={() => setIsNavigating(true)}
+                                                        mobileViewMode={mobileViewMode}
+                                                        onRemovePosition={(s) => setRemovePositionConfirmation({ isOpen: true, symbol: s })}
                                                     />
                                                 ))}
                                             </SortableContext>
@@ -1280,6 +1569,17 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
             </div>
         )}
 
+        <TrackStockModal 
+            isOpen={!!trackModalData}
+            onClose={() => setTrackModalData(null)}
+            symbol={trackModalData?.symbol || ''}
+            currentPrice={trackModalData?.regularMarketPrice || 0}
+            initialEntryPrice={trackModalData?.addedPrice ?? undefined}
+            initialTargetPrice={trackModalData?.targetPrice ?? undefined}
+            currency={trackModalData?.currency || 'USD'}
+            onSave={handleSaveTracking}
+        />
+
         {/* Delete Confirmation Modal */}
         {deleteConfirmation.isOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
@@ -1302,10 +1602,41 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                                 Cancel
                             </button>
                             <button 
-                                onClick={confirmDeleteList}
-                                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20"
                             >
                                 Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* Remove Position Confirmation Modal */}
+        {removePositionConfirmation.isOpen && (
+             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-sm p-6 border border-gray-100 dark:border-gray-800 scale-100 animate-in zoom-in-95 duration-200">
+                    <div className="flex flex-col items-center text-center gap-4">
+                        <div className="p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <div className="space-y-2">
+                             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Stop Tracking?</h3>
+                             <p className="text-sm text-gray-500 dark:text-gray-400">
+                                This will remove the entry price and target data for <span className="font-semibold text-gray-900 dark:text-gray-200">{removePositionConfirmation.symbol}</span>.
+                             </p>
+                        </div>
+                        <div className="flex gap-3 w-full mt-2">
+                            <button 
+                                onClick={() => setRemovePositionConfirmation({ isOpen: false, symbol: null })}
+                                className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={confirmRemovePosition}
+                                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-600/20"
+                            >
+                                Remove
                             </button>
                         </div>
                     </div>
@@ -1329,6 +1660,16 @@ export default function Watchlist({ filterRegion = 'ALL', hideSectionTitles = fa
                 >
                     <X size={16} />
                 </button>
+            </div>
+        )}
+
+        {/* Navigation Loading Overlay */}
+        {isNavigating && (
+            <div className="fixed inset-0 z-[100] bg-white/50 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center animate-in fade-in duration-200">
+                <div className="flex flex-col items-center gap-3 p-6 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800">
+                    <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Loading details...</p>
+                </div>
             </div>
         )}
     </div>

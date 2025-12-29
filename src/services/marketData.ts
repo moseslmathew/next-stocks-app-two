@@ -41,8 +41,8 @@ export async function getMarketData(symbols: string[], range: '1d' | '1w' | '1m'
               let rangeStr = range;
 
               if (range === '1d') {
-                  const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); 
-                  queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '5m', includePrePost: false };
+                  const startDate = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000); 
+                  queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '1m', includePrePost: false };
               } else if (range === '7d' || range === '1w') {
                   const startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
                   queryOptions = { period1: startDate.toISOString().split('T')[0], interval: '15m' };

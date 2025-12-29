@@ -334,6 +334,13 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                                 <h2 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide flex items-center gap-2">
                                      <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
                                     Financial Analysis
+                                    <button 
+                                        onClick={() => setIsAIModalOpen(true)}
+                                        className="ml-2 flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 text-[9px] font-bold hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors border border-purple-100 dark:border-purple-800/50 uppercase tracking-wider"
+                                    >
+                                        <Sparkles size={10} />
+                                        AI Insight
+                                    </button>
                                 </h2>
                                 {unitLabel && (
                                     <span className="text-[10px] text-gray-400 font-medium ml-3 mt-0.5">
