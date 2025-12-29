@@ -360,7 +360,7 @@ export default function StockFundamentals({ stock }: { stock: StockData }) {
                          </div>
 
                         {/* Financial Metric Tabs */}
-                        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide mask-fade-right">
+                        <div className="flex items-center gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] mask-fade-right">
                             {CHART_TABS.map(tab => (
                                 <button
                                     key={tab.id}
